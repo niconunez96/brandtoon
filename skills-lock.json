@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "justfile-expert": {
+      "source": "laurigates/claude-plugins",
+      "sourceType": "github",
+      "computedHash": "67435fd23955254d3b2bec8466516299ddf0976f3a261a134ff7c2f8dc06f700"
+    }
+  }
+}
