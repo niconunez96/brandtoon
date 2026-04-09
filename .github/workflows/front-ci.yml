@@ -1,11 +1,6 @@
 name: Front CI
 
 on:
-  pull_request:
-    paths:
-      - "front/**"
-      - "Justfile"
-      - ".github/workflows/front-ci.yml"
   push:
     paths:
       - "front/**"

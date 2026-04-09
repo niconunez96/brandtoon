@@ -1,12 +1,7 @@
 name: Back CI
 
 on:
-  pull_request:
-    paths:
-      - "back/**"
-      - "Justfile"
-      - ".github/workflows/back-ci.yml"
-  push:
+ push:
     paths:
       - "back/**"
       - "Justfile"
