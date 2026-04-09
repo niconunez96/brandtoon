@@ -1,6 +1,33 @@
 {
   "version": 1,
   "skills": {
+    "go-ddd-aggregate": {
+      "source": "workspace",
+      "sourceType": "local",
+      "computedHash": "3b0fdd078ad1dd277ef4e9116549776fad71d069fcf96d6c401379e94a6de561"
+    },
+    "go-huma-api-contracts": {
+      "source": "workspace",
+      "sourceType": "local"
+    },
+    "go-infra-http-repo-adapters": {
+      "source": "workspace",
+      "sourceType": "local",
+      "computedHash": "42792999d269eaeddb95b636600cc5d90e6cd5960c7d4f8ffeba4f60f25645d7"
+    },
+    "go-shared-di-container": {
+      "source": "workspace",
+      "sourceType": "local"
+    },
+    "go-testing-tdd-backend": {
+      "source": "workspace",
+      "sourceType": "local"
+    },
+    "go-usecase-cqrs-functions": {
+      "source": "workspace",
+      "sourceType": "local",
+      "computedHash": "79623c6b1459e236e4c21038bb2aebb155057868661101d60c8a0fc83073e813"
+    },
     "justfile-expert": {
       "source": "laurigates/claude-plugins",
       "sourceType": "github",
