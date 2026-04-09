@@ -1,0 +1,31 @@
+version: "2"
+
+run:
+  timeout: "5m"
+  issues-exit-code: 1
+  tests: true
+  go: "1.26"
+
+linters:
+  enable:
+    - gofmt
+    - exhaustive
+    - lll
+  settings:
+    lll:
+      line-length: 120
+    exhaustive:
+      explicit-exhaustive-switch: false
+      explicit-exhaustive-map: false
+      default-case-required: false
+      default-signifies-exhaustive: false
+      package-scope-only: false
+      check:
+        - map
+        - switch
+  exclusions:
+    rules:
+      - path: '.*_test\.go'
+        linters:
+          - lll
+          - exhaustive

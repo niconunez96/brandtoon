@@ -9,7 +9,23 @@ front-install:
 
 # Run backend API
 back-dev:
-    cd back && go run ./main.go
+    cd back && air -c .air.toml
+
+# Format backend Go code
+back-format:
+    cd back && go fmt ./...
+
+# Lint backend Go code
+back-lint:
+    cd back && golangci-lint run ./...
+
+# Run backend tests
+back-test:
+    cd back && go test ./...
+
+# Run backend quality checks
+back-check:
+    just back-format && just back-lint && just back-test
 
 # Run frontend app
 front-dev:
@@ -17,4 +33,4 @@ front-dev:
 
 # Run frontend + backend together
 dev:
-    trap 'kill 0' EXIT; (cd back && go run ./main.go) & (pnpm --dir front dev) & wait
+    trap 'kill 0' EXIT; (cd back && air -c .air.toml) & (pnpm --dir front dev) & wait
