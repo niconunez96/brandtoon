@@ -7,5 +7,5 @@ type GreetingState = {
 
 export const useGreetingStore = create<GreetingState>((set) => ({
   name: 'world',
-  setName: (name) => set({ name })
+  setName: (name) => set({ name }),
 }))

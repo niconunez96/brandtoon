@@ -31,6 +31,26 @@ back-check:
 front-dev:
     pnpm --dir front dev
 
+# Lint frontend code
+front-lint:
+    pnpm --dir front lint
+
+# Format frontend code
+front-format:
+    pnpm --dir front format
+
+# Run frontend tests
+front-test:
+    pnpm --dir front test
+
+# Run frontend tests in watch mode
+front-test-watch:
+    pnpm --dir front test:watch
+
+# Run frontend quality checks
+front-check:
+    pnpm --dir front format:check && pnpm --dir front lint && pnpm --dir front test
+
 # Run frontend + backend together
 dev:
     trap 'kill 0' EXIT; (cd back && air -c .air.toml) & (pnpm --dir front dev) & wait

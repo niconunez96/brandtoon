@@ -1,5 +1,5 @@
-import { useGreetingStore } from './store/greeting.store'
 import { useGreetingQuery } from './queries/useGreetingQuery'
+import { useGreetingStore } from './store/greeting.store'
 
 export function App() {
   const name = useGreetingStore((s) => s.name)
@@ -18,7 +18,7 @@ export function App() {
           onChange={(event) => setName(event.target.value)}
           placeholder="world"
         />
-        <button onClick={() => refetch()} disabled={isFetching}>
+        <button type="button" onClick={() => refetch()} disabled={isFetching}>
           {isFetching ? 'Loading...' : 'Refresh greeting'}
         </button>
       </div>

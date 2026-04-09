@@ -5,5 +5,5 @@ export const useGreetingQuery = (name: string) =>
   useQuery({
     queryKey: ['greeting', name],
     queryFn: () => fetchGreeting(name),
-    enabled: Boolean(name)
+    enabled: Boolean(name),
   })
