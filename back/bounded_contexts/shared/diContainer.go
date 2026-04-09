@@ -2,8 +2,7 @@ package shared
 
 var container *DIContainer
 
-type DIContainer struct {
-}
+type DIContainer struct{}
 
 func NewDIContainer() *DIContainer {
 	if container == nil {
@@ -11,4 +10,3 @@ func NewDIContainer() *DIContainer {
 	}
 	return container
 }
-

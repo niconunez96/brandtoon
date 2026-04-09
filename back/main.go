@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -37,7 +38,9 @@ func main() {
 	// TODO: Register operations...
 
 	// Start the server!
-	http.ListenAndServe("127.0.0.1:8888", router)
+	if err := http.ListenAndServe("127.0.0.1:8888", router); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func corsMiddleware(next http.Handler) http.Handler {

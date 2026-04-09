@@ -1,0 +1,39 @@
+name: Front CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "front/**"
+      - "Justfile"
+      - ".github/workflows/front-ci.yml"
+
+jobs:
+  front-check:
+    name: Frontend validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: front/pnpm-lock.yaml
+
+      - name: Install just
+        uses: taiki-e/install-action@just
+
+      - name: Install frontend dependencies
+        run: pnpm install --dir front --frozen-lockfile
+
+      - name: Run frontend CI checks
+        run: just front-check

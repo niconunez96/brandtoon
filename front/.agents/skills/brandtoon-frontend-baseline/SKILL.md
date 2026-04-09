@@ -76,6 +76,15 @@ For each new feature:
 5. Build UI with small components and Tailwind utilities.
 6. Handle loading/error/empty/success states explicitly.
 
+## Validation Commands
+
+- Canonical frontend validation entrypoint: `just front-check`
+- Underlying non-mutating commands:
+  - `pnpm --dir front format:check`
+  - `pnpm --dir front lint`
+  - `pnpm --dir front test`
+- CI and review workflows must stay non-mutating: never replace validation with `just front-format` or `pnpm --dir front lint:fix`.
+
 ## Async Job UX Pattern (for render/generation flows)
 
 For backend-driven long jobs:
