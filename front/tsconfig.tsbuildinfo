@@ -1,0 +1,1 @@
+{"root":["./src/App.test.tsx","./src/App.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/queries/useGreetingQuery.ts","./src/services/greeting.api.ts","./src/store/greeting.store.ts","./src/test/setup.ts","./src/test/mocks/handlers.ts","./src/test/mocks/server.ts"],"version":"5.9.3"}

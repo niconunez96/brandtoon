@@ -69,6 +69,15 @@ When working in `front/`, load these skills:
 
 Use `frontend-design` only when explicitly asked for visual redesign/creative UI direction.
 
+## Validation Commands
+
+- Canonical frontend validation entrypoint: `just front-check`
+- Underlying non-mutating checks:
+  - `pnpm --dir front format:check`
+  - `pnpm --dir front lint`
+  - `pnpm --dir front test`
+- CI must stay non-mutating: do NOT use `just front-format` or `pnpm --dir front lint:fix` in validation workflows.
+
 ## Decision Log Discipline
 
 When a new frontend decision is made (library, pattern, folder convention), update:

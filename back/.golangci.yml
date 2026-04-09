@@ -8,7 +8,6 @@ run:
 
 linters:
   enable:
-    - gofmt
     - exhaustive
     - lll
   settings:

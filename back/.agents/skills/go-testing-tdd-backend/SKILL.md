@@ -70,4 +70,13 @@ A backend change is complete only if:
 - No relevant failing tests remain.
 - Missing reusable mocks were created in the correct `domain/mocks` location.
 
+## Validation Commands
+
+- Canonical backend validation entrypoint: `just back-check`
+- Root Justfile commands used for local/CI parity:
+  - `just back-format-check`
+  - `just back-lint`
+  - `just back-test`
+- Validation workflows must stay non-mutating: do NOT use `just back-format` in CI.
+
 See `REFERENCE.md` for templates and practical patterns.

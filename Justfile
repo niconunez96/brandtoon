@@ -5,7 +5,7 @@ default:
 
 # Install frontend dependencies
 front-install:
-    pnpm install --dir front
+    corepack pnpm install --dir front
 
 # Run backend API
 back-dev:
@@ -14,6 +14,10 @@ back-dev:
 # Format backend Go code
 back-format:
     cd back && go fmt ./...
+
+# Check backend Go formatting without modifying files
+back-format-check:
+    @unformatted=$(cd back && gofmt -l .); if [ -n "$unformatted" ]; then printf 'Unformatted Go files:\n%s\n' "$unformatted"; exit 1; fi
 
 # Lint backend Go code
 back-lint:
@@ -25,32 +29,32 @@ back-test:
 
 # Run backend quality checks
 back-check:
-    just back-format && just back-lint && just back-test
+    just back-format-check && just back-lint && just back-test
 
 # Run frontend app
 front-dev:
-    pnpm --dir front dev
+    corepack pnpm --dir front dev
 
-# Lint frontend code
+# Lint frontend code (non-mutating)
 front-lint:
-    pnpm --dir front lint
+    corepack pnpm --dir front lint
 
-# Format frontend code
+# Format frontend code (mutating)
 front-format:
-    pnpm --dir front format
+    corepack pnpm --dir front format
 
 # Run frontend tests
 front-test:
-    pnpm --dir front test
+    corepack pnpm --dir front test
 
 # Run frontend tests in watch mode
 front-test-watch:
-    pnpm --dir front test:watch
+    corepack pnpm --dir front test:watch
 
-# Run frontend quality checks
+# Run frontend quality checks (canonical non-mutating FE validation entrypoint)
 front-check:
-    pnpm --dir front format:check && pnpm --dir front lint && pnpm --dir front test
+    corepack pnpm --dir front format:check && corepack pnpm --dir front lint && corepack pnpm --dir front test
 
 # Run frontend + backend together
 dev:
-    trap 'kill 0' EXIT; (cd back && air -c .air.toml) & (pnpm --dir front dev) & wait
+    trap 'kill 0' EXIT; (cd back && air -c .air.toml) & (corepack pnpm --dir front dev) & wait

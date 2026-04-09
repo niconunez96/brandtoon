@@ -108,3 +108,12 @@ If work spans multiple areas, load multiple skills.
 - Validate names and file placement follow conventions.
 - Ensure commands/queries are separated clearly.
 - Ensure domain contracts stay vendor-neutral.
+
+## Validation Commands
+
+- Canonical backend validation entrypoint: `just back-check`
+- Non-mutating backend validation steps:
+  - `just back-format-check`
+  - `just back-lint`
+  - `just back-test`
+- CI must stay non-mutating: do NOT use `just back-format` in validation workflows.
