@@ -1,4 +1,5 @@
 import { ArrowRight, CheckCircle2, Film, Play, Sparkles } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { ActionChip } from '../../shared/components/ui/action-chip'
 import { Badge } from '../../shared/components/ui/badge'
 import { Button } from '../../shared/components/ui/button'
@@ -135,6 +136,9 @@ const PRICING_FEATURES = [
 ] as const
 
 export function LandingPage() {
+  const navigate = useNavigate()
+  const goToLogin = () => navigate('/login?next=%2Fcreative-studio')
+
   return (
     <div className="foundation-page landing-shell">
       <header className="sticky top-0 z-30 px-4 pt-4 sm:px-6 lg:px-8">
@@ -155,7 +159,10 @@ export function LandingPage() {
                   </a>
                 ))}
               </nav>
-              <Button className="min-h-10 px-5 py-2 text-[11px] uppercase tracking-section">
+              <Button
+                className="min-h-10 px-5 py-2 text-[11px] uppercase tracking-section"
+                onClick={goToLogin}
+              >
                 Start creating
               </Button>
             </>
@@ -185,7 +192,9 @@ export function LandingPage() {
             </div>
 
             <div className="flex flex-wrap gap-4">
-              <Button size="lg">Create your avatar</Button>
+              <Button onClick={goToLogin} size="lg">
+                Create your avatar
+              </Button>
               <Button
                 icon={<Play aria-hidden="true" className="size-4" />}
                 size="lg"
@@ -432,6 +441,7 @@ export function LandingPage() {
 
             <Button
               className="w-full justify-center bg-coral text-white"
+              onClick={goToLogin}
               size="lg"
             >
               Purchase credits
@@ -455,6 +465,7 @@ export function LandingPage() {
               <div className="flex justify-center">
                 <Button
                   icon={<ArrowRight aria-hidden="true" className="size-4" />}
+                  onClick={goToLogin}
                   size="lg"
                 >
                   Launch generator

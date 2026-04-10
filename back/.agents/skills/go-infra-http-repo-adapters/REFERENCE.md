@@ -73,6 +73,18 @@ Handlers adapt transport DTOs and call use cases. They do not implement business
 var _ domain.UserRepository = (*UserPostgresRepo)(nil)
 ```
 
+## Provider-Specific Naming Boundary
+
+Infra is the correct place for concrete provider names.
+
+| Layer | Naming rule | Example |
+| --- | --- | --- |
+| `infra/` | Provider/vendor naming allowed | `GoogleOAuthClient`, `/auth/google/login` |
+| `useCases/` | Business/domain naming only | `AuthenticateCallback`, `GetAuthURLQuery` |
+| `domain/` | Business/domain naming only | `IdentityProvider`, `ExternalIdentity` |
+
+Use infra to adapt concrete technologies; keep core language provider-agnostic.
+
 ## Review Questions
 
 - Are all third-party imports isolated to infra?

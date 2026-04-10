@@ -13,11 +13,31 @@ back-dev:
 
 # Format backend Go code
 back-format:
-    cd back && go fmt ./...
+    #!/usr/bin/env sh
+    GO_FILES=$(find ./back -type f -name '*.go' ! -path './vendor/*'); 
+    if [ -n "$GO_FILES" ]; then 
+        go run golang.org/x/tools/cmd/goimports@latest -w $GO_FILES; 
+        golines -m 120 -w $GO_FILES;
+    fi
 
 # Check backend Go formatting without modifying files
 back-format-check:
-    @unformatted=$(cd back && gofmt -l .); if [ -n "$unformatted" ]; then printf 'Unformatted Go files:\n%s\n' "$unformatted"; exit 1; fi
+    #!/usr/bin/env sh
+    GO_FILES=$(find ./back -type f -name '*.go' ! -path './vendor/*'); 
+    if [ -n "$GO_FILES" ]; then 
+        GOIMPORTS_OUT=$(go run golang.org/x/tools/cmd/goimports@latest -l $GO_FILES); 
+        if [ -n "$GOIMPORTS_OUT" ]; then
+            printf "%s\n" "$GOIMPORTS_OUT";
+            printf "goimports found unformatted files.\n";
+            exit 1;
+        fi;
+        GOLINES_OUT=$(golines -m 120 -l $GO_FILES);
+        if [ -n "$GOLINES_OUT" ]; then
+            printf "%s\n" "$GOLINES_OUT";
+            printf "golines found unformatted files.\n";
+            exit 1;
+        fi;
+    fi
 
 # Lint backend Go code
 back-lint:
@@ -25,7 +45,7 @@ back-lint:
 
 # Run backend tests
 back-test:
-    cd back && go test ./...
+    cd back && go test ./... | grep -v \?
 
 # Run backend quality checks
 back-check:
@@ -58,3 +78,23 @@ front-check:
 # Run frontend + backend together
 dev:
     trap 'kill 0' EXIT; (cd back && air -c .air.toml) & (corepack pnpm --dir front dev) & wait
+
+# Start infra services from compose.yaml
+infra-up:
+    docker compose -f compose.yaml up -d
+
+# Stop infra services from compose.yaml
+infra-down:
+    docker compose -f compose.yaml down
+
+# Run all pending DB migrations with goose
+db-migrate-up:
+    cd back && source .env && go run github.com/pressly/goose/v3/cmd/goose -dir bounded_contexts/shared/infra/postgres/migrations postgres "$DATABASE_URL" up
+
+# Roll back last DB migration with goose
+db-migrate-down:
+    cd back && source .env && go run github.com/pressly/goose/v3/cmd/goose -dir bounded_contexts/shared/infra/postgres/migrations postgres "$DATABASE_URL" down
+
+# Create a new SQL migration file (usage: just db-migrate-create <name>)
+db-migrate-create name:
+    cd back && go run github.com/pressly/goose/v3/cmd/goose -dir bounded_contexts/shared/infra/postgres/migrations create {{name}} sql

@@ -24,6 +24,8 @@ Use this skill when changing domain models in `back/bounded_contexts/**/domain`.
 - Value objects are defined via explicit custom types and enum-like constants.
 - Domain interfaces (ports) are declared in domain layer and are third-party free.
 - Domain must compile without infra/framework imports.
+- Domain names must be provider-agnostic and business-language first.
+- Domain identifiers MUST NOT include provider/vendor terms (for example: `Google`, `GitHub`, `Auth0`).
 
 ## Forbidden Patterns
 
@@ -32,6 +34,8 @@ Use this skill when changing domain models in `back/bounded_contexts/**/domain`.
 - External code mutating child entities directly.
 - Implicit string literals instead of typed value objects.
 - Interfaces defined in infra for domain dependencies.
+- Provider-branded domain contracts or entities (`GoogleIdentityProvider`, `GithubUser`, etc.).
+- Provider-specific domain fields that leak third-party semantics (`googleSubject`, `githubLogin`).
 
 ## Required Checklist
 
@@ -40,6 +44,7 @@ Use this skill when changing domain models in `back/bounded_contexts/**/domain`.
 - Replace primitive obsession with typed value objects where needed.
 - Define/adjust domain interfaces for external side effects.
 - Verify no third-party dependency leaks into domain signatures.
+- Verify domain names survive provider swap without renaming (`Google -> GitHub` test).
 
 ## Output Standard
 

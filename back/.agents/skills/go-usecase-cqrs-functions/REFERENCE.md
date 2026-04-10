@@ -90,6 +90,20 @@ func GetUserProfile(
 
 Query must avoid writes/side effects.
 
+## Provider-Agnostic Naming (Use Cases)
+
+Use case names should describe business intent and remain stable across provider swaps.
+
+| Avoid (provider-coupled) | Prefer (business/domain) |
+| --- | --- |
+| `AuthenticateGoogleCallback` | `AuthenticateCallback` |
+| `GetGoogleAuthURLQuery` | `GetAuthURLQuery` |
+| `GoogleAuthURLResult` | `AuthURLResult` |
+
+Quick heuristic:
+- If you can replace provider implementation in `infra/` without touching `useCases/`, naming is correct.
+- If names need to change when provider changes, naming is too coupled.
+
 ## Review Questions
 
 - Does each file contain exactly one use case?
