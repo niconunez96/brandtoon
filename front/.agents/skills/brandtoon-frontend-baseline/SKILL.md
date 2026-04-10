@@ -103,6 +103,60 @@ Keep this logic in feature hooks/components; avoid app-wide complexity.
 2. Extract component only when repeated or too large.
 3. Keep design tokens centralized when introduced (colors/spacing).
 4. Avoid custom CSS unless utilities cannot express the intent.
+5. Fonts must come from local project dependencies, never remote stylesheet imports.
+
+## Brandtoon Design System Workflow
+
+When implementing UI in this repository, follow this order BEFORE inventing screen-level styling:
+
+1. Start from the canonical tokens in `src/styles.css`.
+2. Reuse or extend primitives in `src/shared/components/ui`.
+3. Keep the Brandtoon visual language consistent:
+   - Plus Jakarta Sans
+   - coral-first action hierarchy
+   - secondary deep teal for positive/system contrast when needed
+   - tertiary container green for success surfaces
+   - soft neutral surfaces
+   - rounded 2xl/3xl components
+   - oversized hero radii
+   - shared depth tokens for cards and primary actions
+4. Prefer composition over per-feature styling forks.
+5. If a new primitive or token is needed, update both the implementation and the frontend guidance docs in the same change.
+6. Promote repeated custom radii beyond Tailwind defaults into named theme tokens before reuse.
+7. Keep responsive shell rules aligned with `front/docs/design-foundations.md`: mobile-first, desktop sidebar at `lg`, and denser data layouts only when readability is preserved.
+
+## Current Primitive Baseline
+
+The shared UI baseline currently includes:
+
+- `Button` with primary / secondary / ghost / loading states
+- `Input` and `Textarea`
+- `Badge`
+- `ActionChip`
+- `Card` and `SectionShell`
+- `Slider`
+- `Toggle`
+- `Toast`
+- `Topbar`
+- `SidebarNav`
+- `DataTable` / `AssetRow`
+- `MetricProgressCard`
+- `EmptyState`
+
+Do not re-create these patterns inside feature folders unless there is a proven product-specific need.
+
+## Layout Consistency Rules
+
+- Desktop authenticated/product surfaces should default to a **fixed left sidebar + top bar + content canvas** shell.
+- Mobile product surfaces should default to a **top app bar + bottom nav + floating action button** shell.
+- Showcase and documentation screens should organize content under the same sections used by the foundation:
+  - Hero title
+  - Interactions & Buttons
+  - Form Architecture
+  - Surfaces & Containers
+  - Feedback & System Status
+
+These rules exist to prevent design drift over time. The goal is a SYSTEM, not isolated pretty screens.
 
 ## Guardrails
 

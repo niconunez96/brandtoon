@@ -1,48 +1,195 @@
-* {
-  box-sizing: border-box;
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --color-page: #fbfcfc;
+  --color-surface: #f1f2f6;
+  --color-surface-high: #e5e9eb;
+  --color-surface-highest: #dfe6e9;
+  --color-surface-strong: #ffffff;
+  --color-ink: #2d3436;
+  --color-ink-soft: rgba(45, 52, 54, 0.62);
+  --color-coral: #ff6b6b;
+  --color-coral-strong: #ff7575;
+  --color-coral-soft: #ffe4df;
+  --color-coral-outline: #f5c7c1;
+  --color-coral-ink: #8f4a46;
+  --color-secondary: #006a63;
+  --color-error: #d63031;
+  --color-error-container: #ffdad6;
+  --color-tertiary-container: #00b179;
+  --color-success-container: #def7ee;
+  --color-warning: #a66300;
+  --color-warning-container: #fff1db;
+  --color-info: #3657d6;
+  --color-info-container: #e8eeff;
+  --color-green-accent: #00b179;
+  --color-success-deep: #16352f;
+  --color-toast-surface: #222b31;
+  --color-toast-close: rgba(255, 255, 255, 0.14);
+  --color-slider-track: #eceff3;
+  --color-purple-sample: #6b4ee0;
+  --color-pink-sample: #fce7e7;
+  --color-stroke-soft: rgba(45, 52, 54, 0.08);
+  --color-stroke-strong: rgba(45, 52, 54, 0.16);
+  --color-stroke-inverse: rgba(255, 255, 255, 0.72);
+
+  --radius-card: 2rem;
+  --radius-panel: 2.25rem;
+  --radius-hero: 2.5rem;
+  --radius-well: 1.75rem;
+  --radius-swatch: 1.5rem;
+
+  --spacing-gutter: 1.5rem;
+  --spacing-section: 2rem;
+  --spacing-card: 1.5rem;
+  --spacing-stack: 1rem;
+  --spacing-cluster: 0.75rem;
+
+  --text-hero: 3.75rem;
+  --text-display: 2rem;
+  --text-title: 1.25rem;
+  --text-body: 1rem;
+  --text-caption: 0.75rem;
+
+  --tracking-section: 0.24em;
+
+  --container-reading: 48rem;
+  --container-content: 80rem;
+  --container-shell: 90rem;
+
+  --breakpoint-tablet: 48rem;
+  --breakpoint-desktop: 64rem;
+  --breakpoint-wide: 80rem;
+
+  --shadow-overshoot: 0 8px 24px -4px rgba(45, 52, 54, 0.12), 0 4px 0 0
+    rgba(45, 52, 54, 0.05);
+  --shadow-sticker: 0 8px 0 -2px rgba(170, 44, 50, 0.2), 0 12px 24px -4px
+    rgba(170, 44, 50, 0.3);
 }
 
-body {
-  margin: 0;
-  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
-    Arial, sans-serif;
-  background: #0f172a;
-  color: #e2e8f0;
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    background: var(--color-page);
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background: var(--color-page);
+    color: var(--color-ink);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button,
+  input,
+  textarea {
+    font: inherit;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+  }
 }
 
-.layout {
-  max-width: 680px;
-  margin: 4rem auto;
-  padding: 0 1rem;
-}
+@layer utilities {
+  .foundation-page {
+    @apply min-h-screen bg-page text-ink;
+  }
 
-.controls {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  margin: 1.5rem 0;
-}
+  .foundation-section-eyebrow {
+    @apply text-[10px] font-extrabold uppercase tracking-section text-ink/45;
+  }
 
-input {
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.5rem;
-  border: 1px solid #334155;
-  background: #1e293b;
-  color: #f8fafc;
-}
+  .foundation-section-title {
+    @apply text-2xl font-black tracking-tight text-ink sm:text-[2rem];
+  }
 
-button {
-  padding: 0.5rem 0.9rem;
-  border-radius: 0.5rem;
-  border: none;
-  cursor: pointer;
-}
+  .foundation-body {
+    @apply text-sm leading-6 font-medium text-ink/62 sm:text-[15px];
+  }
 
-.message {
-  font-size: 1.25rem;
-  color: #86efac;
-}
+  .foundation-outline-soft {
+    @apply ring-1 ring-[color:var(--color-stroke-soft)];
+  }
 
-.error {
-  color: #fca5a5;
+  .foundation-outline-strong {
+    @apply ring-1 ring-[color:var(--color-stroke-strong)];
+  }
+
+  .foundation-icon {
+    @apply inline-flex size-9 items-center justify-center rounded-2xl bg-white text-ink shadow-overshoot ring-1 ring-[color:var(--color-stroke-soft)];
+  }
+
+  .foundation-empty-state {
+    @apply flex flex-col items-start gap-3 rounded-panel bg-surface-high p-6 text-left shadow-overshoot ring-1 ring-[color:var(--color-stroke-soft)];
+  }
+
+  .foundation-progress-track {
+    @apply h-3 rounded-full bg-surface-highest;
+  }
+
+  .foundation-progress-bar {
+    @apply h-full rounded-full bg-coral;
+  }
+
+  .brandtoon-slider {
+    --slider-fill: 0%;
+    appearance: none;
+    width: 100%;
+    height: 12px;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      var(--color-coral) 0%,
+      #ff8f8f var(--slider-fill),
+      var(--color-slider-track) var(--slider-fill),
+      var(--color-slider-track) 100%
+    );
+  }
+
+  .brandtoon-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 26px;
+    height: 26px;
+    border: 6px solid var(--color-coral);
+    border-radius: 999px;
+    background: white;
+    box-shadow: 0 10px 18px -10px rgba(45, 52, 54, 0.45);
+    cursor: pointer;
+  }
+
+  .brandtoon-slider::-moz-range-thumb {
+    width: 26px;
+    height: 26px;
+    border: 6px solid var(--color-coral);
+    border-radius: 999px;
+    background: white;
+    box-shadow: 0 10px 18px -10px rgba(45, 52, 54, 0.45);
+    cursor: pointer;
+  }
+
+  .brandtoon-slider::-moz-range-track {
+    height: 12px;
+    border-radius: 999px;
+    background: transparent;
+  }
 }
