@@ -4,7 +4,6 @@ import { Badge } from '../../shared/components/ui/badge'
 import { Button } from '../../shared/components/ui/button'
 import { Card, SectionShell } from '../../shared/components/ui/card'
 import { Input } from '../../shared/components/ui/field'
-import { MetricProgressCard } from '../../shared/components/ui/metric-progress-card'
 import { Slider } from '../../shared/components/ui/slider'
 import { Topbar } from '../../shared/components/ui/topbar'
 
@@ -157,7 +156,7 @@ export function LandingPage() {
                 ))}
               </nav>
               <Button className="min-h-10 px-5 py-2 text-[11px] uppercase tracking-section">
-                Create
+                Start creating
               </Button>
             </>
           }
@@ -269,15 +268,12 @@ export function LandingPage() {
               </div>
             </Card>
 
-            <Card className="absolute -right-3 top-8 hidden w-36 rotate-[10deg] bg-white p-3 md:block">
-              <div className="rounded-[1.35rem] bg-[linear-gradient(135deg,_#fce7e7_0%,_#6b4ee0_100%)] p-4 text-center text-xs font-black uppercase tracking-section text-ink">
-                Sticker drop
-              </div>
-            </Card>
-
-            <Card className="absolute -bottom-6 left-4 hidden w-32 rounded-full bg-white p-3 md:block">
-              <div className="aspect-square rounded-full bg-[radial-gradient(circle,_#ff8a5b_0%,_#251019_72%)]" />
-            </Card>
+            <img
+              alt="Brandtoon decorative sticker swoosh"
+              className="pointer-events-none absolute -bottom-14 left-0 hidden w-48 rotate-[-7deg] select-none md:block"
+              loading="lazy"
+              src="/images/landing/stickers/sticker-swoosh.png"
+            />
           </div>
         </section>
 
@@ -399,40 +395,16 @@ export function LandingPage() {
           </div>
         </SectionShell>
 
-        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
-          <Card className="space-y-6 bg-white">
-            <div className="space-y-3">
-              <p className="foundation-section-eyebrow">Launch confidence</p>
-              <p className="text-3xl font-black tracking-tight text-ink">
-                Creative output that still feels operationally safe.
-              </p>
-              <p className="foundation-body max-w-2xl">
-                BRANDTOON keeps the landing experience on-message without
-                editing the shared catalog definitions underneath.
-              </p>
-            </div>
-
-            <MetricProgressCard
-              helper="Page-local composition keeps the catalog intact while the homepage shifts to a BRANDTOON-specific narrative."
-              label="Design system reuse"
-              progress={92}
-              trend="No primitive edits"
-              value="92%"
-            />
-          </Card>
-
-          <Card
-            className="landing-pricing-card space-y-6 text-white"
-            id="pricing"
-          >
+        <section className="scroll-mt-28" id="pricing">
+          <Card className="landing-pricing-card space-y-6 text-white">
             <div className="space-y-4 text-center">
               <p className="landing-pricing-kicker">On-demand pricing</p>
               <h2 className="text-4xl font-black tracking-tight">
-                No strings attached.
+                Pay per pack, ship faster.
               </h2>
               <p className="landing-pricing-copy mx-auto max-w-sm">
-                Pay for the BRANDTOON assets you need, when you need them, with
-                a pack built for campaign-ready mascot and avatar work.
+                Get a ready-to-use mascot asset pack for campaigns, social, and
+                product marketing, without a subscription.
               </p>
             </div>
 
@@ -471,14 +443,14 @@ export function LandingPage() {
           <Card className="landing-cta-card overflow-hidden bg-ink px-6 py-12 text-center text-white sm:px-10 sm:py-16">
             <div className="relative z-10 mx-auto max-w-2xl space-y-6">
               <Badge className="bg-white/10 px-4 py-2 text-white">
-                Final CTA
+                Start today
               </Badge>
               <h2 className="text-4xl font-black tracking-tight sm:text-5xl">
-                Ready to toon your brand?
+                Bring your brand characters to life.
               </h2>
               <p className="mx-auto max-w-xl text-base font-medium leading-7 text-white/78">
-                Join teams using BRANDTOON to replace static brand art with
-                animated mascots, motion stickers, and polished export packs.
+                Create animated mascots and sticker-ready exports your team can
+                publish right away.
               </p>
               <div className="flex justify-center">
                 <Button
