@@ -40,7 +40,7 @@ describe('App', () => {
     renderApp()
 
     expect(
-      screen.getByRole('heading', { name: /no strings attached\./i }),
+      screen.getByRole('heading', { name: /pay per pack, ship faster\./i }),
     ).toBeInTheDocument()
     expect(
       screen.getByText(/includes 50\+ custom variations/i),
@@ -49,7 +49,9 @@ describe('App', () => {
       screen.getByRole('button', { name: /purchase credits/i }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { name: /ready to toon your brand\?/i }),
+      screen.getByRole('heading', {
+        name: /bring your brand characters to life\./i,
+      }),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: /launch generator/i }),
