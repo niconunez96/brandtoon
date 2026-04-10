@@ -19,35 +19,52 @@ const renderApp = () => {
 }
 
 describe('App', () => {
-  it('renders the main showcase sections', () => {
+  it('renders the landing page sections and hero content', () => {
     renderApp()
 
     expect(
-      screen.getByText(/Foundational components and palette/i),
+      screen.getByRole('heading', { name: /your brand, animated\./i }),
     ).toBeInTheDocument()
-    expect(screen.getByText('Foundation Rules')).toBeInTheDocument()
-    expect(screen.getByText('Base Components')).toBeInTheDocument()
-    expect(screen.getByText('Data & Status Foundations')).toBeInTheDocument()
-  })
-
-  it('renders both desktop and mobile navigation landmarks', () => {
-    renderApp()
-
-    expect(screen.getByLabelText('Primary sidebar')).toBeInTheDocument()
     expect(
-      screen.getByLabelText('Mobile bottom navigation'),
+      screen.getByRole('link', { name: 'How it Works' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /create your avatar/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /watch showcase/i }),
     ).toBeInTheDocument()
   })
 
-  it('renders key primitive examples', () => {
+  it('renders pricing and final call to action content', () => {
     renderApp()
 
-    expect(screen.getAllByText('Primary action')[0]).toBeInTheDocument()
-    expect(screen.getByLabelText('Workspace name')).toBeInTheDocument()
-    expect(screen.getByText('System status synced')).toBeInTheDocument()
-    expect(screen.getByText('No assets yet')).toBeInTheDocument()
-    expect(screen.getByText('Completion')).toBeInTheDocument()
-    expect(screen.getByText('#vector')).toBeInTheDocument()
-    expect(screen.getByText('Project saved')).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /pay per pack, ship faster\./i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/includes 50\+ custom variations/i),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /purchase credits/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', {
+        name: /bring your brand characters to life\./i,
+      }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /launch generator/i }),
+    ).toBeInTheDocument()
+  })
+
+  it('removes the old component catalog content', () => {
+    renderApp()
+
+    expect(screen.queryByText('Base Components')).not.toBeInTheDocument()
+    expect(
+      screen.queryByText('Data & Status Foundations'),
+    ).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Primary sidebar')).not.toBeInTheDocument()
   })
 })

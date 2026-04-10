@@ -115,6 +115,19 @@
     @apply min-h-screen bg-page text-ink;
   }
 
+  .landing-shell {
+    background-image: radial-gradient(
+        circle at top right,
+        rgba(255, 107, 107, 0.12),
+        transparent 28%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.92),
+        rgba(241, 242, 246, 0.45)
+      );
+  }
+
   .foundation-section-eyebrow {
     @apply text-[10px] font-extrabold uppercase tracking-section text-ink/45;
   }
@@ -149,6 +162,72 @@
 
   .foundation-progress-bar {
     @apply h-full rounded-full bg-coral;
+  }
+
+  .landing-hero-card {
+    box-shadow: var(--shadow-overshoot);
+  }
+
+  .landing-hero-art {
+    background: radial-gradient(
+        circle at top,
+        rgba(255, 107, 107, 0.12),
+        transparent 34%
+      ), linear-gradient(135deg, #f7f8fb 0%, #eceef4 100%);
+  }
+
+  .landing-hero-character-card {
+    @apply relative flex flex-col justify-between overflow-hidden rounded-[1.75rem] border border-white/70 bg-white/64 p-3 shadow-overshoot backdrop-blur-sm sm:p-4;
+  }
+
+  .landing-hero-character-image {
+    @apply mx-auto w-full object-contain;
+  }
+
+  .landing-orb {
+    background: radial-gradient(
+      circle,
+      rgba(255, 107, 107, 0.94) 0%,
+      rgba(255, 107, 107, 0) 72%
+    );
+    filter: blur(8px);
+  }
+
+  .landing-cta-card {
+    background-image: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.06),
+        transparent 45%
+      ), linear-gradient(135deg, #1e2025 0%, #2f2625 48%, #1f232a 100%);
+  }
+
+  .landing-pricing-card {
+    background-image: linear-gradient(
+        160deg,
+        rgba(255, 255, 255, 0.06),
+        transparent 42%
+      ), linear-gradient(145deg, #22262c 0%, #2c2324 50%, #1e2127 100%);
+  }
+
+  .landing-pricing-kicker {
+    @apply text-[10px] font-extrabold uppercase tracking-section text-white/72;
+  }
+
+  .landing-pricing-copy {
+    @apply text-sm leading-6 font-semibold text-white/88;
+  }
+
+  .landing-pricing-feature {
+    @apply flex items-center gap-2 text-sm font-bold text-white/92;
+  }
+
+  .landing-pricing-meta {
+    @apply pb-1 text-[11px] font-black uppercase tracking-section text-ink/62;
+  }
+
+  .landing-pricing-highlight {
+    color: var(--color-coral-ink);
+    @apply mt-3 text-[11px] font-extrabold uppercase tracking-section;
   }
 
   .brandtoon-slider {

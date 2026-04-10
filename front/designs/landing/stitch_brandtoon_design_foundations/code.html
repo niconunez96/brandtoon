@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kinetic Ink AI | BrandToon</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-container": "#003b26",
+                      "surface": "#fbfcfc",
+                      "background": "#fbfcfc",
+                      "on-tertiary-fixed": "#002113",
+                      "on-background": "#2D3436",
+                      "secondary-fixed-dim": "#71d7cd",
+                      "outline": "#2D3436",
+                      "on-error": "#ffffff",
+                      "primary-container": "#FF6B6B",
+                      "on-surface-variant": "#2D3436",
+                      "tertiary-fixed-dim": "#52dea2",
+                      "surface-container-highest": "#dfe6e9",
+                      "surface-container-high": "#e5e9eb",
+                      "on-secondary-fixed": "#00201d",
+                      "surface-dim": "#dfe6e9",
+                      "secondary": "#006a63",
+                      "surface-variant": "#f4f4f4",
+                      "on-primary-container": "#2D3436",
+                      "tertiary-container": "#00b179",
+                      "surface-container": "#f1f2f6",
+                      "primary-fixed-dim": "#dfe6e9",
+                      "secondary-container": "#8bf1e6",
+                      "on-tertiary": "#ffffff",
+                      "inverse-primary": "#dfe6e9",
+                      "surface-bright": "#ffffff",
+                      "tertiary": "#006c48",
+                      "on-error-container": "#93000a",
+                      "on-surface": "#2D3436",
+                      "surface-container-low": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "on-primary-fixed": "#2D3436",
+                      "on-primary-fixed-variant": "#2D3436",
+                      "primary-fixed": "#f1f2f6",
+                      "on-secondary-fixed-variant": "#00504a",
+                      "secondary-fixed": "#8ef4e9",
+                      "surface-container-lowest": "#ffffff",
+                      "outline-variant": "#b2bec3",
+                      "primary": "#2D3436",
+                      "tertiary-fixed": "#72fbbc",
+                      "error-container": "#ffdad6",
+                      "error": "#d63031",
+                      "on-secondary": "#ffffff",
+                      "inverse-on-surface": "#fcefee",
+                      "surface-tint": "#2D3436",
+                      "on-tertiary-fixed-variant": "#005236",
+                      "on-secondary-container": "#006f67",
+                      "inverse-surface": "#2D3436"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "fontFamily": {
+                      "headline": ["Plus Jakarta Sans"],
+                      "body": ["Plus Jakarta Sans"],
+                      "label": ["Plus Jakarta Sans"]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .sticker-shadow {
+            box-shadow: 0 8px 24px -4px rgba(45, 52, 54, 0.12), 0 4px 0 0 rgba(45, 52, 54, 0.05);
+        }
+        .primary-cta-shadow {
+            box-shadow: 0 8px 0 -2px rgba(170, 44, 50, 0.2), 0 12px 24px -4px rgba(170, 44, 50, 0.3);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .masonry-item:hover .gallery-label {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .gallery-glow:hover {
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.4);
+        }
+        .curved-line {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: dash 3s linear forwards;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: 0; }
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface selection:bg-primary-container selection:text-white">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-stone-900/80 backdrop-blur-xl shadow-[0_8px_24px_-4px_rgba(45,52,54,0.12)]">
+<div class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
+<a class="text-2xl font-black italic text-[#2D3436] dark:text-white tracking-tighter" href="#">Kinetic Ink AI</a>
+<div class="hidden md:flex gap-10 items-center">
+<a class="text-[#2D3436] dark:text-stone-300 font-medium font-plus-jakarta text-lg tracking-tight hover:text-[#FF6B6B] transition-colors duration-300" href="#how-it-works">How it Works</a>
+<a class="text-[#2D3436] dark:text-stone-300 font-medium font-plus-jakarta text-lg tracking-tight hover:text-[#FF6B6B] transition-colors duration-300" href="#showcase">Showcase</a>
+<a class="text-[#2D3436] dark:text-stone-300 font-medium font-plus-jakarta text-lg tracking-tight hover:text-[#FF6B6B] transition-colors duration-300" href="#pricing">Pricing</a>
+</div>
+<button class="bg-primary-container text-white px-8 py-2.5 rounded-full font-black text-sm uppercase tracking-widest primary-cta-shadow active:scale-95 transition-all">
+            Create
+        </button>
+</div>
+</nav>
+<main class="pt-24 overflow-x-hidden">
+<!-- Hero Section -->
+<section class="relative min-h-[921px] flex items-center px-8 max-w-7xl mx-auto">
+<div class="grid lg:grid-cols-2 gap-12 items-center w-full">
+<div class="z-10">
+<span class="inline-block bg-primary text-white text-[10px] font-black tracking-[0.2em] uppercase px-4 py-1.5 rounded-full mb-6">Beta Access Now Open</span>
+<h1 class="text-[3.75rem] leading-[1.1] font-black text-on-background mb-8 tracking-tight">
+                    Your Brand, <span class="text-primary-container">Animated.</span>
+</h1>
+<p class="text-lg font-medium text-on-surface/70 max-w-xl mb-10 leading-relaxed">
+                    Transform your corporate identity into high-energy digital stickers and 3D avatars. Kinetic Ink AI blends professional precision with creative chaos.
+                </p>
+<div class="flex flex-wrap gap-6">
+<button class="bg-primary-container text-white px-10 py-5 rounded-2xl font-black text-lg primary-cta-shadow active:scale-95 transition-all">
+                        Create Your Avatar
+                    </button>
+<button class="bg-surface-container text-on-surface px-10 py-5 rounded-2xl font-bold text-lg hover:bg-surface-container-highest transition-colors active:scale-95">
+                        Watch Showcase
+                    </button>
+</div>
+</div>
+<div class="relative group">
+<div class="absolute inset-0 bg-primary-container/10 blur-[100px] -z-10"></div>
+<div class="relative sticker-shadow rounded-[2.5rem] bg-white p-4 border border-on-surface/10 overflow-hidden rotate-2 group-hover:rotate-0 transition-transform duration-500">
+<img class="rounded-[2rem] w-full aspect-square object-cover" data-alt="Vibrant 3D character illustration with neon accents and high-gloss textures in a clean studio environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCow5z681H8o35EbfhRvkhHF_eSNaNVV73Qd0YmILsQpU0GnYv9M5HkXXXMb9j9y81Av0rXNDj2lmXFI7OCRDtAYeiDTzZ869_yEKnIF06WB_s5PwPUc_tLaHBUWLtZ5CdkEuwObTlxDXDFe3z-QLpN9QenVnP1Nul29jTPAoeOiZFqPMjCQG27GbkHmsFgfLNJHvaK0mcCyJvfsYuoMucpiKu2e7vEPkJZ9G3sYPqdDOySP31X0tQCo92knQiU60kvC573mqfbMJj7"/>
+</div>
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-white sticker-shadow rounded-3xl p-3 -rotate-12">
+<img class="rounded-2xl w-full h-full object-cover" data-alt="Abstract vibrant geometric sticker pattern with bold primary colors and thick black borders" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDly27W94-IxDyXASvz_CPAA9F9IbLU324TPp9egopEWk0bOCI4oY7DJ1Jgl6nkKcRvTmajD2z6cXNC6bcV_nGdQAmlNdoWIG6Dbxi8A103daQMnUCwYzLSfuikI834EF_S9cPOicKINmNQXnUd1tWRpInLPCQsAx20MtFqvSkaP5dUE0EkZP6__jnfBIa7PMt_NwOFgeTVLth_Ihm6RrdXxFr_9OB1f4apVHuNEdDX9egFPm_gbkPVjsFU6GJHMX6EJrBQSnSIZApD"/>
+</div>
+<div class="absolute -bottom-12 -left-8 w-40 h-40 bg-white sticker-shadow rounded-full p-4 rotate-12">
+<img class="rounded-full w-full h-full object-cover" data-alt="A futuristic colorful swirl of pink and orange liquid textures against a clean white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzEph3PQn4rWOUUxMDm4U39nzY-mJL57SMFxla96auAJHUL-j46kYNGc93lNYPrIp6RXAfhJPZ_GW0I_44jbN6_8DuVR2KSHPoitt76Z140mU7WfOwy_w3PEg3He6Fd-gOrq_gakUowsMroF4C2goWkr1oLFRZbzU7kbYxuEIlwF01kjWcWicx8DdFmLhdCFpPbSSBh_e1g9QCcfSG8gUnuOdG-5g9AlFCn8bij7w1xXc50w5lW5IaGJQYeKvCImFjCyVmD8fcEyzX"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Showcase Section (Creative Playground) -->
+<section class="py-32 px-8 relative overflow-hidden" id="showcase">
+<!-- Abstract Background Blobs -->
+<div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary-container/10 rounded-full blur-[120px] -z-10 translate-x-1/2 -translate-y-1/2"></div>
+<div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-secondary-container/20 rounded-full blur-[100px] -z-10 -translate-x-1/4 translate-y-1/4"></div>
+<div class="max-w-7xl mx-auto">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-8">
+<div>
+<span class="text-[10px] font-black tracking-[0.2em] uppercase text-primary-container mb-4 block">The Creative Playground</span>
+<h2 class="text-[2.5rem] font-black text-on-surface tracking-tight leading-none">Diverse Styles, Infinite Identity.</h2>
+</div>
+<p class="max-w-md text-on-surface/60 font-medium">From 2D line-art minimalism to hyper-detailed 3D claymations, our engine adapts to your brand's unique pulse.</p>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6 auto-rows-[200px]">
+<!-- Large Featured Card -->
+<div class="masonry-item relative col-span-2 row-span-2 rounded-[2.5rem] overflow-hidden sticker-shadow bg-white border border-on-surface/5 hover:scale-[1.05] gallery-glow transition-all duration-500 -rotate-1 group">
+<img class="w-full h-full object-cover" data-alt="3D pink avatar character" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5TM7LHZszZ2k1hPxCpj8o5pxbb6BbF1Vt0iqmqcN7PUWs6C5Mudp4NvS82ZFCsiGzGA-RZL7saRWJ7lOPk8r8zsI46VLG4e8XArqDwbiN0MOoOeLbQmxMM_fI1AT61TGCiLiZ6C6thNZt0UKUBHmAx85OPNazOfEl-MqhPrJgkyD5KcDSJRqL44uXyf3ZcyHwJ_IBtclbEqjxY_GYGr0KdOaXgrHxv3Hjd7TtAD0PqAAvB69KH4wfeheYhZMl_fNKIZqJZxJuw8sj"/>
+<div class="gallery-label absolute bottom-6 left-6 opacity-0 translate-y-4 transition-all duration-300 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full font-black text-xs uppercase tracking-widest text-primary-container">3D Avatar</div>
+</div>
+<!-- Small Card -->
+<div class="masonry-item relative rounded-[2rem] overflow-hidden sticker-shadow bg-white border border-on-surface/5 hover:scale-[1.05] gallery-glow transition-all duration-500 rotate-2 translate-y-8">
+<img class="w-full h-full object-cover" data-alt="2D business character" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6z1GcGwNkE6sqyd8pvrguJ-OVyHK1uh5XY7VY2mdms10H9sNzKXz73jCR_ckxxASj2AH_J9jkJH0hrWc87q1ZNd6TUal1--my4hGjvHO8wA3H6hit24Rxmls9t8HV86kwO8lAqXPlBWDAVRBI5-aLKMWRVx-1-CjCb_2YmGszOmdamm8kU4uP2IyEY4bGrA56vlKw9RzpdP0gDo9R0tRwgSseV0DaSvRL8zsjau-1V_A68m9hA8Eh_nxmzAJXumySUgoKVi8fhPlq"/>
+<div class="gallery-label absolute bottom-4 left-4 opacity-0 translate-y-4 transition-all duration-300 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full font-black text-[10px] uppercase tracking-widest text-primary-container">2D Cartoon</div>
+</div>
+<!-- Vertical Card -->
+<div class="masonry-item relative row-span-2 rounded-[2.5rem] overflow-hidden sticker-shadow bg-white border border-on-surface/5 hover:scale-[1.05] gallery-glow transition-all duration-500 -translate-y-4 -rotate-1">
+<img class="w-full h-full object-cover" data-alt="3D cartoon face detail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDK-DrTL0Oa9U78vjdrxmardOurCBmEtem0Ov7W5hNW2sS1yqQbibJ8o7EgMBZ_DGA2otjweFjfMnWo9CDLGgh0eYlM6DCDO2ltUdW2Jk-sB5EPEGWkPs_-Vy9ZrksIN8z9ZMf6Qv2QVlig-K0vfD7pXmtk-cuVtQk4syK8KAzhJ1DS1_dHsZKQoGGF6jcA75E5C0Rv0aOD31pa_LVVPBBYpOffB_ATGjPXj8puKYoqHvfIXrQuPfGIWnxOHKRhGbRZZWllBUvUXNW-"/>
+<div class="gallery-label absolute bottom-6 left-6 opacity-0 translate-y-4 transition-all duration-300 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full font-black text-xs uppercase tracking-widest text-primary-container">3D Avatar</div>
+</div>
+<!-- Square Card Overlapping -->
+<div class="masonry-item relative rounded-[2rem] overflow-hidden sticker-shadow bg-white border border-on-surface/5 hover:scale-[1.05] gallery-glow transition-all duration-500 -translate-x-8 translate-y-4 rotate-3">
+<img class="w-full h-full object-cover" data-alt="Editorial illustration" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNCxvHL7XwdHyu6aC2rfVZwfBBoOzLqJe5JHyiDzUpoN9lTZHoPXwMF3XrD59vBe4ec0Zi9AxoDrROrbZpA3AOBGonwywoGPGWN1OEsl-OL1lkWWwA3eXycYOMmaNmGBWDN3zFpPo9AWNDUh_ABRRdZiKv8k8AP7WAYiJ3IHveloKkcLtMD8msD7vbU3GM-zvFSnvYsMT7OsFIGDKkGo_ZsnNV_gkfTlfTmEjKNOp6BTRl2s7KmC3ywV8o0UHWg4uLvzJZTAeN7eQf"/>
+<div class="gallery-label absolute bottom-4 left-4 opacity-0 translate-y-4 transition-all duration-300 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full font-black text-[10px] uppercase tracking-widest text-primary-container">2D Style</div>
+</div>
+<!-- Last Card -->
+<div class="masonry-item relative col-span-2 rounded-[2.5rem] overflow-hidden sticker-shadow bg-white border border-on-surface/5 hover:scale-[1.05] gallery-glow transition-all duration-500 translate-y-12 rotate-1">
+<img class="w-full h-full object-cover" data-alt="3D abstract character" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2RZaHR47M9aomdcUJIu_YnsGXHGWrvjti7z2oSLPGmYW8J77jLw7XI0xsRFUreM6Uf7D94x4Ne9J8xO6WIOSQG7BCTH3PK0YGXvZz8tbY-jY_hd_TnhHBzYj1TuKKewsAi2dWnyVh5XWYqbwmWML8-IBTQfTvGmMv1ATmNrMUeUKhsC2mqnLHeDOJBlH8D5gJuMUQBF54QG4n5zJLfJ2rM7zh3FBNUljHQUlQ1XdER4e1KaLXr5hpTrWVRRPoBdoUPe4cALJlCf53"/>
+<div class="gallery-label absolute bottom-6 left-6 opacity-0 translate-y-4 transition-all duration-300 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full font-black text-xs uppercase tracking-widest text-primary-container">3D Avatar</div>
+</div>
+</div>
+</div>
+</section>
+<!-- How it Works Section (Guided Journey) -->
+<section class="py-32 px-8 bg-surface-container/30 overflow-hidden" id="how-it-works">
+<div class="max-w-7xl mx-auto relative">
+<div class="text-center mb-32">
+<span class="text-[10px] font-black tracking-[0.2em] uppercase text-primary-container mb-4 block">The Process</span>
+<h2 class="text-[2.5rem] font-black text-on-surface tracking-tight">A Guided Creative Journey.</h2>
+</div>
+<!-- Curved Connector (SVG) -->
+<svg class="absolute top-1/2 left-0 w-full h-[600px] -translate-y-1/2 hidden lg:block pointer-events-none opacity-10" preserveaspectratio="none" viewbox="0 0 1200 600">
+<path class="curved-line" d="M 0 100 C 300 100 300 500 600 500 C 900 500 900 100 1200 100" fill="transparent" stroke="#FF6B6B" stroke-width="4"></path>
+</svg>
+<div class="grid lg:grid-cols-3 gap-16 relative">
+<!-- Step 1: Describe -->
+<div class="flex flex-col items-center lg:items-start group">
+<div class="w-full max-w-[340px] bg-white rounded-[2rem] p-6 sticker-shadow mb-10 border border-on-surface/5 group-hover:-translate-y-2 transition-transform duration-300">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container">edit_note</span>
+</div>
+<span class="font-bold text-xs uppercase tracking-widest opacity-40">Describe your vision</span>
+</div>
+<div class="bg-surface-container rounded-xl p-4 border border-on-surface/5">
+<p class="text-sm font-medium text-on-surface italic leading-relaxed">
+                                "A friendly burger mascot, <span class="text-primary-container font-black">playful and energetic</span>"
+                            </p>
+</div>
+<div class="mt-4 flex justify-end">
+<div class="w-20 h-2 bg-primary-container/10 rounded-full overflow-hidden">
+<div class="w-[70%] h-full bg-primary-container"></div>
+</div>
+</div>
+</div>
+<div class="text-center lg:text-left">
+<h3 class="text-2xl font-black mb-4">1. Describe</h3>
+<p class="text-on-surface/60 font-medium leading-relaxed max-w-sm">Simply type your brand vision. Our AI decodes your core aesthetics instantly.</p>
+</div>
+</div>
+<!-- Step 2: Tune -->
+<div class="flex flex-col items-center group lg:mt-24">
+<div class="w-full max-w-[340px] bg-white rounded-[2rem] p-6 sticker-shadow mb-10 border border-on-surface/5 group-hover:-translate-y-2 transition-transform duration-300">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">tune</span>
+</div>
+<span class="font-bold text-xs uppercase tracking-widest opacity-40">Personalize Vibe</span>
+</div>
+<div class="space-y-6">
+<div class="space-y-2">
+<div class="flex justify-between text-[10px] font-black uppercase tracking-widest opacity-60">
+<span>Funny</span>
+<span>Serious</span>
+</div>
+<div class="h-2 bg-surface-container rounded-full relative">
+<div class="absolute top-1/2 left-[30%] -translate-y-1/2 w-4 h-4 bg-primary rounded-full sticker-shadow ring-4 ring-white"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-[10px] font-black uppercase tracking-widest opacity-60">
+<span>Casual</span>
+<span>Professional</span>
+</div>
+<div class="h-2 bg-surface-container rounded-full relative">
+<div class="absolute top-1/2 left-[70%] -translate-y-1/2 w-4 h-4 bg-primary rounded-full sticker-shadow ring-4 ring-white"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="text-center">
+<h3 class="text-2xl font-black mb-4">2. Tune</h3>
+<p class="text-on-surface/60 font-medium leading-relaxed max-w-sm">Adjust personality sliders using our tactile interface to find your perfect vibe.</p>
+</div>
+</div>
+<!-- Step 3: Animate -->
+<div class="flex flex-col items-center lg:items-end group">
+<div class="w-full max-w-[340px] bg-white rounded-[2rem] p-6 sticker-shadow mb-10 border border-on-surface/5 group-hover:-translate-y-2 transition-transform duration-300">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-full bg-[#00b179]/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[#00b179]">auto_fix_high</span>
+</div>
+<span class="font-bold text-xs uppercase tracking-widest opacity-40">Export Assets</span>
+</div>
+<div class="relative aspect-video bg-on-surface/5 rounded-xl overflow-hidden flex items-center justify-center mb-6">
+<div class="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-4xl fill-1">play_arrow</span>
+</div>
+<div class="absolute bottom-2 right-2 px-2 py-1 bg-black/60 text-[10px] text-white rounded font-bold">00:04</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-center gap-2 py-2 px-4 rounded-lg bg-surface-container font-black text-[10px] uppercase tracking-widest">
+<span class="material-symbols-outlined text-sm">download</span> MP4
+                            </button>
+<button class="flex items-center justify-center gap-2 py-2 px-4 rounded-lg bg-surface-container font-black text-[10px] uppercase tracking-widest">
+<span class="material-symbols-outlined text-sm">download</span> GIF
+                            </button>
+</div>
+</div>
+<div class="text-center lg:text-right">
+<h3 class="text-2xl font-black mb-4">3. Animate</h3>
+<p class="text-on-surface/60 font-medium leading-relaxed max-w-sm">Export as high-res PNGs, MP4 stickers, or full 3D assets ready for your next campaign.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Pricing Section -->
+<section class="py-32 px-8 bg-surface" id="pricing">
+<div class="max-w-4xl mx-auto">
+<div class="sticker-shadow rounded-[3rem] bg-white border border-on-surface/10 p-12 md:p-20 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary-container/10 blur-[50px]"></div>
+<div class="relative text-center">
+<span class="text-[10px] font-black tracking-[0.2em] uppercase text-primary-container mb-6 block">On-Demand Pricing</span>
+<h2 class="text-5xl font-black mb-6 tracking-tight">No Strings attached.</h2>
+<p class="text-xl font-medium text-on-surface/60 mb-12">We hate subscriptions as much as you do. <br/>Pay for what you need, when you need it.</p>
+<div class="bg-surface-container rounded-[2rem] p-8 mb-12 inline-block">
+<div class="flex items-baseline gap-2 justify-center mb-2">
+<span class="text-5xl font-black">$29</span>
+<span class="text-on-surface/40 font-black uppercase text-xs tracking-widest">per pack</span>
+</div>
+<p class="text-sm font-bold text-primary-container uppercase tracking-tighter">Includes 50+ Custom variations</p>
+</div>
+<ul class="grid md:grid-cols-2 gap-4 text-left max-w-lg mx-auto mb-12">
+<li class="flex items-center gap-3 font-bold text-on-surface/70">
+<span class="material-symbols-outlined text-primary-container">check_circle</span>
+                            Commercial License
+                        </li>
+<li class="flex items-center gap-3 font-bold text-on-surface/70">
+<span class="material-symbols-outlined text-primary-container">check_circle</span>
+                            High-Res 4K Exports
+                        </li>
+<li class="flex items-center gap-3 font-bold text-on-surface/70">
+<span class="material-symbols-outlined text-primary-container">check_circle</span>
+                            SVG Vector Options
+                        </li>
+<li class="flex items-center gap-3 font-bold text-on-surface/70">
+<span class="material-symbols-outlined text-primary-container">check_circle</span>
+                            3D Source Files
+                        </li>
+</ul>
+<button class="w-full bg-primary text-white py-6 rounded-2xl text-xl font-black primary-cta-shadow active:scale-[0.98] transition-all">
+                        Purchase Credits
+                    </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Final CTA Section -->
+<section class="py-32 px-8">
+<div class="max-w-7xl mx-auto rounded-[2.5rem] bg-primary text-white p-12 md:p-24 text-center relative overflow-hidden sticker-shadow">
+<div class="absolute inset-0 opacity-20 pointer-events-none">
+<img class="w-full h-full object-cover" data-alt="Abstract dynamic brush stroke patterns" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnIx7BL4RmUT-GFWoVj3I16Pj2xiGGWD4WFnZHjqP_K3jJeqtuAx8jhXPo4XZcY6p0jnFUJVex7dmdJVBbQ5znHM0_2egZZtcZMYILojARRj7NQYHQ73O613qCFRmX9NssxEQ7UkxAC2uVAxMdDecKhu79ud5g91DzU7Ar9ayIrFuDaLtJuEptoqF3Pg2HdfHyWIFWqvOS2YOr-50I_0dPMvUdQbZpwN04OtvMo-aZpDYtF1fvN35vGPLl7r0eujFZ395QBXMqhCxq"/>
+</div>
+<div class="relative z-10">
+<h2 class="text-4xl md:text-6xl font-black mb-8 tracking-tighter leading-tight">Ready to toon <br/>your brand?</h2>
+<p class="text-xl opacity-80 font-medium max-w-xl mx-auto mb-12">Join 5,000+ creators and brands who have replaced boring headshots with energetic avatars.</p>
+<button class="bg-primary-container text-on-primary-container px-12 py-6 rounded-2xl text-2xl font-black primary-cta-shadow hover:scale-105 transition-transform">
+                    Launch Generator
+                </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full rounded-t-[2.5rem] mt-20 bg-[#f1f2f6] dark:bg-stone-950">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 py-16 w-full max-w-7xl mx-auto">
+<div class="mb-8 md:mb-0">
+<div class="text-xl font-black text-[#2D3436] dark:text-white mb-4">Kinetic Ink AI</div>
+<p class="font-plus-jakarta text-sm uppercase font-black tracking-widest text-[#2D3436]/60 dark:text-stone-400">
+                © 2024 Kinetic Ink AI. All rights reserved. Built with Energetic Intent.
+            </p>
+</div>
+<div class="flex flex-wrap justify-center gap-8">
+<a class="font-plus-jakarta text-sm uppercase font-black tracking-widest text-[#2D3436]/60 dark:text-stone-400 hover:translate-y-[-2px] hover:text-[#FF6B6B] transition-all" href="#">Privacy Policy</a>
+<a class="font-plus-jakarta text-sm uppercase font-black tracking-widest text-[#2D3436]/60 dark:text-stone-400 hover:translate-y-[-2px] hover:text-[#FF6B6B] transition-all" href="#">Terms of Service</a>
+<a class="font-plus-jakarta text-sm uppercase font-black tracking-widest text-[#2D3436]/60 dark:text-stone-400 hover:translate-y-[-2px] hover:text-[#FF6B6B] transition-all" href="#">Contact</a>
+<a class="font-plus-jakarta text-sm uppercase font-black tracking-widest text-[#2D3436]/60 dark:text-stone-400 hover:translate-y-[-2px] hover:text-[#FF6B6B] transition-all" href="#">Twitter</a>
+<a class="font-plus-jakarta text-sm uppercase font-black tracking-widest text-[#2D3436]/60 dark:text-stone-400 hover:translate-y-[-2px] hover:text-[#FF6B6B] transition-all" href="#">Discord</a>
+</div>
+</div>
+</footer>
+</body></html>
