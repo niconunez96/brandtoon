@@ -24,7 +24,7 @@ func CreateUser(
 		return userdomain.User{}, err
 	}
 	if existingUser != nil {
-		return userdomain.User{}, errors.New("user already exist")
+		return *existingUser, nil
 	}
 	userID, err := idGenerator()
 	if err != nil {
