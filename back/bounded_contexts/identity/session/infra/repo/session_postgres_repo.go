@@ -1,4 +1,4 @@
-package repo
+package sessionrepo
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"brandtoonapi/bounded_contexts/identity/session/domain"
-	sharedrepos "brandtoonapi/bounded_contexts/shared/infra/repos"
+	"brandtoonapi/bounded_contexts/shared/infra/repos"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -26,7 +26,7 @@ func NewSessionPostgresRepo(db *sqlx.DB) *SessionPostgresRepo {
 	}
 }
 
-func (r *SessionPostgresRepo) Create(ctx context.Context, session domain.Session) error {
+func (r *SessionPostgresRepo) Create(ctx context.Context, session sessiondomain.Session) error {
 	return r.PostgresRepo.Create(ctx, newSessionDBModel(session))
 }
 
@@ -34,7 +34,7 @@ func (r *SessionPostgresRepo) Delete(ctx context.Context, id string) error {
 	return r.PostgresRepo.Delete(ctx, id)
 }
 
-func (r *SessionPostgresRepo) FindActiveByID(ctx context.Context, id string) (*domain.Session, error) {
+func (r *SessionPostgresRepo) FindActiveByID(ctx context.Context, id string) (*sessiondomain.Session, error) {
 	model := &sessionDBModel{}
 	err := r.db.GetContext(
 		ctx,

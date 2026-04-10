@@ -27,6 +27,7 @@ Use this skill when editing `back/bounded_contexts/**/useCases`.
   - required domain interfaces as parameters
 - Commands perform writes or side effects.
 - Queries return read models without side effects.
+- Use case file/function/DTO names must express business capability, not provider technology.
 
 ## Forbidden Patterns
 
@@ -35,6 +36,8 @@ Use this skill when editing `back/bounded_contexts/**/useCases`.
 - Commands that silently behave as queries (or inverse).
 - Use cases importing transport concerns (HTTP DTOs, router context).
 - Use cases coupling directly to infra implementations.
+- Provider-branded use case names (`AuthenticateGoogleCallback`, `GetGithubAuthURL`, etc.).
+- Provider-specific command/query DTO field names in `useCases/` (`googleSubject`, `githubCode`).
 
 ## Required Checklist
 
@@ -43,6 +46,7 @@ Use this skill when editing `back/bounded_contexts/**/useCases`.
 - Pass only required dependencies in function signature.
 - Return domain/application errors explicitly.
 - Confirm command/query intent by side-effect behavior.
+- Apply provider-swap naming check: would `Google -> GitHub` require renaming in `useCases/`? If yes, rename to domain language.
 
 ## Output Standard
 

@@ -1,12 +1,13 @@
-package usecases
+package authusecases
 
 import (
 	"context"
+	"fmt"
 	"time"
 
-	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
-	sessiondomain "brandtoonapi/bounded_contexts/identity/session/domain"
-	userdomain "brandtoonapi/bounded_contexts/identity/user/domain"
+	"brandtoonapi/bounded_contexts/identity/auth/domain"
+	"brandtoonapi/bounded_contexts/identity/session/domain"
+	"brandtoonapi/bounded_contexts/identity/user/domain"
 )
 
 type GetCurrentUserQuery struct {
@@ -26,6 +27,7 @@ func GetCurrentUser(
 	now func() time.Time,
 ) (GetCurrentUserResult, error) {
 	if query.SessionID == "" {
+		fmt.Println("SESSION ID IS EMPTY")
 		return GetCurrentUserResult{}, authdomain.ErrUnauthenticated
 	}
 
@@ -35,6 +37,7 @@ func GetCurrentUser(
 	}
 
 	if session == nil || session.IsExpired(now().UTC()) {
+		fmt.Println("SESSION IS EXPIRED")
 		return GetCurrentUserResult{}, authdomain.ErrUnauthenticated
 	}
 
@@ -44,6 +47,7 @@ func GetCurrentUser(
 	}
 
 	if user == nil {
+		fmt.Println("NO USER FOUND")
 		return GetCurrentUserResult{}, authdomain.ErrUnauthenticated
 	}
 

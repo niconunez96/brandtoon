@@ -1,4 +1,4 @@
-package domain
+package userdomain
 
 type User struct {
 	AvatarURL string

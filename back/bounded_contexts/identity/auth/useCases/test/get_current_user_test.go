@@ -6,20 +6,20 @@ import (
 	"testing"
 	"time"
 
-	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
-	usecases "brandtoonapi/bounded_contexts/identity/auth/useCases"
-	sessiondomain "brandtoonapi/bounded_contexts/identity/session/domain"
+	"brandtoonapi/bounded_contexts/identity/auth/domain"
+	"brandtoonapi/bounded_contexts/identity/auth/useCases"
+	"brandtoonapi/bounded_contexts/identity/session/domain"
 	sessionmocks "brandtoonapi/bounded_contexts/identity/session/domain/mocks"
-	userdomain "brandtoonapi/bounded_contexts/identity/user/domain"
+	"brandtoonapi/bounded_contexts/identity/user/domain"
 	usermocks "brandtoonapi/bounded_contexts/identity/user/domain/mocks"
 )
 
 func TestGetCurrentUserReturnsUnauthenticatedWithoutSession(t *testing.T) {
 	t.Parallel()
 
-	_, err := usecases.GetCurrentUser(
+	_, err := authusecases.GetCurrentUser(
 		context.Background(),
-		usecases.GetCurrentUserQuery{},
+		authusecases.GetCurrentUserQuery{},
 		&sessionmocks.SessionRepositoryMock{},
 		&usermocks.UserRepositoryMock{},
 		time.Now,
@@ -32,9 +32,9 @@ func TestGetCurrentUserReturnsUnauthenticatedWithoutSession(t *testing.T) {
 func TestGetCurrentUserReturnsUserWhenSessionExists(t *testing.T) {
 	t.Parallel()
 
-	result, err := usecases.GetCurrentUser(
+	result, err := authusecases.GetCurrentUser(
 		context.Background(),
-		usecases.GetCurrentUserQuery{SessionID: "session-v7"},
+		authusecases.GetCurrentUserQuery{SessionID: "session-v7"},
 		&sessionmocks.SessionRepositoryMock{
 			FindActiveByIDFunc: func(ctx context.Context, id string) (*sessiondomain.Session, error) {
 				return &sessiondomain.Session{

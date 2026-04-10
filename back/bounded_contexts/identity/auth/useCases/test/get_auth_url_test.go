@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
+	"brandtoonapi/bounded_contexts/identity/auth/domain"
 	authmocks "brandtoonapi/bounded_contexts/identity/auth/domain/mocks"
-	usecases "brandtoonapi/bounded_contexts/identity/auth/useCases"
+	"brandtoonapi/bounded_contexts/identity/auth/useCases"
 )
 
 func TestGetGoogleAuthURLDefaultsInvalidRedirectTarget(t *testing.T) {
@@ -29,8 +29,8 @@ func TestGetGoogleAuthURLDefaultsInvalidRedirectTarget(t *testing.T) {
 		},
 	}
 
-	result, err := usecases.GetAuthURL(
-		usecases.GetAuthURLQuery{RedirectTo: "https://malicious.example.com"},
+	result, err := authusecases.GetAuthURL(
+		authusecases.GetAuthURLQuery{RedirectTo: "https://malicious.example.com"},
 		stateCodec,
 		provider,
 		time.Date(2026, time.April, 10, 12, 0, 0, 0, time.UTC),

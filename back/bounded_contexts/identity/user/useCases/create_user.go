@@ -1,8 +1,8 @@
-package usecases
+package userusecases
 
 import (
 	"brandtoonapi/bounded_contexts/identity/user/domain"
-	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
+	"brandtoonapi/bounded_contexts/shared/domain"
 	"context"
 	"errors"
 )
@@ -16,29 +16,29 @@ type CreateUserCmd struct {
 func CreateUser(
 	ctx context.Context,
 	cmd CreateUserCmd,
-	userRepo domain.UserRepository,
+	userRepo userdomain.UserRepository,
 	idGenerator shareddomain.IDGenerator,
-) (domain.User, error) {
+) (userdomain.User, error) {
 	existingUser, err := userRepo.FindByEmail(ctx, cmd.Email)
 	if err != nil {
-		return domain.User{}, err
+		return userdomain.User{}, err
 	}
 	if existingUser != nil {
-		return domain.User{}, errors.New("user already exist")
+		return userdomain.User{}, errors.New("user already exist")
 	}
 	userID, err := idGenerator()
 	if err != nil {
-		return domain.User{}, err
+		return userdomain.User{}, err
 	}
 
-	user := domain.NewUser(
+	user := userdomain.NewUser(
 		userID,
 		cmd.Email,
 		cmd.Name,
 		cmd.AvatarURL,
 	)
 	if err := userRepo.Create(ctx, user); err != nil {
-		return domain.User{}, err
+		return userdomain.User{}, err
 	}
 
 	return user, nil

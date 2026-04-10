@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
-	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
+	"brandtoonapi/bounded_contexts/identity/auth/domain"
 	authmocks "brandtoonapi/bounded_contexts/identity/auth/domain/mocks"
 	authhttp "brandtoonapi/bounded_contexts/identity/auth/infra/http"
 	sessionmocks "brandtoonapi/bounded_contexts/identity/session/domain/mocks"
-	userdomain "brandtoonapi/bounded_contexts/identity/user/domain"
+	"brandtoonapi/bounded_contexts/identity/user/domain"
 	usermocks "brandtoonapi/bounded_contexts/identity/user/domain/mocks"
 	sharedconfig "brandtoonapi/bounded_contexts/shared/infra/config"
 

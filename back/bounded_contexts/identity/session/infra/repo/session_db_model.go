@@ -1,4 +1,4 @@
-package repo
+package sessionrepo
 
 import (
 	"time"
@@ -15,7 +15,7 @@ type sessionDBModel struct {
 	UserID    string     `db:"user_id"`
 }
 
-func newSessionDBModel(session domain.Session) *sessionDBModel {
+func newSessionDBModel(session sessiondomain.Session) *sessionDBModel {
 	return &sessionDBModel{
 		ExpiresAt: session.ExpiresAt,
 		ID:        session.ID,
@@ -54,8 +54,8 @@ func (m *sessionDBModel) TableName() string {
 	return "sessions"
 }
 
-func (m *sessionDBModel) ToDomain() domain.Session {
-	return domain.NewSession(m.ID, m.UserID, m.ExpiresAt)
+func (m *sessionDBModel) ToDomain() sessiondomain.Session {
+	return sessiondomain.NewSession(m.ID, m.UserID, m.ExpiresAt)
 }
 
 func (m *sessionDBModel) UpdateValues() map[string]any {

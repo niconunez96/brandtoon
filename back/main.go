@@ -8,18 +8,20 @@ import (
 
 	authhttp "brandtoonapi/bounded_contexts/identity/auth/infra/http"
 	shared "brandtoonapi/bounded_contexts/shared"
-	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
+	"brandtoonapi/bounded_contexts/shared/domain"
 	sharedconfig "brandtoonapi/bounded_contexts/shared/infra/config"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humachi"
 	"github.com/go-chi/chi/v5"
+	"github.com/joho/godotenv"
 
 	_ "github.com/danielgtaylor/huma/v2/formats/cbor"
 )
 
 func main() {
 	ctx := context.Background()
+	_ = godotenv.Load()
 	container := shared.NewDIContainer()
 
 	config, err := container.GetConfig()

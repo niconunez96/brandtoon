@@ -8,7 +8,7 @@ import (
 
 type IdentityProviderMock struct {
 	BuildAuthURLFunc func(state string) string
-	ExchangeCodeFunc func(ctx context.Context, code string) (*domain.Identity, error)
+	ExchangeCodeFunc func(ctx context.Context, code string) (*authdomain.Identity, error)
 }
 
 func (m *IdentityProviderMock) BuildAuthURL(state string) string {
@@ -22,7 +22,7 @@ func (m *IdentityProviderMock) BuildAuthURL(state string) string {
 func (m *IdentityProviderMock) ExchangeCode(
 	ctx context.Context,
 	code string,
-) (*domain.Identity, error) {
+) (*authdomain.Identity, error) {
 	if m.ExchangeCodeFunc == nil {
 		return nil, nil
 	}

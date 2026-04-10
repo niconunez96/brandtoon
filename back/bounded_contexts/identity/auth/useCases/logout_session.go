@@ -1,9 +1,9 @@
-package usecases
+package authusecases
 
 import (
 	"context"
 
-	sessiondomain "brandtoonapi/bounded_contexts/identity/session/domain"
+	"brandtoonapi/bounded_contexts/identity/session/domain"
 )
 
 type LogoutSessionCommand struct {

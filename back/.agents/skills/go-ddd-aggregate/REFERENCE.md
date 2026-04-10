@@ -52,6 +52,18 @@ type UserRepository interface {
 
 Keep signatures infrastructure-agnostic. No SQL types, HTTP objects, or driver-specific contracts.
 
+## Provider-Agnostic Naming (Domain)
+
+Use business language that remains valid if provider changes.
+
+| Avoid (provider-coupled) | Prefer (domain language) |
+| --- | --- |
+| `GoogleIdentityProvider` | `IdentityProvider` |
+| `googleSubject` | `ExternalSubject` or `ProviderSubject` |
+| `GoogleUserProfile` | `Identity` or `ExternalIdentity` |
+
+Rule of thumb: if swapping Google with GitHub forces a rename in `domain/`, the naming is wrong.
+
 ## Invariant Pattern
 
 ```go

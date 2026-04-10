@@ -7,13 +7,13 @@ import (
 )
 
 type UserRepositoryMock struct {
-	CreateFunc      func(ctx context.Context, user domain.User) error
-	FindByEmailFunc func(ctx context.Context, email string) (*domain.User, error)
-	FindByIDFunc    func(ctx context.Context, id string) (*domain.User, error)
-	UpdateFunc      func(ctx context.Context, user domain.User) error
+	CreateFunc      func(ctx context.Context, user userdomain.User) error
+	FindByEmailFunc func(ctx context.Context, email string) (*userdomain.User, error)
+	FindByIDFunc    func(ctx context.Context, id string) (*userdomain.User, error)
+	UpdateFunc      func(ctx context.Context, user userdomain.User) error
 }
 
-func (m *UserRepositoryMock) Create(ctx context.Context, user domain.User) error {
+func (m *UserRepositoryMock) Create(ctx context.Context, user userdomain.User) error {
 	if m.CreateFunc == nil {
 		return nil
 	}
@@ -24,7 +24,7 @@ func (m *UserRepositoryMock) Create(ctx context.Context, user domain.User) error
 func (m *UserRepositoryMock) FindByEmail(
 	ctx context.Context,
 	email string,
-) (*domain.User, error) {
+) (*userdomain.User, error) {
 	if m.FindByEmailFunc == nil {
 		return nil, nil
 	}
@@ -32,7 +32,7 @@ func (m *UserRepositoryMock) FindByEmail(
 	return m.FindByEmailFunc(ctx, email)
 }
 
-func (m *UserRepositoryMock) FindByID(ctx context.Context, id string) (*domain.User, error) {
+func (m *UserRepositoryMock) FindByID(ctx context.Context, id string) (*userdomain.User, error) {
 	if m.FindByIDFunc == nil {
 		return nil, nil
 	}
@@ -40,7 +40,7 @@ func (m *UserRepositoryMock) FindByID(ctx context.Context, id string) (*domain.U
 	return m.FindByIDFunc(ctx, id)
 }
 
-func (m *UserRepositoryMock) Update(ctx context.Context, user domain.User) error {
+func (m *UserRepositoryMock) Update(ctx context.Context, user userdomain.User) error {
 	if m.UpdateFunc == nil {
 		return nil
 	}

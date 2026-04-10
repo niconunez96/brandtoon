@@ -7,10 +7,10 @@ import (
 	"brandtoonapi/bounded_contexts/identity/auth/domain"
 	authoauth "brandtoonapi/bounded_contexts/identity/auth/infra/oauth"
 	authsecurity "brandtoonapi/bounded_contexts/identity/auth/infra/security"
-	sessiondomain "brandtoonapi/bounded_contexts/identity/session/domain"
-	sessionrepo "brandtoonapi/bounded_contexts/identity/session/infra/repo"
-	userdomain "brandtoonapi/bounded_contexts/identity/user/domain"
-	userrepo "brandtoonapi/bounded_contexts/identity/user/infra/repo"
+	"brandtoonapi/bounded_contexts/identity/session/domain"
+	"brandtoonapi/bounded_contexts/identity/session/infra/repo"
+	"brandtoonapi/bounded_contexts/identity/user/domain"
+	"brandtoonapi/bounded_contexts/identity/user/infra/repo"
 	sharedconfig "brandtoonapi/bounded_contexts/shared/infra/config"
 	sharedpostgres "brandtoonapi/bounded_contexts/shared/infra/postgres"
 
@@ -32,11 +32,11 @@ type DIContainer struct {
 	dbErr  error
 
 	googleProviderOnce sync.Once
-	googleProvider     domain.IdentityProvider
+	googleProvider     authdomain.IdentityProvider
 	googleProviderErr  error
 
 	stateCodecOnce sync.Once
-	stateCodec     domain.OAuthStateCodec
+	stateCodec     authdomain.OAuthStateCodec
 	stateCodecErr  error
 
 	userRepoOnce sync.Once
@@ -78,7 +78,7 @@ func (c *DIContainer) GetDB(ctx context.Context) (*sqlx.DB, error) {
 	return c.db, c.dbErr
 }
 
-func (c *DIContainer) GetGoogleIdentityProvider() (domain.IdentityProvider, error) {
+func (c *DIContainer) GetGoogleIdentityProvider() (authdomain.IdentityProvider, error) {
 	c.googleProviderOnce.Do(func() {
 		config, err := c.GetConfig()
 		if err != nil {
@@ -96,7 +96,7 @@ func (c *DIContainer) GetGoogleIdentityProvider() (domain.IdentityProvider, erro
 	return c.googleProvider, c.googleProviderErr
 }
 
-func (c *DIContainer) GetOAuthStateCodec() (domain.OAuthStateCodec, error) {
+func (c *DIContainer) GetOAuthStateCodec() (authdomain.OAuthStateCodec, error) {
 	c.stateCodecOnce.Do(func() {
 		config, err := c.GetConfig()
 		if err != nil {

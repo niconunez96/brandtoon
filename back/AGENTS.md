@@ -65,6 +65,8 @@ If work spans multiple areas, load multiple skills.
 - Third-party dependency initialization must live in shared `DIContainer` (not in handlers/useCases/domain).
 - `DIContainer` exposes `GetX()` methods that lazily initialize once (singleton-style) and reuse instances.
 - Domain contracts define external ports (`EmailSender`, `XXRepository`) with NO third-party dependencies in signatures.
+- Domain and `useCases` naming must stay provider-agnostic: never encode vendor names (`Google`, `GitHub`, etc.) in domain types/fields/interfaces or use case names/DTOs.
+- Provider/vendor-specific naming is allowed only in `infra/` and configuration/composition wiring.
 - Aggregate root is the only domain interaction entrypoint.
 - Internal entities stay encapsulated inside aggregate boundaries.
 - Value objects are modeled as explicit enum/type definitions.
@@ -88,6 +90,7 @@ If work spans multiple areas, load multiple skills.
 ## Forbidden Patterns
 
 - Domain importing framework/driver packages (`gin`, `fiber`, `gorm`, `sqlx`, SMTP clients, etc.).
+- Provider/vendor-specific names in `domain/` and `useCases/` identifiers (for example: `GoogleIdentityProvider`, `googleSubject`, `GetGoogleAuthURL`).
 - Use case structs with hidden mutable state.
 - Fat handlers containing business rules.
 - Route definitions scattered across handler files.
@@ -106,6 +109,7 @@ If work spans multiple areas, load multiple skills.
 - Load required skill(s) before editing.
 - Validate dependency direction stays inward to domain.
 - Validate names and file placement follow conventions.
+- Validate domain/use case names are business-language and provider-agnostic.
 - Ensure commands/queries are separated clearly.
 - Ensure domain contracts stay vendor-neutral.
 

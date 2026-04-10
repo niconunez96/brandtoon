@@ -29,7 +29,7 @@ func NewHMACOAuthStateCodec(secret string) *HMACOAuthStateCodec {
 	return &HMACOAuthStateCodec{secret: []byte(secret)}
 }
 
-func (c *HMACOAuthStateCodec) Decode(rawState string) (*domain.OAuthState, error) {
+func (c *HMACOAuthStateCodec) Decode(rawState string) (*authdomain.OAuthState, error) {
 	parts := strings.Split(rawState, ".")
 	if len(parts) != 2 {
 		return nil, errors.New("invalid oauth state format")
@@ -60,14 +60,14 @@ func (c *HMACOAuthStateCodec) Decode(rawState string) (*domain.OAuthState, error
 		return nil, errors.New("oauth state expired")
 	}
 
-	return &domain.OAuthState{
+	return &authdomain.OAuthState{
 		IssuedAt:   issuedAt.UTC(),
 		Nonce:      payload.Nonce,
 		RedirectTo: payload.RedirectTo,
 	}, nil
 }
 
-func (c *HMACOAuthStateCodec) Encode(state domain.OAuthState) (string, error) {
+func (c *HMACOAuthStateCodec) Encode(state authdomain.OAuthState) (string, error) {
 	payload := serializedOAuthState{
 		IssuedAt:   state.IssuedAt.UTC().Format(time.RFC3339Nano),
 		Nonce:      state.Nonce,

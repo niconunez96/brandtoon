@@ -1,4 +1,4 @@
-package repo
+package userrepo
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"errors"
 
 	"brandtoonapi/bounded_contexts/identity/user/domain"
-	sharedrepos "brandtoonapi/bounded_contexts/shared/infra/repos"
+	"brandtoonapi/bounded_contexts/shared/infra/repos"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -25,11 +25,11 @@ func NewUserPostgresRepo(db *sqlx.DB) *UserPostgresRepo {
 	}
 }
 
-func (r *UserPostgresRepo) Create(ctx context.Context, user domain.User) error {
+func (r *UserPostgresRepo) Create(ctx context.Context, user userdomain.User) error {
 	return r.PostgresRepo.Create(ctx, newUserDBModel(user))
 }
 
-func (r *UserPostgresRepo) FindByEmail(ctx context.Context, email string) (*domain.User, error) {
+func (r *UserPostgresRepo) FindByEmail(ctx context.Context, email string) (*userdomain.User, error) {
 	model := &userDBModel{}
 	err := r.db.GetContext(
 		ctx,
@@ -49,7 +49,7 @@ func (r *UserPostgresRepo) FindByEmail(ctx context.Context, email string) (*doma
 	return &user, nil
 }
 
-func (r *UserPostgresRepo) FindByID(ctx context.Context, id string) (*domain.User, error) {
+func (r *UserPostgresRepo) FindByID(ctx context.Context, id string) (*userdomain.User, error) {
 	model, err := r.PostgresRepo.FindByID(ctx, id)
 	if err != nil || model == nil {
 		return nil, err
@@ -59,6 +59,6 @@ func (r *UserPostgresRepo) FindByID(ctx context.Context, id string) (*domain.Use
 	return &user, nil
 }
 
-func (r *UserPostgresRepo) Update(ctx context.Context, user domain.User) error {
+func (r *UserPostgresRepo) Update(ctx context.Context, user userdomain.User) error {
 	return r.PostgresRepo.Update(ctx, newUserDBModel(user))
 }

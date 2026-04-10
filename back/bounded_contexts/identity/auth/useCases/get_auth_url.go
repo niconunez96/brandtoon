@@ -1,9 +1,9 @@
-package usecases
+package authusecases
 
 import (
 	"time"
 
-	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
+	"brandtoonapi/bounded_contexts/identity/auth/domain"
 )
 
 type GetAuthURLQuery struct {

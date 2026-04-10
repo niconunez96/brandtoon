@@ -5,12 +5,12 @@ import (
 	"testing"
 	"time"
 
-	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
+	"brandtoonapi/bounded_contexts/identity/auth/domain"
 	authmocks "brandtoonapi/bounded_contexts/identity/auth/domain/mocks"
-	usecases "brandtoonapi/bounded_contexts/identity/auth/useCases"
-	sessiondomain "brandtoonapi/bounded_contexts/identity/session/domain"
+	"brandtoonapi/bounded_contexts/identity/auth/useCases"
+	"brandtoonapi/bounded_contexts/identity/session/domain"
 	sessionmocks "brandtoonapi/bounded_contexts/identity/session/domain/mocks"
-	userdomain "brandtoonapi/bounded_contexts/identity/user/domain"
+	"brandtoonapi/bounded_contexts/identity/user/domain"
 	usermocks "brandtoonapi/bounded_contexts/identity/user/domain/mocks"
 )
 
@@ -22,9 +22,9 @@ func TestAuthenticateGoogleCallbackCreatesUserAndSession(t *testing.T) {
 	idCalls := 0
 	now := time.Date(2026, time.April, 10, 12, 0, 0, 0, time.UTC)
 
-	result, err := usecases.AuthenticateCallback(
+	result, err := authusecases.AuthenticateCallback(
 		context.Background(),
-		usecases.AuthenticateCallbackCommand{
+		authusecases.AuthenticateCallbackCommand{
 			Code:       "auth-code",
 			SessionTTL: 30 * 24 * time.Hour,
 			State:      "signed-state",

@@ -1,4 +1,4 @@
-package repo
+package userrepo
 
 import (
 	"time"
@@ -16,7 +16,7 @@ type userDBModel struct {
 	UpdatedAt time.Time  `db:"updated_at"`
 }
 
-func newUserDBModel(user domain.User) *userDBModel {
+func newUserDBModel(user userdomain.User) *userDBModel {
 	return &userDBModel{
 		AvatarURL: user.AvatarURL,
 		Email:     user.Email,
@@ -57,8 +57,8 @@ func (m *userDBModel) TableName() string {
 	return "users"
 }
 
-func (m *userDBModel) ToDomain() domain.User {
-	return domain.NewUser(m.ID, m.Email, m.Name, m.AvatarURL)
+func (m *userDBModel) ToDomain() userdomain.User {
+	return userdomain.NewUser(m.ID, m.Email, m.Name, m.AvatarURL)
 }
 
 func (m *userDBModel) UpdateValues() map[string]any {

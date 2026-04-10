@@ -8,11 +8,11 @@ import (
 	"net/url"
 	"time"
 
-	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
-	usecases "brandtoonapi/bounded_contexts/identity/auth/useCases"
-	sessiondomain "brandtoonapi/bounded_contexts/identity/session/domain"
-	userdomain "brandtoonapi/bounded_contexts/identity/user/domain"
-	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
+	"brandtoonapi/bounded_contexts/identity/auth/domain"
+	"brandtoonapi/bounded_contexts/identity/auth/useCases"
+	"brandtoonapi/bounded_contexts/identity/session/domain"
+	"brandtoonapi/bounded_contexts/identity/user/domain"
+	"brandtoonapi/bounded_contexts/shared/domain"
 	sharedconfig "brandtoonapi/bounded_contexts/shared/infra/config"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -50,8 +50,8 @@ type logoutOutput struct {
 
 func buildGoogleLoginHandler(deps RouteDependencies) stdhttp.HandlerFunc {
 	return func(writer stdhttp.ResponseWriter, request *stdhttp.Request) {
-		result, err := usecases.GetAuthURL(
-			usecases.GetAuthURLQuery{RedirectTo: request.URL.Query().Get("redirectTo")},
+		result, err := authusecases.GetAuthURL(
+			authusecases.GetAuthURLQuery{RedirectTo: request.URL.Query().Get("redirectTo")},
 			deps.StateCodec,
 			deps.GoogleProvider,
 			deps.Now(),
@@ -67,9 +67,9 @@ func buildGoogleLoginHandler(deps RouteDependencies) stdhttp.HandlerFunc {
 
 func buildGoogleCallbackHandler(deps RouteDependencies) stdhttp.HandlerFunc {
 	return func(writer stdhttp.ResponseWriter, request *stdhttp.Request) {
-		result, err := usecases.AuthenticateCallback(
+		result, err := authusecases.AuthenticateCallback(
 			request.Context(),
-			usecases.AuthenticateCallbackCommand{
+			authusecases.AuthenticateCallbackCommand{
 				Code:       request.URL.Query().Get("code"),
 				SessionTTL: deps.Config.SessionTTL,
 				State:      request.URL.Query().Get("state"),
@@ -99,9 +99,9 @@ func buildGetCurrentUserHandler(deps RouteDependencies) func(ctx context.Context
 	return func(ctx context.Context, input *struct {
 		Session stdhttp.Cookie `cookie:"brandtoon_session_id"`
 	}) (*currentUserOutput, error) {
-		result, err := usecases.GetCurrentUser(
+		result, err := authusecases.GetCurrentUser(
 			ctx,
-			usecases.GetCurrentUserQuery{SessionID: input.Session.Value},
+			authusecases.GetCurrentUserQuery{SessionID: input.Session.Value},
 			deps.SessionRepo,
 			deps.UserRepo,
 			deps.Now,
@@ -131,9 +131,9 @@ func buildLogoutHandler(deps RouteDependencies) func(ctx context.Context, input 
 	return func(ctx context.Context, input *struct {
 		Session stdhttp.Cookie `cookie:"brandtoon_session_id"`
 	}) (*logoutOutput, error) {
-		if err := usecases.LogoutSession(
+		if err := authusecases.LogoutSession(
 			ctx,
-			usecases.LogoutSessionCommand{SessionID: input.Session.Value},
+			authusecases.LogoutSessionCommand{SessionID: input.Session.Value},
 			deps.SessionRepo,
 		); err != nil {
 			return nil, err

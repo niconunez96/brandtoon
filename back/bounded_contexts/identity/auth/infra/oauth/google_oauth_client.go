@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
+	"brandtoonapi/bounded_contexts/identity/auth/domain"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"

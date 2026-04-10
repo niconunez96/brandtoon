@@ -1,4 +1,4 @@
-package usecases
+package authusecases
 
 import "strings"
 

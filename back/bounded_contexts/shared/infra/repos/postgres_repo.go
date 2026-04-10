@@ -1,4 +1,4 @@
-package repos
+package sharedrepos
 
 import (
 	"context"
