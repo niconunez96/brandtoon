@@ -4,13 +4,13 @@ import (
 	"context"
 	"sync"
 
-	"brandtoonapi/bounded_contexts/identity/auth/domain"
+	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
 	authoauth "brandtoonapi/bounded_contexts/identity/auth/infra/oauth"
 	authsecurity "brandtoonapi/bounded_contexts/identity/auth/infra/security"
-	"brandtoonapi/bounded_contexts/identity/session/domain"
-	"brandtoonapi/bounded_contexts/identity/session/infra/repo"
-	"brandtoonapi/bounded_contexts/identity/user/domain"
-	"brandtoonapi/bounded_contexts/identity/user/infra/repo"
+	sessiondomain "brandtoonapi/bounded_contexts/identity/session/domain"
+	sessionrepo "brandtoonapi/bounded_contexts/identity/session/infra/repo"
+	userdomain "brandtoonapi/bounded_contexts/identity/user/domain"
+	userrepo "brandtoonapi/bounded_contexts/identity/user/infra/repo"
 	sharedconfig "brandtoonapi/bounded_contexts/shared/infra/config"
 	sharedpostgres "brandtoonapi/bounded_contexts/shared/infra/postgres"
 

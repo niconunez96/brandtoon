@@ -1,7 +1,7 @@
 package test
 
 import (
-	"brandtoonapi/bounded_contexts/shared/domain"
+	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
 	"testing"
 
 	"github.com/google/uuid"

@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"brandtoonapi/bounded_contexts/identity/auth/useCases"
+	authusecases "brandtoonapi/bounded_contexts/identity/auth/useCases"
 	sessionmocks "brandtoonapi/bounded_contexts/identity/session/domain/mocks"
 )
 

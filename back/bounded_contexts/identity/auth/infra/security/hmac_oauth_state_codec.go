@@ -1,6 +1,7 @@
 package security
 
 import (
+	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
@@ -9,8 +10,6 @@ import (
 	"fmt"
 	"strings"
 	"time"
-
-	"brandtoonapi/bounded_contexts/identity/auth/domain"
 )
 
 const maxOAuthStateAge = 10 * time.Minute

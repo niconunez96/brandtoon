@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"brandtoonapi/bounded_contexts/identity/auth/domain"
-	"brandtoonapi/bounded_contexts/identity/auth/useCases"
-	"brandtoonapi/bounded_contexts/identity/session/domain"
+	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
+	authusecases "brandtoonapi/bounded_contexts/identity/auth/useCases"
+	sessiondomain "brandtoonapi/bounded_contexts/identity/session/domain"
 	sessionmocks "brandtoonapi/bounded_contexts/identity/session/domain/mocks"
-	"brandtoonapi/bounded_contexts/identity/user/domain"
+	userdomain "brandtoonapi/bounded_contexts/identity/user/domain"
 	usermocks "brandtoonapi/bounded_contexts/identity/user/domain/mocks"
 )
 

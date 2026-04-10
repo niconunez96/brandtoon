@@ -1,9 +1,8 @@
 package mocks
 
 import (
+	userdomain "brandtoonapi/bounded_contexts/identity/user/domain"
 	"context"
-
-	"brandtoonapi/bounded_contexts/identity/user/domain"
 )
 
 type UserRepositoryMock struct {

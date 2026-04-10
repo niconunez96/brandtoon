@@ -1,9 +1,8 @@
 package sessionrepo
 
 import (
+	sessiondomain "brandtoonapi/bounded_contexts/identity/session/domain"
 	"time"
-
-	"brandtoonapi/bounded_contexts/identity/session/domain"
 )
 
 type sessionDBModel struct {

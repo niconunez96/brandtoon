@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"brandtoonapi/bounded_contexts/identity/auth/domain"
+	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
 	authmocks "brandtoonapi/bounded_contexts/identity/auth/domain/mocks"
-	"brandtoonapi/bounded_contexts/identity/auth/useCases"
+	authusecases "brandtoonapi/bounded_contexts/identity/auth/useCases"
 )
 
 func TestGetGoogleAuthURLDefaultsInvalidRedirectTarget(t *testing.T) {

@@ -1,9 +1,8 @@
 package userrepo
 
 import (
+	userdomain "brandtoonapi/bounded_contexts/identity/user/domain"
 	"time"
-
-	"brandtoonapi/bounded_contexts/identity/user/domain"
 )
 
 type userDBModel struct {

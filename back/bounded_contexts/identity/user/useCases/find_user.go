@@ -1,8 +1,8 @@
 package userusecases
 
 import (
-	"brandtoonapi/bounded_contexts/identity/user/domain"
-	"brandtoonapi/bounded_contexts/shared/domain"
+	userdomain "brandtoonapi/bounded_contexts/identity/user/domain"
+	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
 	"context"
 )
 

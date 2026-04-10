@@ -1,9 +1,8 @@
 package authusecases
 
 import (
+	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
 	"time"
-
-	"brandtoonapi/bounded_contexts/identity/auth/domain"
 )
 
 type GetAuthURLQuery struct {

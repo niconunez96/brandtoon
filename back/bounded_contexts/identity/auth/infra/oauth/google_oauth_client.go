@@ -1,12 +1,11 @@
 package oauth
 
 import (
+	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
 	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
-
-	"brandtoonapi/bounded_contexts/identity/auth/domain"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"

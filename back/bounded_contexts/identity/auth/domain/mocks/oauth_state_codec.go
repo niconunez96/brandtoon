@@ -1,6 +1,6 @@
 package mocks
 
-import "brandtoonapi/bounded_contexts/identity/auth/domain"
+import authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
 
 type OAuthStateCodecMock struct {
 	DecodeFunc func(rawState string) (*authdomain.OAuthState, error)

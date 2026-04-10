@@ -1,13 +1,12 @@
 package authusecases
 
 import (
+	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
+	sessiondomain "brandtoonapi/bounded_contexts/identity/session/domain"
+	userdomain "brandtoonapi/bounded_contexts/identity/user/domain"
 	"context"
 	"fmt"
 	"time"
-
-	"brandtoonapi/bounded_contexts/identity/auth/domain"
-	"brandtoonapi/bounded_contexts/identity/session/domain"
-	"brandtoonapi/bounded_contexts/identity/user/domain"
 )
 
 type GetCurrentUserQuery struct {

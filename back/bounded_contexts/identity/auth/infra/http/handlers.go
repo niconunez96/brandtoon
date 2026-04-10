@@ -8,11 +8,11 @@ import (
 	"net/url"
 	"time"
 
-	"brandtoonapi/bounded_contexts/identity/auth/domain"
-	"brandtoonapi/bounded_contexts/identity/auth/useCases"
-	"brandtoonapi/bounded_contexts/identity/session/domain"
-	"brandtoonapi/bounded_contexts/identity/user/domain"
-	"brandtoonapi/bounded_contexts/shared/domain"
+	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
+	authusecases "brandtoonapi/bounded_contexts/identity/auth/useCases"
+	sessiondomain "brandtoonapi/bounded_contexts/identity/session/domain"
+	userdomain "brandtoonapi/bounded_contexts/identity/user/domain"
+	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
 	sharedconfig "brandtoonapi/bounded_contexts/shared/infra/config"
 
 	"github.com/danielgtaylor/huma/v2"

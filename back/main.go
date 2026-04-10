@@ -8,7 +8,7 @@ import (
 
 	authhttp "brandtoonapi/bounded_contexts/identity/auth/infra/http"
 	shared "brandtoonapi/bounded_contexts/shared"
-	"brandtoonapi/bounded_contexts/shared/domain"
+	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
 	sharedconfig "brandtoonapi/bounded_contexts/shared/infra/config"
 
 	"github.com/danielgtaylor/huma/v2"

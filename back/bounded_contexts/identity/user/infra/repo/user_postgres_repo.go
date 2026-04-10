@@ -1,12 +1,11 @@
 package userrepo
 
 import (
+	userdomain "brandtoonapi/bounded_contexts/identity/user/domain"
+	sharedrepos "brandtoonapi/bounded_contexts/shared/infra/repos"
 	"context"
 	"database/sql"
 	"errors"
-
-	"brandtoonapi/bounded_contexts/identity/user/domain"
-	"brandtoonapi/bounded_contexts/shared/infra/repos"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -29,7 +28,10 @@ func (r *UserPostgresRepo) Create(ctx context.Context, user userdomain.User) err
 	return r.PostgresRepo.Create(ctx, newUserDBModel(user))
 }
 
-func (r *UserPostgresRepo) FindByEmail(ctx context.Context, email string) (*userdomain.User, error) {
+func (r *UserPostgresRepo) FindByEmail(
+	ctx context.Context,
+	email string,
+) (*userdomain.User, error) {
 	model := &userDBModel{}
 	err := r.db.GetContext(
 		ctx,

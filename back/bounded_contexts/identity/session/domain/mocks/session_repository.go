@@ -1,9 +1,8 @@
 package mocks
 
 import (
+	sessiondomain "brandtoonapi/bounded_contexts/identity/session/domain"
 	"context"
-
-	"brandtoonapi/bounded_contexts/identity/session/domain"
 )
 
 type SessionRepositoryMock struct {
@@ -28,7 +27,10 @@ func (m *SessionRepositoryMock) Delete(ctx context.Context, id string) error {
 	return m.DeleteFunc(ctx, id)
 }
 
-func (m *SessionRepositoryMock) FindActiveByID(ctx context.Context, id string) (*sessiondomain.Session, error) {
+func (m *SessionRepositoryMock) FindActiveByID(
+	ctx context.Context,
+	id string,
+) (*sessiondomain.Session, error) {
 	if m.FindActiveByIDFunc == nil {
 		return nil, nil
 	}
