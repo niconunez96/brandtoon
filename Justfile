@@ -78,3 +78,23 @@ front-check:
 # Run frontend + backend together
 dev:
     trap 'kill 0' EXIT; (cd back && air -c .air.toml) & (corepack pnpm --dir front dev) & wait
+
+# Start infra services from compose.yaml
+infra-up:
+    docker compose -f compose.yaml up -d
+
+# Stop infra services from compose.yaml
+infra-down:
+    docker compose -f compose.yaml down
+
+# Run all pending DB migrations with goose
+db-migrate-up:
+    cd back && source .env && go run github.com/pressly/goose/v3/cmd/goose -dir bounded_contexts/shared/infra/postgres/migrations postgres "$DATABASE_URL" up
+
+# Roll back last DB migration with goose
+db-migrate-down:
+    cd back && source .env && go run github.com/pressly/goose/v3/cmd/goose -dir bounded_contexts/shared/infra/postgres/migrations postgres "$DATABASE_URL" down
+
+# Create a new SQL migration file (usage: just db-migrate-create <name>)
+db-migrate-create name:
+    cd back && go run github.com/pressly/goose/v3/cmd/goose -dir bounded_contexts/shared/infra/postgres/migrations create {{name}} sql

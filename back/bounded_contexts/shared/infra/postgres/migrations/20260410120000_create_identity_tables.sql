@@ -1,7 +1,6 @@
 -- +goose Up
 CREATE TABLE users (
     id TEXT PRIMARY KEY,
-    google_subject TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL,
     name TEXT NOT NULL,
     avatar_url TEXT NOT NULL,
@@ -10,7 +9,7 @@ CREATE TABLE users (
     deleted_at TIMESTAMPTZ NULL
 );
 
-CREATE INDEX idx_users_google_subject ON users (google_subject) WHERE deleted_at IS NULL;
+CREATE INDEX idx_users_email ON users (email) WHERE deleted_at IS NULL;
 
 CREATE TABLE sessions (
     id TEXT PRIMARY KEY,
