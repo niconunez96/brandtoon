@@ -1,8 +1,8 @@
+import { API_BASE_URL } from '../shared/config/api'
+
 type GreetingResponse = {
   message: string
 }
-
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8888'
 
 export async function fetchGreeting(name: string): Promise<GreetingResponse> {
   const sanitized = encodeURIComponent(name.trim() || 'world')

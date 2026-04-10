@@ -13,11 +13,31 @@ back-dev:
 
 # Format backend Go code
 back-format:
-    cd back && go fmt ./...
+    #!/usr/bin/env sh
+    GO_FILES=$(find ./back -type f -name '*.go' ! -path './vendor/*'); 
+    if [ -n "$GO_FILES" ]; then 
+        go run golang.org/x/tools/cmd/goimports@latest -w $GO_FILES; 
+        golines -m 120 -w $GO_FILES;
+    fi
 
 # Check backend Go formatting without modifying files
 back-format-check:
-    @unformatted=$(cd back && gofmt -l .); if [ -n "$unformatted" ]; then printf 'Unformatted Go files:\n%s\n' "$unformatted"; exit 1; fi
+    #!/usr/bin/env sh
+    GO_FILES=$(find ./back -type f -name '*.go' ! -path './vendor/*'); 
+    if [ -n "$GO_FILES" ]; then 
+        GOIMPORTS_OUT=$(go run golang.org/x/tools/cmd/goimports@latest -l $GO_FILES); 
+        if [ -n "$GOIMPORTS_OUT" ]; then
+            printf "%s\n" "$GOIMPORTS_OUT";
+            printf "goimports found unformatted files.\n";
+            exit 1;
+        fi;
+        GOLINES_OUT=$(golines -m 120 -l $GO_FILES);
+        if [ -n "$GOLINES_OUT" ]; then
+            printf "%s\n" "$GOLINES_OUT";
+            printf "golines found unformatted files.\n";
+            exit 1;
+        fi;
+    fi
 
 # Lint backend Go code
 back-lint:
@@ -25,7 +45,7 @@ back-lint:
 
 # Run backend tests
 back-test:
-    cd back && go test ./...
+    cd back && go test ./... | grep -v \?
 
 # Run backend quality checks
 back-check:

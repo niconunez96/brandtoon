@@ -1,0 +1,51 @@
+package usecases
+
+import (
+	"context"
+	"time"
+
+	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
+	sessiondomain "brandtoonapi/bounded_contexts/identity/session/domain"
+	userdomain "brandtoonapi/bounded_contexts/identity/user/domain"
+)
+
+type GetCurrentUserQuery struct {
+	SessionID string
+}
+
+type GetCurrentUserResult struct {
+	Session sessiondomain.Session
+	User    userdomain.User
+}
+
+func GetCurrentUser(
+	ctx context.Context,
+	query GetCurrentUserQuery,
+	sessionRepo sessiondomain.SessionRepository,
+	userRepo userdomain.UserRepository,
+	now func() time.Time,
+) (GetCurrentUserResult, error) {
+	if query.SessionID == "" {
+		return GetCurrentUserResult{}, authdomain.ErrUnauthenticated
+	}
+
+	session, err := sessionRepo.FindActiveByID(ctx, query.SessionID)
+	if err != nil {
+		return GetCurrentUserResult{}, err
+	}
+
+	if session == nil || session.IsExpired(now().UTC()) {
+		return GetCurrentUserResult{}, authdomain.ErrUnauthenticated
+	}
+
+	user, err := userRepo.FindByID(ctx, session.UserID)
+	if err != nil {
+		return GetCurrentUserResult{}, err
+	}
+
+	if user == nil {
+		return GetCurrentUserResult{}, authdomain.ErrUnauthenticated
+	}
+
+	return GetCurrentUserResult{Session: *session, User: *user}, nil
+}
