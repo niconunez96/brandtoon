@@ -1,9 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen } from '@testing-library/react'
-import { http, HttpResponse } from 'msw'
+import { render, screen } from '@testing-library/react'
 import { App } from './App'
-import { useGreetingStore } from './store/greeting.store'
-import { server } from './test/mocks/server'
 
 const renderApp = () => {
   const queryClient = new QueryClient({
@@ -22,37 +19,35 @@ const renderApp = () => {
 }
 
 describe('App', () => {
-  afterEach(() => {
-    useGreetingStore.setState({ name: 'world' })
-  })
-
-  it('renders greeting from API', async () => {
-    renderApp()
-
-    expect(screen.getByText('Loading greeting...')).toBeInTheDocument()
-    expect(await screen.findByText('Hello, world!')).toBeInTheDocument()
-  })
-
-  it('shows error when API request fails', async () => {
-    server.use(
-      http.get('http://127.0.0.1:8888/greeting/:name', () =>
-        HttpResponse.json({}, { status: 500 }),
-      ),
-    )
-
+  it('renders the main showcase sections', () => {
     renderApp()
 
     expect(
-      await screen.findByText('Could not fetch greeting.'),
+      screen.getByText(/Foundational components and palette/i),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Foundation Rules')).toBeInTheDocument()
+    expect(screen.getByText('Base Components')).toBeInTheDocument()
+    expect(screen.getByText('Data & Status Foundations')).toBeInTheDocument()
+  })
+
+  it('renders both desktop and mobile navigation landmarks', () => {
+    renderApp()
+
+    expect(screen.getByLabelText('Primary sidebar')).toBeInTheDocument()
+    expect(
+      screen.getByLabelText('Mobile bottom navigation'),
     ).toBeInTheDocument()
   })
 
-  it('updates greeting when user changes the name', async () => {
+  it('renders key primitive examples', () => {
     renderApp()
 
-    const input = await screen.findByLabelText('Name')
-    fireEvent.change(input, { target: { value: 'nico' } })
-
-    expect(await screen.findByText('Hello, nico!')).toBeInTheDocument()
+    expect(screen.getAllByText('Primary action')[0]).toBeInTheDocument()
+    expect(screen.getByLabelText('Workspace name')).toBeInTheDocument()
+    expect(screen.getByText('System status synced')).toBeInTheDocument()
+    expect(screen.getByText('No assets yet')).toBeInTheDocument()
+    expect(screen.getByText('Completion')).toBeInTheDocument()
+    expect(screen.getByText('#vector')).toBeInTheDocument()
+    expect(screen.getByText('Project saved')).toBeInTheDocument()
   })
 })
