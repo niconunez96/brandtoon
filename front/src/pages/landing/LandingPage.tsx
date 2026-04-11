@@ -110,6 +110,14 @@ const HERO_CHARACTERS = [
   },
 ] as const
 
+const CHARACTER_FLOAT_DELAYS = [
+  '0ms',
+  '180ms',
+  '340ms',
+  '520ms',
+  '680ms',
+] as const
+
 const PROCESS_STEPS = [
   {
     step: '1. Describe',
@@ -175,7 +183,7 @@ export function LandingPage() {
 
       <main className="mx-auto flex max-w-6xl flex-col gap-24 px-4 pb-16 pt-10 sm:px-6 lg:px-8 lg:pt-14">
         <section className="grid gap-10 lg:grid-cols-[1fr_1.05fr] lg:items-center">
-          <div className="space-y-7">
+          <div className="landing-intro-reveal space-y-7">
             <Badge className="bg-ink px-4 py-2 uppercase tracking-section">
               Beta access now open
             </Badge>
@@ -216,7 +224,7 @@ export function LandingPage() {
             </div>
           </div>
 
-          <div className="relative">
+          <div className="landing-intro-reveal relative [animation-delay:120ms]">
             <Card className="landing-hero-card relative overflow-hidden bg-white p-4 sm:p-5">
               <div className="landing-hero-art relative overflow-hidden rounded-[2rem] p-4 sm:p-5">
                 <div className="landing-orb absolute left-6 top-6 h-28 w-28" />
@@ -230,14 +238,15 @@ export function LandingPage() {
                     </Badge>
                     <img
                       alt={HERO_CHARACTERS[0].imageAlt}
-                      className={`landing-hero-character-image ${HERO_CHARACTERS[0].imageClassName}`}
+                      className={`landing-hero-character-image landing-character-float ${HERO_CHARACTERS[0].imageClassName}`}
                       loading="eager"
                       src={HERO_CHARACTERS[0].imageSrc}
+                      style={{ animationDelay: CHARACTER_FLOAT_DELAYS[0] }}
                     />
                   </article>
 
                   <div className="grid gap-3 sm:grid-cols-1 sm:gap-4">
-                    {HERO_CHARACTERS.slice(1, 3).map((character) => (
+                    {HERO_CHARACTERS.slice(1, 3).map((character, index) => (
                       <article
                         className={character.className}
                         key={character.title}
@@ -247,16 +256,19 @@ export function LandingPage() {
                         </Badge>
                         <img
                           alt={character.imageAlt}
-                          className={`landing-hero-character-image ${character.imageClassName}`}
+                          className={`landing-hero-character-image landing-character-float ${character.imageClassName}`}
                           loading="eager"
                           src={character.imageSrc}
+                          style={{
+                            animationDelay: CHARACTER_FLOAT_DELAYS[index + 1],
+                          }}
                         />
                       </article>
                     ))}
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 sm:col-span-2 sm:gap-4">
-                    {HERO_CHARACTERS.slice(3).map((character) => (
+                    {HERO_CHARACTERS.slice(3).map((character, index) => (
                       <article
                         className={character.className}
                         key={character.title}
@@ -266,9 +278,12 @@ export function LandingPage() {
                         </Badge>
                         <img
                           alt={character.imageAlt}
-                          className={`landing-hero-character-image ${character.imageClassName}`}
+                          className={`landing-hero-character-image landing-character-float ${character.imageClassName}`}
                           loading="lazy"
                           src={character.imageSrc}
+                          style={{
+                            animationDelay: CHARACTER_FLOAT_DELAYS[index + 3],
+                          }}
                         />
                       </article>
                     ))}
@@ -302,7 +317,10 @@ export function LandingPage() {
 
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {SHOWCASE_CARDS.map((card) => (
-                <Card className={card.className} key={card.title}>
+                <Card
+                  className={`${card.className} landing-showcase-card`}
+                  key={card.title}
+                >
                   <div className="flex h-full flex-col gap-6">
                     <div className="flex items-start justify-between gap-3">
                       <Badge className="w-fit bg-white/88 text-ink">
