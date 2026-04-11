@@ -21,16 +21,18 @@ Use this skill when changing `back/main.go` or `back/bounded_contexts/**/infra/h
 
 1. Use Huma operation registration patterns (`huma.Register` / `huma.Get` etc.) consistently.
 2. Prefer explicit request/response structs with schema tags for docs + validation.
-3. Keep route registration isolated and callable from tests.
-4. Keep service configuration externalized (CLI/env options) when needed.
-5. Use conditional field constraints with `dependentRequired` when business contracts need field dependencies.
-6. For dependency initialization/composition wiring, follow `go-shared-di-container`.
+3. Default approach for input schema validation is Huma field tags in `infra/http` contracts (e.g. `minLength`, `maxLength`, `pattern`) instead of duplicating the same schema checks in use cases.
+4. Keep route registration isolated and callable from tests.
+5. Keep service configuration externalized (CLI/env options) when needed.
+6. Use conditional field constraints with `dependentRequired` when business contracts need field dependencies.
+7. For dependency initialization/composition wiring, follow `go-shared-di-container`.
 
 ## DDD Boundary Rules
 
 - Huma-specific types stay in transport (`infra/http`) and composition root.
 - Do not leak Huma request/response structs into domain.
 - Map Huma input/output to use case command/query DTOs explicitly.
+- Keep transport-level validation failures as HTTP validation concerns; use cases should focus on business behavior and invariants.
 
 ## Testing Alignment
 

@@ -29,6 +29,7 @@ Use this skill when editing `back/bounded_contexts/**/useCases`.
 - Commands perform writes or side effects.
 - Queries return read models without side effects.
 - Use case file/function/DTO names must express business capability, not provider technology.
+- Avoid transport schema validation in use cases (required/length/pattern checks for HTTP payload shape); prefer Huma validation tags in `infra/http` contracts.
 
 ## Forbidden Patterns
 
@@ -38,6 +39,7 @@ Use this skill when editing `back/bounded_contexts/**/useCases`.
 - Commands that silently behave as queries (or inverse).
 - Use cases importing transport concerns (HTTP DTOs, router context).
 - Use cases coupling directly to infra implementations.
+- Duplicating schema validation rules both in Huma contracts and in use cases.
 - Provider-branded use case names (`AuthenticateGoogleCallback`, `GetGithubAuthURL`, etc.).
 - Provider-specific command/query DTO field names in `useCases/` (`googleSubject`, `githubCode`).
 
