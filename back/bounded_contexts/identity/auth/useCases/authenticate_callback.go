@@ -74,12 +74,10 @@ func findOrCreateUser(
 		ctx,
 		userusecases.FindUserQuery{Email: identity.Email},
 		userRepo,
-		idGenerator,
 	)
 	if err != nil {
 		return userdomain.User{}, err
 	}
-
 	if existingUser == nil {
 		return userusecases.CreateUser(ctx, userusecases.CreateUserCmd{
 			Name:      identity.Name,

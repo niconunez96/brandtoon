@@ -6,7 +6,7 @@ export const handlers = [
     const name = String(params.name ?? 'world')
     return HttpResponse.json({ message: `Hello, ${name}!` })
   }),
-  http.get(`${API_BASE_URL}/auth/me`, () => {
+  http.get(`${API_BASE_URL}/auth/users/me`, () => {
     return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
   }),
   http.post(`${API_BASE_URL}/auth/logout`, () => {

@@ -4,17 +4,17 @@ import (
 	"context"
 	"testing"
 
-	authusecases "brandtoonapi/bounded_contexts/identity/auth/useCases"
 	sessionmocks "brandtoonapi/bounded_contexts/identity/session/domain/mocks"
+	sessionusecases "brandtoonapi/bounded_contexts/identity/session/useCases"
 )
 
 func TestLogoutSessionDeletesSessionWhenPresent(t *testing.T) {
 	t.Parallel()
 
 	deletedSessionID := ""
-	err := authusecases.LogoutSession(
+	err := sessionusecases.DeleteSession(
 		context.Background(),
-		authusecases.LogoutSessionCommand{SessionID: "session-v7"},
+		sessionusecases.LogoutSessionCommand{SessionID: "session-v7"},
 		&sessionmocks.SessionRepositoryMock{
 			DeleteFunc: func(ctx context.Context, id string) error {
 				deletedSessionID = id

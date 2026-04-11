@@ -33,7 +33,7 @@ func TestAuthMeReturnsUnauthorizedWithoutCookie(t *testing.T) {
 		UserRepo:    &usermocks.UserRepositoryMock{},
 	})
 
-	request := httptest.NewRequest(http.MethodGet, "/auth/me", nil)
+	request := httptest.NewRequest(http.MethodGet, "/auth/users/me", nil)
 	recorder := httptest.NewRecorder()
 
 	server.ServeHTTP(recorder, request)

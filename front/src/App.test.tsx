@@ -115,7 +115,7 @@ describe('App', () => {
 
   it('renders the creative studio shell when the user is authenticated', async () => {
     server.use(
-      http.get(`${API_BASE_URL}/auth/me`, () => {
+      http.get(`${API_BASE_URL}/auth/users/me`, () => {
         return HttpResponse.json({
           user: {
             avatarUrl: 'https://avatar.example.com/nico.png',
@@ -147,7 +147,7 @@ describe('App', () => {
     const user = userEvent.setup()
 
     server.use(
-      http.get(`${API_BASE_URL}/auth/me`, () => {
+      http.get(`${API_BASE_URL}/auth/users/me`, () => {
         return HttpResponse.json({
           user: {
             avatarUrl: 'https://avatar.example.com/nico.png',

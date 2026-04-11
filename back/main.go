@@ -10,6 +10,7 @@ import (
 	shared "brandtoonapi/bounded_contexts/shared"
 	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
 	sharedconfig "brandtoonapi/bounded_contexts/shared/infra/config"
+	"brandtoonapi/bounded_contexts/shared/infra/telemetry"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humachi"
@@ -23,6 +24,7 @@ func main() {
 	ctx := context.Background()
 	_ = godotenv.Load()
 	container := shared.NewDIContainer()
+	t := telemetry.NewTelemetry()
 
 	config, err := container.GetConfig()
 	if err != nil {
@@ -51,6 +53,7 @@ func main() {
 
 	router := chi.NewMux()
 	router.Use(corsMiddleware(config))
+	router.Use(t.HttpLoggerMiddleware())
 	api := humachi.New(router, huma.DefaultConfig("Brandtoon API", "1.0.0"))
 
 	authhttp.RegisterRoutes(api, router, authhttp.RouteDependencies{

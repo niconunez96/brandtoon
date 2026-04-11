@@ -20,52 +20,68 @@ type Config struct {
 	SessionTTL         time.Duration
 }
 
+type UpdateConficFunc func(config *Config, value string)
+
+type EnvConfig struct {
+	UpdateConfig UpdateConficFunc
+	Required     bool
+}
+
+var ENVS = map[string]EnvConfig{
+	"DATABASE_URL": {
+		Required:     true,
+		UpdateConfig: func(config *Config, value string) { config.DatabaseURL = value },
+	},
+	"FRONTEND_BASE_URL": {
+		Required:     true,
+		UpdateConfig: func(config *Config, value string) { config.FrontendBaseURL = value },
+	},
+	"GOOGLE_CLIENT_ID": {
+		Required:     true,
+		UpdateConfig: func(config *Config, value string) { config.GoogleClientID = value },
+	},
+	"GOOGLE_CLIENT_SECRET": {
+		Required:     true,
+		UpdateConfig: func(config *Config, value string) { config.GoogleClientSecret = value },
+	},
+	"GOOGLE_REDIRECT_URL": {
+		Required:     true,
+		UpdateConfig: func(config *Config, value string) { config.GoogleRedirectURL = value },
+	},
+	"AUTH_STATE_SECRET": {
+		Required:     true,
+		UpdateConfig: func(config *Config, value string) { config.AuthStateSecret = value },
+	},
+	"SERVER_ADDRESS": {
+		Required: false,
+		UpdateConfig: func(config *Config, value string) {
+			address := strings.TrimSpace(value)
+			if address == "" {
+				config.ServerAddress = defaultServerAddress
+				return
+			}
+			config.ServerAddress = address
+
+		},
+	},
+}
+
 func LoadConfig() (Config, error) {
-	databaseURL, err := requiredEnv("DATABASE_URL")
-	if err != nil {
-		return Config{}, err
+	config := &Config{
+		SessionTTL: 30 * 24 * time.Hour,
 	}
-
-	frontendBaseURL, err := requiredEnv("FRONTEND_BASE_URL")
-	if err != nil {
-		return Config{}, err
+	for envKey, envConfig := range ENVS {
+		value := os.Getenv(envKey)
+		if envConfig.Required {
+			requiredValue, err := requiredEnv(envKey)
+			if err != nil {
+				return Config{}, err
+			}
+			value = requiredValue
+		}
+		envConfig.UpdateConfig(config, value)
 	}
-
-	googleClientID, err := requiredEnv("GOOGLE_CLIENT_ID")
-	if err != nil {
-		return Config{}, err
-	}
-
-	googleClientSecret, err := requiredEnv("GOOGLE_CLIENT_SECRET")
-	if err != nil {
-		return Config{}, err
-	}
-
-	googleRedirectURL, err := requiredEnv("GOOGLE_REDIRECT_URL")
-	if err != nil {
-		return Config{}, err
-	}
-
-	authStateSecret, err := requiredEnv("AUTH_STATE_SECRET")
-	if err != nil {
-		return Config{}, err
-	}
-
-	serverAddress := strings.TrimSpace(os.Getenv("SERVER_ADDRESS"))
-	if serverAddress == "" {
-		serverAddress = defaultServerAddress
-	}
-
-	return Config{
-		AuthStateSecret:    authStateSecret,
-		DatabaseURL:        databaseURL,
-		FrontendBaseURL:    strings.TrimRight(frontendBaseURL, "/"),
-		GoogleClientID:     googleClientID,
-		GoogleClientSecret: googleClientSecret,
-		GoogleRedirectURL:  googleRedirectURL,
-		ServerAddress:      serverAddress,
-		SessionTTL:         30 * 24 * time.Hour,
-	}, nil
+	return *config, nil
 }
 
 func (c Config) SessionCookieSecure() bool {

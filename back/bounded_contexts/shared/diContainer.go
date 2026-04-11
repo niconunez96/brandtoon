@@ -31,21 +31,11 @@ type DIContainer struct {
 	db     *sqlx.DB
 	dbErr  error
 
-	googleProviderOnce sync.Once
-	googleProvider     authdomain.IdentityProvider
-	googleProviderErr  error
-
-	stateCodecOnce sync.Once
+	// Auth
+	googleProvider authdomain.IdentityProvider
 	stateCodec     authdomain.OAuthStateCodec
-	stateCodecErr  error
-
-	userRepoOnce sync.Once
-	userRepo     userdomain.UserRepository
-	userRepoErr  error
-
-	sessionRepoOnce sync.Once
-	sessionRepo     sessiondomain.SessionRepository
-	sessionRepoErr  error
+	userRepo       userdomain.UserRepository
+	sessionRepo    sessiondomain.SessionRepository
 }
 
 func NewDIContainer() *DIContainer {
@@ -79,61 +69,52 @@ func (c *DIContainer) GetDB(ctx context.Context) (*sqlx.DB, error) {
 }
 
 func (c *DIContainer) GetGoogleIdentityProvider() (authdomain.IdentityProvider, error) {
-	c.googleProviderOnce.Do(func() {
+	if c.googleProvider == nil {
 		config, err := c.GetConfig()
 		if err != nil {
-			c.googleProviderErr = err
-			return
+			return nil, err
 		}
-
 		c.googleProvider = authoauth.NewGoogleOAuthClient(
 			config.GoogleClientID,
 			config.GoogleClientSecret,
 			config.GoogleRedirectURL,
 		)
-	})
-
-	return c.googleProvider, c.googleProviderErr
+	}
+	return c.googleProvider, nil
 }
 
 func (c *DIContainer) GetOAuthStateCodec() (authdomain.OAuthStateCodec, error) {
-	c.stateCodecOnce.Do(func() {
+	if c.stateCodec == nil {
 		config, err := c.GetConfig()
 		if err != nil {
-			c.stateCodecErr = err
-			return
+			return nil, err
 		}
-
 		c.stateCodec = authsecurity.NewHMACOAuthStateCodec(config.AuthStateSecret)
-	})
-
-	return c.stateCodec, c.stateCodecErr
+	}
+	return c.stateCodec, nil
 }
 
 func (c *DIContainer) GetUserRepo(ctx context.Context) (userdomain.UserRepository, error) {
-	c.userRepoOnce.Do(func() {
+	if c.userRepo == nil {
 		db, err := c.GetDB(ctx)
 		if err != nil {
-			c.userRepoErr = err
-			return
+			return nil, err
 		}
 
 		c.userRepo = userrepo.NewUserPostgresRepo(db)
-	})
-
-	return c.userRepo, c.userRepoErr
+	}
+	return c.userRepo, nil
 }
 
 func (c *DIContainer) GetSessionRepo(ctx context.Context) (sessiondomain.SessionRepository, error) {
-	c.sessionRepoOnce.Do(func() {
+	if c.sessionRepo == nil {
 		db, err := c.GetDB(ctx)
 		if err != nil {
-			c.sessionRepoErr = err
-			return
+			return nil, err
 		}
 
 		c.sessionRepo = sessionrepo.NewSessionPostgresRepo(db)
-	})
+	}
 
-	return c.sessionRepo, c.sessionRepoErr
+	return c.sessionRepo, nil
 }

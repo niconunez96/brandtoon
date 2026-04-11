@@ -1,4 +1,4 @@
-package authusecases
+package sessionusecases
 
 import (
 	sessiondomain "brandtoonapi/bounded_contexts/identity/session/domain"
@@ -9,7 +9,7 @@ type LogoutSessionCommand struct {
 	SessionID string
 }
 
-func LogoutSession(
+func DeleteSession(
 	ctx context.Context,
 	command LogoutSessionCommand,
 	sessionRepo sessiondomain.SessionRepository,
