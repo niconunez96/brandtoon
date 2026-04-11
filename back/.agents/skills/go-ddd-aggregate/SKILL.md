@@ -20,6 +20,7 @@ Use this skill when changing domain models in `back/bounded_contexts/**/domain`.
 ## Hard Constraints
 
 - Aggregate root is the ONLY entrypoint for domain interactions.
+- Package name in `domain/` is `package {aggregate}domain`.
 - Internal entities are not exported for direct external mutation.
 - Value objects are defined via explicit custom types and enum-like constants.
 - Domain interfaces (ports) are declared in domain layer and are third-party free.
@@ -30,6 +31,7 @@ Use this skill when changing domain models in `back/bounded_contexts/**/domain`.
 ## Forbidden Patterns
 
 - Anemic models with setters everywhere.
+- Generic package names in aggregate domain layers (`package domain`).
 - Domain services returning infra-specific types.
 - External code mutating child entities directly.
 - Implicit string literals instead of typed value objects.
@@ -40,6 +42,7 @@ Use this skill when changing domain models in `back/bounded_contexts/**/domain`.
 ## Required Checklist
 
 - Identify aggregate root and invariants before coding.
+- Ensure package name matches `{aggregate}domain`.
 - Confirm all mutations pass through aggregate root methods.
 - Replace primitive obsession with typed value objects where needed.
 - Define/adjust domain interfaces for external side effects.

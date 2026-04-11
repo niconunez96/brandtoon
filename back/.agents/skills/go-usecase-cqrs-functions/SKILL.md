@@ -21,6 +21,7 @@ Use this skill when editing `back/bounded_contexts/**/useCases`.
 ## Hard Constraints
 
 - One file per use case (`authenticate_user.go`, `reset_password.go`, ...).
+- Package name in `useCases/` is `package {aggregate}usecases`.
 - Use cases are functions, not service structs.
 - Each use case receives:
   - command/query input DTO
@@ -32,6 +33,7 @@ Use this skill when editing `back/bounded_contexts/**/useCases`.
 ## Forbidden Patterns
 
 - Multi-use-case files mixing unrelated flows.
+- Generic package names in aggregate use-case layers (`package useCases`, `package usecases`).
 - Stateful use-case structs storing mutable dependencies.
 - Commands that silently behave as queries (or inverse).
 - Use cases importing transport concerns (HTTP DTOs, router context).
@@ -42,6 +44,7 @@ Use this skill when editing `back/bounded_contexts/**/useCases`.
 ## Required Checklist
 
 - Name file by business action in snake_case.
+- Ensure package name matches `{aggregate}usecases`.
 - Define input type per use case (command or query).
 - Pass only required dependencies in function signature.
 - Return domain/application errors explicitly.

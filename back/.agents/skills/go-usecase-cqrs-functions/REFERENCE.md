@@ -14,11 +14,11 @@ One business action per file.
 ## Command Template
 
 ```go
-package useCases
+package userusecases
 
 import (
-    "context"
-    "brandtoon/back/bounded_contexts/identity/user/domain"
+	"context"
+	userdomain "brandtoon/back/bounded_contexts/identity/user/domain"
 )
 
 type ResetPasswordCommand struct {
@@ -28,9 +28,9 @@ type ResetPasswordCommand struct {
 
 func ResetPassword(
     ctx context.Context,
-    cmd ResetPasswordCommand,
-    users domain.UserRepository,
-    sender domain.EmailSender,
+	cmd ResetPasswordCommand,
+	users userdomain.UserRepository,
+	sender userdomain.EmailSender,
 ) error {
     user, err := users.FindByEmail(ctx, cmd.Email)
     if err != nil {
@@ -55,11 +55,11 @@ Command must perform state change and/or side effect.
 ## Query Template
 
 ```go
-package useCases
+package userusecases
 
 import (
-    "context"
-    "brandtoon/back/bounded_contexts/identity/user/domain"
+	"context"
+	userdomain "brandtoon/back/bounded_contexts/identity/user/domain"
 )
 
 type GetUserProfileQuery struct {
@@ -72,9 +72,9 @@ type UserProfileView struct {
 }
 
 func GetUserProfile(
-    ctx context.Context,
-    q GetUserProfileQuery,
-    users domain.UserRepository,
+	ctx context.Context,
+	q GetUserProfileQuery,
+	users userdomain.UserRepository,
 ) (UserProfileView, error) {
     user, err := users.FindByEmail(ctx, q.Email)
     if err != nil {
