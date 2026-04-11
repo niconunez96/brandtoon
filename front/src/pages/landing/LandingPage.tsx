@@ -176,7 +176,7 @@ export function LandingPage() {
       <main className="mx-auto flex max-w-6xl flex-col gap-24 px-4 pb-16 pt-10 sm:px-6 lg:px-8 lg:pt-14">
         <section className="grid gap-10 lg:grid-cols-[1fr_1.05fr] lg:items-center">
           <div className="space-y-7">
-            <Badge className="bg-ink px-4 py-2 uppercase tracking-section text-white">
+            <Badge className="bg-ink px-4 py-2 uppercase tracking-section">
               Beta access now open
             </Badge>
 

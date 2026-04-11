@@ -29,7 +29,7 @@ export function LoginPage() {
     <div className="foundation-page flex min-h-screen items-center justify-center px-4 py-10 sm:px-6">
       <Card className="w-full max-w-xl space-y-8 bg-white p-8 sm:p-10">
         <div className="space-y-4 text-center">
-          <Badge className="bg-ink px-4 py-2 uppercase tracking-section text-white">
+          <Badge className="bg-ink px-4 py-2 uppercase tracking-section">
             Sign in to continue
           </Badge>
           <div className="space-y-3">
