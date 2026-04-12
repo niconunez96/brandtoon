@@ -4,6 +4,8 @@ import (
 	"context"
 	"sync"
 
+	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
+	avatarrepo "brandtoonapi/bounded_contexts/creative_studio/avatar/infra/repo"
 	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
 	authoauth "brandtoonapi/bounded_contexts/identity/auth/infra/oauth"
 	authsecurity "brandtoonapi/bounded_contexts/identity/auth/infra/security"
@@ -36,6 +38,8 @@ type DIContainer struct {
 	stateCodec     authdomain.OAuthStateCodec
 	userRepo       userdomain.UserRepository
 	sessionRepo    sessiondomain.SessionRepository
+	// Creative studio
+	avatarRepo avatardomain.AvatarRepository
 }
 
 func NewDIContainer() *DIContainer {
@@ -117,4 +121,17 @@ func (c *DIContainer) GetSessionRepo(ctx context.Context) (sessiondomain.Session
 	}
 
 	return c.sessionRepo, nil
+}
+
+func (c *DIContainer) GetAvatarRepo(ctx context.Context) (avatardomain.AvatarRepository, error) {
+	if c.avatarRepo == nil {
+		db, err := c.GetDB(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		c.avatarRepo = avatarrepo.NewAvatarPostgresRepo(db)
+	}
+
+	return c.avatarRepo, nil
 }

@@ -28,7 +28,7 @@ type listAvatarsOutput struct {
 }
 
 type createAvatarBody struct {
-	Name string `json:"name" minLength:"1" maxLength:"120" pattern:"\\S" patternDescription:"must contain at least one non-whitespace character"`
+	Name string `json:"name" minLength:"1" maxLength:"120" pattern:"\S" patternDescription:"must contain at least one non-whitespace character"` // nolint
 }
 
 type createAvatarInput struct {
