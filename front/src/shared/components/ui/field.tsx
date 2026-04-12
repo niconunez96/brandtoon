@@ -2,7 +2,9 @@ import {
   type InputHTMLAttributes,
   type PropsWithChildren,
   type ReactNode,
+  type Ref,
   type TextareaHTMLAttributes,
+  forwardRef,
   useId,
   useState,
 } from 'react'
@@ -78,14 +80,10 @@ function FieldShell({
 
 type InputProps = InputHTMLAttributes<HTMLInputElement> & FieldProps
 
-export function Input({
-  className,
-  hint,
-  label,
-  message,
-  state = 'default',
-  ...props
-}: InputProps) {
+export const Input = forwardRef(function Input(
+  { className, hint, label, message, state = 'default', ...props }: InputProps,
+  ref: Ref<HTMLInputElement>,
+) {
   const id = useId()
   const describedBy = hint ? `${id}-hint` : undefined
 
@@ -103,22 +101,26 @@ export function Input({
         aria-invalid={state === 'error' || undefined}
         className={cn(fieldClassName, fieldStateClassNames[state], className)}
         id={id}
+        ref={ref}
         {...props}
       />
     </FieldShell>
   )
-}
+})
 
 type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & FieldProps
 
-export function Textarea({
-  className,
-  hint,
-  label,
-  message,
-  state = 'default',
-  ...props
-}: TextareaProps) {
+export const Textarea = forwardRef(function Textarea(
+  {
+    className,
+    hint,
+    label,
+    message,
+    state = 'default',
+    ...props
+  }: TextareaProps,
+  ref: Ref<HTMLTextAreaElement>,
+) {
   const id = useId()
   const describedBy = hint ? `${id}-hint` : undefined
 
@@ -141,11 +143,12 @@ export function Textarea({
           className,
         )}
         id={id}
+        ref={ref}
         {...props}
       />
     </FieldShell>
   )
-}
+})
 
 type PromptFieldProps = Omit<
   TextareaHTMLAttributes<HTMLTextAreaElement>,

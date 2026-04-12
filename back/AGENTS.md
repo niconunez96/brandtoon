@@ -61,6 +61,11 @@ If work spans multiple areas, load multiple skills.
 - HTTP routes are grouped by prefix in `infra/http/routes.go`.
 - Huma is the standard HTTP framework for `back/`.
 - Repository adapters live in `infra/repo/`.
+- Aggregate package naming is mandatory in aggregate layers:
+  - `domain/` -> `package {aggregate}domain`
+  - `useCases/` -> `package {aggregate}usecases`
+  - `infra/repo/` -> `package {aggregate}repo`
+  - `infra/http/` -> `package {aggregate}http`
 - Postgres repositories follow `XXXPostgresRepo` naming.
 - Third-party dependency initialization must live in shared `DIContainer` (not in handlers/useCases/domain).
 - `DIContainer` exposes `GetX()` methods that lazily initialize once (singleton-style) and reuse instances.
@@ -95,6 +100,7 @@ If work spans multiple areas, load multiple skills.
 - Fat handlers containing business rules.
 - Route definitions scattered across handler files.
 - Generic repository names that hide implementation (`UserRepoImpl`).
+- Generic aggregate package names inside aggregate layers (`package domain`, `package useCases`, `package repo`, `package http`).
 - Cross-aggregate mutation bypassing aggregate roots.
 - Marking a change as done with failing tests.
 - Skipping test creation for modified `useCases` or `infra/http` handlers.
@@ -109,6 +115,7 @@ If work spans multiple areas, load multiple skills.
 - Load required skill(s) before editing.
 - Validate dependency direction stays inward to domain.
 - Validate names and file placement follow conventions.
+- Validate aggregate package naming follows `{aggregate}domain|usecases|repo|http` in aggregate layers.
 - Validate domain/use case names are business-language and provider-agnostic.
 - Ensure commands/queries are separated clearly.
 - Ensure domain contracts stay vendor-neutral.

@@ -1,4 +1,4 @@
-package http
+package authhttp
 
 import (
 	sessiondomain "brandtoonapi/bounded_contexts/identity/session/domain"

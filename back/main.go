@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	avatarhttp "brandtoonapi/bounded_contexts/creative_studio/avatar/infra/http"
 	authhttp "brandtoonapi/bounded_contexts/identity/auth/infra/http"
 	shared "brandtoonapi/bounded_contexts/shared"
 	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
@@ -51,6 +52,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	avatarRepo, err := container.GetAvatarRepo(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	router := chi.NewMux()
 	router.Use(corsMiddleware(config))
 	router.Use(t.HttpLoggerMiddleware())
@@ -64,6 +70,12 @@ func main() {
 		SessionRepo:    sessionRepo,
 		StateCodec:     stateCodec,
 		UserRepo:       userRepo,
+	})
+	avatarhttp.RegisterRoutes(api, router, avatarhttp.RouteDependencies{
+		AvatarRepo:  avatarRepo,
+		IDGenerator: shareddomain.GenerateUUIDv7,
+		SessionRepo: sessionRepo,
+		UserRepo:    userRepo,
 	})
 
 	if err := http.ListenAndServe(config.ServerAddress, router); err != nil {
