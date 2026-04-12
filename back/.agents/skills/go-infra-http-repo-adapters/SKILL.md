@@ -20,6 +20,9 @@ Use this skill when editing `back/bounded_contexts/**/infra`.
 ## Hard Constraints
 
 - Infra includes `repo/` and `http/` directories.
+- Aggregate package naming is mandatory:
+  - `infra/repo/` files use `package {aggregate}repo`
+  - `infra/http/` files use `package {aggregate}http`
 - Repository implementations use `XXXPostgresRepo` naming.
 - HTTP routes are grouped by prefix in `infra/http/routes.go`.
 - Handlers are function-based and delegate business logic to use cases.
@@ -33,6 +36,7 @@ Use this skill when editing `back/bounded_contexts/**/infra`.
 - Direct domain mutations from SQL result mapping without aggregate methods.
 - Multiple route roots spread across endpoint files.
 - Ambiguous adapter names (`RepoImpl`, `StorageAdapter`).
+- Generic infra package names inside aggregate layers (`package repo`, `package http`).
 - Domain layer importing HTTP, SQL, orm, or third-party clients.
 - Initializing external clients directly inside handlers or useCases.
 - Re-instantiating the same third-party dependency repeatedly instead of reusing container-managed singleton instances.
@@ -44,6 +48,7 @@ Use this skill when editing `back/bounded_contexts/**/infra`.
 - Keep one handler function per endpoint concern.
 - Ensure handlers map DTOs and call use cases only.
 - Ensure repository structs satisfy domain interfaces explicitly.
+- Ensure infra package names follow `{aggregate}repo` and `{aggregate}http`.
 - Ensure dependency wiring changes follow `go-shared-di-container`.
 - Confirm provider-specific terms stay contained to `infra/` and do not leak into `domain/` or `useCases/` naming.
 

@@ -20,7 +20,7 @@ bounded_contexts/{context}/{aggregate}/
 ## Value Object Pattern
 
 ```go
-package domain
+package userdomain
 
 type UserStatus string
 
@@ -36,7 +36,7 @@ Use typed constants in commands, policies, and validations.
 ## Port (Domain Interface) Pattern
 
 ```go
-package domain
+package userdomain
 
 import "context"
 

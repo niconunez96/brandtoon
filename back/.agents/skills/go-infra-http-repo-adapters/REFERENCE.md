@@ -66,6 +66,9 @@ Handlers adapt transport DTOs and call use cases. They do not implement business
 
 ## Repository Naming and Contract
 
+- Aggregate infra package naming:
+  - `infra/repo/` -> `package {aggregate}repo` (example: `userrepo`)
+  - `infra/http/` -> `package {aggregate}http` (example: `userhttp`)
 - Implementation naming: `UserPostgresRepo`, `SessionPostgresRepo`, etc.
 - Struct must satisfy a domain interface explicitly.
 

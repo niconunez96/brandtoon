@@ -12,4 +12,10 @@ export const handlers = [
   http.post(`${API_BASE_URL}/auth/logout`, () => {
     return HttpResponse.json({ message: 'Logged out' })
   }),
+  http.get(`${API_BASE_URL}/creative-studio/avatars`, () => {
+    return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
+  }),
+  http.post(`${API_BASE_URL}/creative-studio/avatars`, () => {
+    return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
+  }),
 ]
