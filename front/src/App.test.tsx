@@ -173,8 +173,12 @@ describe('App', () => {
 
     renderApp('/creative-studio')
 
-    expect(await screen.findByText(/studio hero/i)).toBeInTheDocument()
-    expect(screen.getByText(/brand host/i)).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: /^studio hero$/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /^brand host$/i }),
+    ).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: /^create avatar$/i }),
     ).toBeInTheDocument()
@@ -281,7 +285,9 @@ describe('App', () => {
     await user.type(screen.getByLabelText(/avatar name/i), 'Studio Hero')
     await user.click(screen.getByRole('button', { name: /save avatar/i }))
 
-    expect(await screen.findByText(/studio hero/i)).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: /^studio hero$/i }),
+    ).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: /^create avatar$/i }),
     ).toBeInTheDocument()
@@ -314,5 +320,303 @@ describe('App', () => {
       await screen.findByRole('heading', { name: /your brand, animated\./i }),
     ).toBeInTheDocument()
     expect(screen.getByTestId('location-display')).toHaveTextContent('/')
+  })
+
+  it('navigates to the avatar editor when an avatar card is clicked', async () => {
+    const user = userEvent.setup()
+
+    server.use(
+      http.get(`${API_BASE_URL}/auth/users/me`, () => {
+        return HttpResponse.json({
+          user: {
+            avatarUrl: 'https://avatar.example.com/nico.png',
+            email: 'nico@example.com',
+            id: 'user-v7',
+            name: 'Nico',
+          },
+        })
+      }),
+      http.get(`${API_BASE_URL}/creative-studio/avatars`, () => {
+        return HttpResponse.json({
+          avatars: [{ id: 'avatar-1', name: 'Studio Hero' }],
+        })
+      }),
+      http.get(`${API_BASE_URL}/creative-studio/avatar_configs/:avatarId`, () =>
+        HttpResponse.json({ avatar_config: null }),
+      ),
+    )
+
+    renderApp('/creative-studio')
+
+    await user.click(
+      await screen.findByRole('button', {
+        name: /open studio hero avatar editor/i,
+      }),
+    )
+
+    expect(screen.getByTestId('location-display')).toHaveTextContent(
+      '/creative-studio/avatars/avatar-1/avatar',
+    )
+    expect(
+      await screen.findByRole('heading', {
+        name: /shape the avatar foundation/i,
+      }),
+    ).toBeInTheDocument()
+  })
+
+  it('renders default draft values and image options when avatar config is still empty', async () => {
+    server.use(
+      http.get(`${API_BASE_URL}/auth/users/me`, () => {
+        return HttpResponse.json({
+          user: {
+            avatarUrl: 'https://avatar.example.com/nico.png',
+            email: 'nico@example.com',
+            id: 'user-v7',
+            name: 'Nico',
+          },
+        })
+      }),
+      http.get(`${API_BASE_URL}/creative-studio/avatar_configs/:avatarId`, () =>
+        HttpResponse.json({ avatar_config: null }),
+      ),
+    )
+
+    renderApp('/creative-studio/avatars/avatar-1/avatar')
+
+    expect(await screen.findByLabelText(/avatar description/i)).toHaveValue('')
+    expect(screen.getByRole('button', { name: /^2d$/i })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    expect(
+      screen.getByText(/choose a generated direction/i),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /regenerate/i }),
+    ).toBeInTheDocument()
+    expect(screen.getAllByRole('radio')).toHaveLength(4)
+    expect(
+      screen.getByRole('button', { name: /save avatar draft/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /reset draft/i }),
+    ).toBeInTheDocument()
+  })
+
+  it('lets the user select a generated image option in local ui state', async () => {
+    const user = userEvent.setup()
+
+    server.use(
+      http.get(`${API_BASE_URL}/auth/users/me`, () => {
+        return HttpResponse.json({
+          user: {
+            avatarUrl: 'https://avatar.example.com/nico.png',
+            email: 'nico@example.com',
+            id: 'user-v7',
+            name: 'Nico',
+          },
+        })
+      }),
+      http.get(`${API_BASE_URL}/creative-studio/avatar_configs/:avatarId`, () =>
+        HttpResponse.json({ avatar_config: null }),
+      ),
+    )
+
+    renderApp('/creative-studio/avatars/avatar-1/avatar')
+
+    const radios = (await screen.findAllByRole('radio')) as HTMLInputElement[]
+
+    expect(radios[0]).toBeChecked()
+    expect(radios[1]).not.toBeChecked()
+
+    await user.click(radios[1])
+
+    expect(radios[0]).not.toBeChecked()
+    expect(radios[1]).toBeChecked()
+  })
+
+  it('regenerates image options locally and resets the selected option', async () => {
+    const user = userEvent.setup()
+
+    server.use(
+      http.get(`${API_BASE_URL}/auth/users/me`, () => {
+        return HttpResponse.json({
+          user: {
+            avatarUrl: 'https://avatar.example.com/nico.png',
+            email: 'nico@example.com',
+            id: 'user-v7',
+            name: 'Nico',
+          },
+        })
+      }),
+      http.get(`${API_BASE_URL}/creative-studio/avatar_configs/:avatarId`, () =>
+        HttpResponse.json({ avatar_config: null }),
+      ),
+    )
+
+    renderApp('/creative-studio/avatars/avatar-1/avatar')
+
+    const initialRadios = (await screen.findAllByRole(
+      'radio',
+    )) as HTMLInputElement[]
+    await user.click(initialRadios[2])
+    expect(initialRadios[2]).toBeChecked()
+    expect(initialRadios[0]).toHaveAttribute('value', '2d-0-0')
+
+    await user.click(screen.getByRole('button', { name: /regenerate/i }))
+
+    const regeneratedRadios = screen.getAllByRole('radio') as HTMLInputElement[]
+    expect(regeneratedRadios[0]).toHaveAttribute('value', '2d-1-0')
+    expect(regeneratedRadios[0]).toBeChecked()
+    expect(regeneratedRadios[2]).not.toBeChecked()
+  })
+
+  it('hydrates the avatar editor when a saved draft already exists', async () => {
+    server.use(
+      http.get(`${API_BASE_URL}/auth/users/me`, () => {
+        return HttpResponse.json({
+          user: {
+            avatarUrl: 'https://avatar.example.com/nico.png',
+            email: 'nico@example.com',
+            id: 'user-v7',
+            name: 'Nico',
+          },
+        })
+      }),
+      http.get(`${API_BASE_URL}/creative-studio/avatar_configs/:avatarId`, () =>
+        HttpResponse.json({
+          avatar_config: {
+            avatarId: 'avatar-1',
+            artisticStyle: '3D',
+            prompt: 'Bold editorial mascot',
+          },
+        }),
+      ),
+    )
+
+    renderApp('/creative-studio/avatars/avatar-1/avatar')
+
+    expect(await screen.findByLabelText(/avatar description/i)).toHaveValue(
+      'Bold editorial mascot',
+    )
+    expect(screen.getByRole('button', { name: /^3d$/i })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+  })
+
+  it('saves avatar draft updates successfully', async () => {
+    const user = userEvent.setup()
+    let savedBody: null | { artisticStyle: string; prompt: string } = null
+
+    server.use(
+      http.get(`${API_BASE_URL}/auth/users/me`, () => {
+        return HttpResponse.json({
+          user: {
+            avatarUrl: 'https://avatar.example.com/nico.png',
+            email: 'nico@example.com',
+            id: 'user-v7',
+            name: 'Nico',
+          },
+        })
+      }),
+      http.get(`${API_BASE_URL}/creative-studio/avatar_configs/:avatarId`, () =>
+        HttpResponse.json({ avatar_config: null }),
+      ),
+      http.put(
+        `${API_BASE_URL}/creative-studio/avatar_configs/:avatarId`,
+        async ({ request }) => {
+          savedBody = (await request.json()) as {
+            artisticStyle: string
+            prompt: string
+          }
+
+          return HttpResponse.json({
+            avatar_config: {
+              avatarId: 'avatar-1',
+              ...savedBody,
+            },
+          })
+        },
+      ),
+    )
+
+    renderApp('/creative-studio/avatars/avatar-1/avatar')
+
+    await user.type(
+      await screen.findByLabelText(/avatar description/i),
+      'Energetic coral storyteller',
+    )
+    await user.click(screen.getByRole('button', { name: /^3d$/i }))
+    await user.click(screen.getByRole('button', { name: /save avatar draft/i }))
+
+    expect(await screen.findByText(/avatar draft saved/i)).toBeInTheDocument()
+    expect(savedBody).toEqual({
+      artisticStyle: '3D',
+      prompt: 'Energetic coral storyteller',
+    })
+  })
+
+  it('shows avatar draft save errors without leaving the editor', async () => {
+    const user = userEvent.setup()
+
+    server.use(
+      http.get(`${API_BASE_URL}/auth/users/me`, () => {
+        return HttpResponse.json({
+          user: {
+            avatarUrl: 'https://avatar.example.com/nico.png',
+            email: 'nico@example.com',
+            id: 'user-v7',
+            name: 'Nico',
+          },
+        })
+      }),
+      http.get(`${API_BASE_URL}/creative-studio/avatar_configs/:avatarId`, () =>
+        HttpResponse.json({ avatar_config: null }),
+      ),
+      http.put(
+        `${API_BASE_URL}/creative-studio/avatar_configs/:avatarId`,
+        () => {
+          return HttpResponse.json({ message: 'boom' }, { status: 500 })
+        },
+      ),
+    )
+
+    renderApp('/creative-studio/avatars/avatar-1/avatar')
+
+    await user.type(
+      await screen.findByLabelText(/avatar description/i),
+      'Energetic coral storyteller',
+    )
+    await user.click(screen.getByRole('button', { name: /save avatar draft/i }))
+
+    expect(
+      await screen.findByText(/we could not save your avatar draft/i),
+    ).toBeInTheDocument()
+    expect(screen.getByTestId('location-display')).toHaveTextContent(
+      '/creative-studio/avatars/avatar-1/avatar',
+    )
+  })
+
+  it('renders placeholder editor steps for future workflow stages', async () => {
+    server.use(
+      http.get(`${API_BASE_URL}/auth/users/me`, () => {
+        return HttpResponse.json({
+          user: {
+            avatarUrl: 'https://avatar.example.com/nico.png',
+            email: 'nico@example.com',
+            id: 'user-v7',
+            name: 'Nico',
+          },
+        })
+      }),
+    )
+
+    renderApp('/creative-studio/avatars/avatar-1/voice')
+
+    expect(
+      await screen.findByRole('heading', { name: /voice step/i }),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/voice will render here soon/i)).toBeInTheDocument()
   })
 })

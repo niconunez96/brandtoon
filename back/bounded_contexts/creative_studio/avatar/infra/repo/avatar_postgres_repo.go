@@ -4,6 +4,7 @@ import (
 	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
 	sharedrepos "brandtoonapi/bounded_contexts/shared/infra/repos"
 	"context"
+	"database/sql"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -49,4 +50,31 @@ func (r *AvatarPostgresRepo) ListByUserID(
 	}
 
 	return avatars, nil
+}
+
+func (r *AvatarPostgresRepo) FindOwnedByID(
+	ctx context.Context,
+	avatarID string,
+	userID string,
+) (*avatardomain.Avatar, error) {
+	model := &avatarDBModel{}
+	err := r.db.GetContext(
+		ctx,
+		model,
+		`SELECT * FROM avatars
+		 WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL
+		 LIMIT 1`,
+		avatarID,
+		userID,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	avatar := model.ToDomain()
+	return &avatar, nil
 }

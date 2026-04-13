@@ -7,6 +7,7 @@ import (
 	"time"
 
 	avatarhttp "brandtoonapi/bounded_contexts/creative_studio/avatar/infra/http"
+	avatarconfighttp "brandtoonapi/bounded_contexts/creative_studio/avatar_config/infra/http"
 	authhttp "brandtoonapi/bounded_contexts/identity/auth/infra/http"
 	shared "brandtoonapi/bounded_contexts/shared"
 	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
@@ -57,11 +58,21 @@ func main() {
 		log.Fatal(err)
 	}
 
+	avatarConfigRepo, err := container.GetAvatarConfigRepo(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	router := chi.NewMux()
 	router.Use(corsMiddleware(config))
 	router.Use(t.HttpLoggerMiddleware())
 	api := humachi.New(router, huma.DefaultConfig("Brandtoon API", "1.0.0"))
 
+	authMiddleware := authhttp.HumaAuthMiddleware(authhttp.AuthMiddlewareDeps{
+		SessionRepo: sessionRepo,
+		UserRepo:    userRepo,
+		HumaApi:     api,
+	})
 	authhttp.RegisterRoutes(api, router, authhttp.RouteDependencies{
 		Config:         config,
 		GoogleProvider: googleProvider,
@@ -70,13 +81,15 @@ func main() {
 		SessionRepo:    sessionRepo,
 		StateCodec:     stateCodec,
 		UserRepo:       userRepo,
-	})
-	avatarhttp.RegisterRoutes(api, router, avatarhttp.RouteDependencies{
+	}, authMiddleware)
+	avatarhttp.RegisterRoutes(api, avatarhttp.RouteDependencies{
 		AvatarRepo:  avatarRepo,
 		IDGenerator: shareddomain.GenerateUUIDv7,
-		SessionRepo: sessionRepo,
-		UserRepo:    userRepo,
-	})
+	}, authMiddleware)
+	avatarconfighttp.RegisterRoutes(api, avatarconfighttp.RouteDependencies{
+		AvatarConfigRepo: avatarConfigRepo,
+		AvatarRepo:       avatarRepo,
+	}, authMiddleware)
 
 	if err := http.ListenAndServe(config.ServerAddress, router); err != nil {
 		log.Fatal(err)
@@ -93,7 +106,7 @@ func corsMiddleware(config sharedconfig.Config) func(http.Handler) http.Handler 
 				writer.Header().Set("Vary", "Origin")
 			}
 
-			writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS")
 			writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 			if request.Method == http.MethodOptions {

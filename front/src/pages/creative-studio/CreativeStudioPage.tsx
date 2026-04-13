@@ -236,21 +236,37 @@ export function CreativeStudioPage() {
                     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                       {avatarsQuery.data.avatars.map((avatar) => (
                         <Card className="space-y-4 bg-white" key={avatar.id}>
-                          <div className="foundation-icon">
-                            <Sparkles className="size-4" />
-                          </div>
-                          <div className="space-y-2">
-                            <p className="foundation-section-eyebrow">
-                              Avatar card
-                            </p>
-                            <h3 className="text-xl font-black tracking-tight text-ink">
-                              {avatar.name}
-                            </h3>
-                            <p className="foundation-body">
-                              Ready for future motion, voice, and scene
-                              workflows.
-                            </p>
-                          </div>
+                          <button
+                            className="w-full space-y-4 text-left"
+                            onClick={() =>
+                              navigate(
+                                `/creative-studio/avatars/${avatar.id}/avatar`,
+                              )
+                            }
+                            type="button"
+                          >
+                            <div className="foundation-icon">
+                              <Sparkles className="size-4" />
+                            </div>
+                            <div className="space-y-2">
+                              <p className="foundation-section-eyebrow">
+                                Avatar card
+                              </p>
+                              <h3 className="text-xl font-black tracking-tight text-ink">
+                                {avatar.name}
+                              </h3>
+                              <p className="foundation-body">
+                                Ready for future motion, voice, and scene
+                                workflows.
+                              </p>
+                            </div>
+                            <span className="text-sm font-extrabold text-coral cursor-pointer">
+                              Customize avatar
+                            </span>
+                            <span className="sr-only">
+                              Open {avatar.name} avatar editor
+                            </span>
+                          </button>
                         </Card>
                       ))}
                     </div>

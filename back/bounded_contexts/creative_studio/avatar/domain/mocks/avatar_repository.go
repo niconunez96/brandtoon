@@ -6,8 +6,9 @@ import (
 )
 
 type AvatarRepositoryMock struct {
-	CreateFunc       func(ctx context.Context, avatar avatardomain.Avatar) error
-	ListByUserIDFunc func(ctx context.Context, userID string) ([]avatardomain.Avatar, error)
+	CreateFunc        func(ctx context.Context, avatar avatardomain.Avatar) error
+	FindOwnedByIDFunc func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error)
+	ListByUserIDFunc  func(ctx context.Context, userID string) ([]avatardomain.Avatar, error)
 }
 
 func (m *AvatarRepositoryMock) Create(ctx context.Context, avatar avatardomain.Avatar) error {
@@ -27,4 +28,16 @@ func (m *AvatarRepositoryMock) ListByUserID(
 	}
 
 	return m.ListByUserIDFunc(ctx, userID)
+}
+
+func (m *AvatarRepositoryMock) FindOwnedByID(
+	ctx context.Context,
+	avatarID string,
+	userID string,
+) (*avatardomain.Avatar, error) {
+	if m.FindOwnedByIDFunc == nil {
+		return nil, nil
+	}
+
+	return m.FindOwnedByIDFunc(ctx, avatarID, userID)
 }

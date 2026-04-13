@@ -1,4 +1,4 @@
-package avatarhttp
+package avatarconfighttp
 
 import (
 	sharedhttp "brandtoonapi/bounded_contexts/shared/infra/http"
@@ -15,12 +15,16 @@ func RegisterRoutes(
 	creativeStudioGroup := huma.NewGroup(api, "/creative-studio")
 	creativeStudioGroup.UseMiddleware(humaMiddlewares...)
 
-	huma.Get(creativeStudioGroup, "/avatars", buildListAvatarsHandler(deps))
+	huma.Get(
+		creativeStudioGroup,
+		"/avatar_configs/{avatarId}",
+		buildGetAvatarConfigHandler(deps),
+	)
 	huma.Register(creativeStudioGroup, huma.Operation{
-		OperationID:   "create-avatar",
-		Method:        stdhttp.MethodPost,
-		Path:          "/avatars",
-		Summary:       "Create an avatar",
-		DefaultStatus: stdhttp.StatusCreated,
-	}, buildCreateAvatarHandler(deps))
+		OperationID:   "update-avatar-config",
+		Method:        stdhttp.MethodPut,
+		Path:          "/avatar_configs/{avatarId}",
+		Summary:       "Create or update an avatar config draft",
+		DefaultStatus: stdhttp.StatusOK,
+	}, buildUpdateAvatarConfigHandler(deps))
 }
