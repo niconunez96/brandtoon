@@ -68,6 +68,11 @@ func main() {
 	router.Use(t.HttpLoggerMiddleware())
 	api := humachi.New(router, huma.DefaultConfig("Brandtoon API", "1.0.0"))
 
+	authMiddleware := authhttp.HumaAuthMiddleware(authhttp.AuthMiddlewareDeps{
+		SessionRepo: sessionRepo,
+		UserRepo:    userRepo,
+		HumaApi:     api,
+	})
 	authhttp.RegisterRoutes(api, router, authhttp.RouteDependencies{
 		Config:         config,
 		GoogleProvider: googleProvider,
@@ -76,19 +81,15 @@ func main() {
 		SessionRepo:    sessionRepo,
 		StateCodec:     stateCodec,
 		UserRepo:       userRepo,
-	})
-	avatarhttp.RegisterRoutes(api, router, avatarhttp.RouteDependencies{
+	}, authMiddleware)
+	avatarhttp.RegisterRoutes(api, avatarhttp.RouteDependencies{
 		AvatarRepo:  avatarRepo,
 		IDGenerator: shareddomain.GenerateUUIDv7,
-		SessionRepo: sessionRepo,
-		UserRepo:    userRepo,
-	})
-	avatarconfighttp.RegisterRoutes(api, router, avatarconfighttp.RouteDependencies{
+	}, authMiddleware)
+	avatarconfighttp.RegisterRoutes(api, avatarconfighttp.RouteDependencies{
 		AvatarConfigRepo: avatarConfigRepo,
 		AvatarRepo:       avatarRepo,
-		SessionRepo:      sessionRepo,
-		UserRepo:         userRepo,
-	})
+	}, authMiddleware)
 
 	if err := http.ListenAndServe(config.ServerAddress, router); err != nil {
 		log.Fatal(err)

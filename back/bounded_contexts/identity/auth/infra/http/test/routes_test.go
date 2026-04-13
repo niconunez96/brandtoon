@@ -148,6 +148,11 @@ func TestGoogleCallbackSetsSessionCookieAndRedirects(t *testing.T) {
 func newTestServer(deps authhttp.RouteDependencies) http.Handler {
 	router := chi.NewMux()
 	api := humachi.New(router, huma.DefaultConfig("Test API", "1.0.0"))
-	authhttp.RegisterRoutes(api, router, deps)
+	authMiddleware := authhttp.HumaAuthMiddleware(authhttp.AuthMiddlewareDeps{
+		SessionRepo: deps.SessionRepo,
+		UserRepo:    deps.UserRepo,
+		HumaApi:     api,
+	})
+	authhttp.RegisterRoutes(api, router, deps, authMiddleware)
 	return router
 }

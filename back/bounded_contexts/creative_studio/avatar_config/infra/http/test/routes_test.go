@@ -15,6 +15,7 @@ import (
 	avatarconfigdomain "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain"
 	avatarconfigmocks "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain/mocks"
 	avatarconfighttp "brandtoonapi/bounded_contexts/creative_studio/avatar_config/infra/http"
+	authhttp "brandtoonapi/bounded_contexts/identity/auth/infra/http"
 	sessiondomain "brandtoonapi/bounded_contexts/identity/session/domain"
 	sessionmocks "brandtoonapi/bounded_contexts/identity/session/domain/mocks"
 	userdomain "brandtoonapi/bounded_contexts/identity/user/domain"
@@ -31,8 +32,6 @@ func TestAvatarConfigReturnsUnauthorizedWithoutAuth(t *testing.T) {
 	server := newAvatarConfigTestServer(avatarconfighttp.RouteDependencies{
 		AvatarConfigRepo: &avatarconfigmocks.AvatarConfigRepositoryMock{},
 		AvatarRepo:       &avatarmocks.AvatarRepositoryMock{},
-		SessionRepo:      &sessionmocks.SessionRepositoryMock{},
-		UserRepo:         &usermocks.UserRepositoryMock{},
 	})
 
 	request := httptest.NewRequest(http.MethodGet, "/creative-studio/avatar_configs/avatar-v7", nil)
@@ -213,28 +212,30 @@ func newAuthenticatedAvatarConfigTestServer(
 ) http.Handler {
 	t.Helper()
 
-	deps.SessionRepo = &sessionmocks.SessionRepositoryMock{
-		FindActiveByIDFunc: func(ctx context.Context, id string) (*sessiondomain.Session, error) {
-			return &sessiondomain.Session{
-				ID:        id,
-				UserID:    "user-v7",
-				ExpiresAt: time.Now().Add(24 * time.Hour),
-			}, nil
-		},
-	}
-	deps.UserRepo = &usermocks.UserRepositoryMock{
-		FindByIDFunc: func(ctx context.Context, id string) (*userdomain.User, error) {
-			return &userdomain.User{ID: id, Email: "nico@example.com", Name: "Nico"}, nil
-		},
-	}
-
 	return newAvatarConfigTestServer(deps)
 }
 
 func newAvatarConfigTestServer(deps avatarconfighttp.RouteDependencies) http.Handler {
 	router := chi.NewMux()
 	api := humachi.New(router, huma.DefaultConfig("Test API", "1.0.0"))
-	avatarconfighttp.RegisterRoutes(api, router, deps)
+	authMiddleware := authhttp.HumaAuthMiddleware(authhttp.AuthMiddlewareDeps{
+		SessionRepo: &sessionmocks.SessionRepositoryMock{
+			FindActiveByIDFunc: func(ctx context.Context, id string) (*sessiondomain.Session, error) {
+				return &sessiondomain.Session{
+					ID:        id,
+					UserID:    "user-v7",
+					ExpiresAt: time.Now().Add(24 * time.Hour),
+				}, nil
+			},
+		},
+		UserRepo: &usermocks.UserRepositoryMock{
+			FindByIDFunc: func(ctx context.Context, id string) (*userdomain.User, error) {
+				return &userdomain.User{ID: id, Email: "nico@example.com", Name: "Nico"}, nil
+			},
+		},
+		HumaApi: api,
+	})
+	avatarconfighttp.RegisterRoutes(api, deps, authMiddleware)
 	return router
 }
 

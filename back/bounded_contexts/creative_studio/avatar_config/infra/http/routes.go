@@ -1,20 +1,19 @@
 package avatarconfighttp
 
 import (
-	identityauthhttp "brandtoonapi/bounded_contexts/identity/auth/infra/http"
+	sharedhttp "brandtoonapi/bounded_contexts/shared/infra/http"
 	stdhttp "net/http"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/go-chi/chi/v5"
 )
 
-func RegisterRoutes(api huma.API, router chi.Router, deps RouteDependencies) {
+func RegisterRoutes(
+	api huma.API,
+	deps RouteDependencies,
+	humaMiddlewares ...sharedhttp.HumaMiddleware,
+) {
 	creativeStudioGroup := huma.NewGroup(api, "/creative-studio")
-	creativeStudioGroup.UseMiddleware(identityauthhttp.HumaAuthMiddleware(identityauthhttp.AuthMiddlewareDeps{
-		SessionRepo: deps.SessionRepo,
-		UserRepo:    deps.UserRepo,
-		HumaApi:     api,
-	}))
+	creativeStudioGroup.UseMiddleware(humaMiddlewares...)
 
 	huma.Get(
 		creativeStudioGroup,
@@ -28,6 +27,4 @@ func RegisterRoutes(api huma.API, router chi.Router, deps RouteDependencies) {
 		Summary:       "Create or update an avatar config draft",
 		DefaultStatus: stdhttp.StatusOK,
 	}, buildUpdateAvatarConfigHandler(deps))
-
-	_ = router
 }
