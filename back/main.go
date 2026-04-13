@@ -7,6 +7,7 @@ import (
 	"time"
 
 	avatarhttp "brandtoonapi/bounded_contexts/creative_studio/avatar/infra/http"
+	avatarconfighttp "brandtoonapi/bounded_contexts/creative_studio/avatar_config/infra/http"
 	authhttp "brandtoonapi/bounded_contexts/identity/auth/infra/http"
 	shared "brandtoonapi/bounded_contexts/shared"
 	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
@@ -57,6 +58,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	avatarConfigRepo, err := container.GetAvatarConfigRepo(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	router := chi.NewMux()
 	router.Use(corsMiddleware(config))
 	router.Use(t.HttpLoggerMiddleware())
@@ -77,6 +83,12 @@ func main() {
 		SessionRepo: sessionRepo,
 		UserRepo:    userRepo,
 	})
+	avatarconfighttp.RegisterRoutes(api, router, avatarconfighttp.RouteDependencies{
+		AvatarConfigRepo: avatarConfigRepo,
+		AvatarRepo:       avatarRepo,
+		SessionRepo:      sessionRepo,
+		UserRepo:         userRepo,
+	})
 
 	if err := http.ListenAndServe(config.ServerAddress, router); err != nil {
 		log.Fatal(err)
@@ -93,7 +105,7 @@ func corsMiddleware(config sharedconfig.Config) func(http.Handler) http.Handler 
 				writer.Header().Set("Vary", "Origin")
 			}
 
-			writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS")
 			writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 			if request.Method == http.MethodOptions {

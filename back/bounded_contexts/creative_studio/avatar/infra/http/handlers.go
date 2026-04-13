@@ -64,11 +64,15 @@ func buildCreateAvatarHandler(
 	}
 }
 
-func requireAuthUserMetadata(ctx context.Context) (*shareddomain.AuthUserMetadata, error) {
+func RequireAuthUserMetadata(ctx context.Context) (*shareddomain.AuthUserMetadata, error) {
 	userMetadata, ok := ctx.Value(shareddomain.UserMetadataContextKey).(*shareddomain.AuthUserMetadata)
 	if !ok || userMetadata == nil || userMetadata.UserId == "" {
 		return nil, huma.Error401Unauthorized("missing or invalid session")
 	}
 
 	return userMetadata, nil
+}
+
+func requireAuthUserMetadata(ctx context.Context) (*shareddomain.AuthUserMetadata, error) {
+	return RequireAuthUserMetadata(ctx)
 }
