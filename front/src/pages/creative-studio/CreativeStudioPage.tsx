@@ -235,7 +235,7 @@ export function CreativeStudioPage() {
 
                     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                       {avatarsQuery.data.avatars.map((avatar) => (
-                       <Card className="space-y-4 bg-white" key={avatar.id}>
+                        <Card className="space-y-4 bg-white" key={avatar.id}>
                           <button
                             className="w-full space-y-4 text-left"
                             onClick={() =>
@@ -260,7 +260,7 @@ export function CreativeStudioPage() {
                                 workflows.
                               </p>
                             </div>
-                            <span className="text-sm font-extrabold text-coral">
+                            <span className="text-sm font-extrabold text-coral cursor-pointer">
                               Customize avatar
                             </span>
                             <span className="sr-only">

@@ -12,7 +12,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 }
 
 const baseClassName =
-  'inline-flex min-h-11 items-center justify-center gap-2 rounded-full border text-sm font-extrabold tracking-[-0.02em] transition duration-200 disabled:pointer-events-none disabled:opacity-60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-coral/20'
+  'inline-flex min-h-11 items-center justify-center gap-2 rounded-full border text-sm font-extrabold tracking-[-0.02em] transition duration-200 disabled:pointer-events-none disabled:opacity-60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-coral/20 cursor-pointer'
 
 const sizeClassNames: Record<ButtonSize, string> = {
   md: 'px-5 py-2.5',
