@@ -1,9 +1,9 @@
 import { Route, Routes } from 'react-router-dom'
 import { ProtectedRoute } from './features/auth/ProtectedRoute'
+import { CreativeStudioPage } from './pages/creative-studio/CreativeStudioPage'
 import { AvatarDetailsStepPage } from './pages/creative-studio/avatar/AvatarDetailsStepPage'
 import { AvatarEditorLayout } from './pages/creative-studio/avatar/AvatarEditorLayout'
 import { AvatarPlaceholderStepPage } from './pages/creative-studio/avatar/AvatarPlaceholderStepPage'
-import { CreativeStudioPage } from './pages/creative-studio/CreativeStudioPage'
 import { LandingPage } from './pages/landing/LandingPage'
 import { LoginPage } from './pages/login/LoginPage'
 

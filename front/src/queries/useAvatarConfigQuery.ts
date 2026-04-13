@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+  type UpdateAvatarConfigInput,
   fetchAvatarConfig,
   updateAvatarConfig,
-  type UpdateAvatarConfigInput,
 } from '../services/avatar-config.api'
 
 export const avatarConfigQueryKey = (avatarId: string) =>

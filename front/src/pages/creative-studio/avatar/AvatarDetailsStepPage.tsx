@@ -7,8 +7,8 @@ import {
   useAvatarConfigQuery,
   useUpdateAvatarConfigMutation,
 } from '../../../queries/useAvatarConfigQuery'
-import type { ArtisticStyle } from '../../../services/avatar-config.api'
 import { ApiError } from '../../../services/auth.api'
+import type { ArtisticStyle } from '../../../services/avatar-config.api'
 import { Button } from '../../../shared/components/ui/button'
 import { Card, SectionShell } from '../../../shared/components/ui/card'
 import { PromptField } from '../../../shared/components/ui/field'
