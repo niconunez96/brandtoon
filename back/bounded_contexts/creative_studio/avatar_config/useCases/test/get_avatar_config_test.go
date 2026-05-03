@@ -59,6 +59,7 @@ func TestGetAvatarConfigReturnsStoredDraftForOwnedAvatar(t *testing.T) {
 					avatarID,
 					"Energetic mascot with bold shapes",
 					avatarconfigdomain.ArtisticStyle3D,
+					avatarconfigdomain.PersonalityBold,
 				)
 				return &config, nil
 			},
@@ -70,6 +71,10 @@ func TestGetAvatarConfigReturnsStoredDraftForOwnedAvatar(t *testing.T) {
 
 	if result == nil || result.ArtisticStyle != avatarconfigdomain.ArtisticStyle3D {
 		t.Fatalf("expected stored 3D config, got %+v", result)
+	}
+
+	if result.Personality != avatarconfigdomain.PersonalityBold {
+		t.Fatalf("expected stored Bold personality, got %+v", result)
 	}
 }
 

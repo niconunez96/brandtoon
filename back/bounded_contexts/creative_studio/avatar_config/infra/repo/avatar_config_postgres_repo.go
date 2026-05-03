@@ -25,7 +25,7 @@ func (r *AvatarConfigPostgresRepo) FindByAvatarID(
 	err := r.db.GetContext(
 		ctx,
 		model,
-		`SELECT avatar_id, prompt, artistic_style
+		`SELECT avatar_id, prompt, artistic_style, personality
 		 FROM avatar_configs
 		 WHERE avatar_id = $1
 		 LIMIT 1`,
@@ -55,16 +55,18 @@ func (r *AvatarConfigPostgresRepo) Upsert(
 	model := newAvatarConfigDBModel(avatarConfig)
 	_, err := r.db.NamedExecContext(
 		ctx,
-		`INSERT INTO avatar_configs (avatar_id, prompt, artistic_style, created_at, updated_at)
-		 VALUES (:avatar_id, :prompt, :artistic_style, :created_at, :updated_at)
+		`INSERT INTO avatar_configs (avatar_id, prompt, artistic_style, personality, created_at, updated_at)
+		 VALUES (:avatar_id, :prompt, :artistic_style, :personality, :created_at, :updated_at)
 		 ON CONFLICT (avatar_id) DO UPDATE SET
 		   prompt = EXCLUDED.prompt,
 		   artistic_style = EXCLUDED.artistic_style,
+		   personality = EXCLUDED.personality,
 		   updated_at = EXCLUDED.updated_at`,
 		map[string]any{
 			"avatar_id":      model.AvatarID,
 			"artistic_style": model.ArtisticStyle,
 			"created_at":     now,
+			"personality":    model.Personality,
 			"prompt":         model.Prompt,
 			"updated_at":     now,
 		},

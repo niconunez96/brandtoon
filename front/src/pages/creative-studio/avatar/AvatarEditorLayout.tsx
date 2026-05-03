@@ -1,4 +1,4 @@
-import { ArrowLeft, Layers3 } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { Outlet, useNavigate, useParams } from 'react-router-dom'
 import { useCurrentUserQuery } from '../../../queries/useCurrentUserQuery'
 import { Button } from '../../../shared/components/ui/button'
@@ -10,7 +10,6 @@ function buildEditorItems(avatarId: string) {
 
   return [
     { end: true, href: `${basePath}/avatar`, label: 'Avatar' },
-    { href: `${basePath}/personality`, label: 'Personality' },
     { href: `${basePath}/voice`, label: 'Voice' },
     { href: `${basePath}/packs`, label: 'Packs' },
     { href: `${basePath}/export`, label: 'Export' },

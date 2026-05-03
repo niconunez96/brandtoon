@@ -9,6 +9,7 @@ import (
 type UpdateAvatarConfigCommand struct {
 	AvatarID      string
 	ArtisticStyle string
+	Personality   string
 	Prompt        string
 	UserID        string
 }
@@ -33,10 +34,16 @@ func UpdateAvatarConfig(
 		return avatarconfigdomain.AvatarConfig{}, err
 	}
 
+	personality, err := avatarconfigdomain.ParsePersonality(cmd.Personality)
+	if err != nil {
+		return avatarconfigdomain.AvatarConfig{}, err
+	}
+
 	avatarConfig := avatarconfigdomain.NewAvatarConfig(
 		cmd.AvatarID,
 		cmd.Prompt,
 		artisticStyle,
+		personality,
 	)
 	if err := avatarConfigRepo.Upsert(ctx, avatarConfig); err != nil {
 		return avatarconfigdomain.AvatarConfig{}, err

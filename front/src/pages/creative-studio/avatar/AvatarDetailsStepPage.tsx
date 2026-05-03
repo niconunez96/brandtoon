@@ -8,7 +8,10 @@ import {
   useUpdateAvatarConfigMutation,
 } from '../../../queries/useAvatarConfigQuery'
 import { ApiError } from '../../../services/auth.api'
-import type { ArtisticStyle } from '../../../services/avatar-config.api'
+import type {
+  ArtisticStyle,
+  Personality,
+} from '../../../services/avatar-config.api'
 import { Button } from '../../../shared/components/ui/button'
 import { Card, SectionShell } from '../../../shared/components/ui/card'
 import { PromptField } from '../../../shared/components/ui/field'
@@ -23,6 +26,7 @@ type GeneratedAvatarOption = {
 
 const avatarConfigSchema = z.object({
   artisticStyle: z.enum(['2D', '3D']),
+  personality: z.enum(['Friendly', 'Bold', 'Playful']),
   prompt: z
     .string()
     .max(256, 'Avatar descriptions can have up to 256 characters.'),
@@ -33,6 +37,7 @@ type AvatarConfigFormValues = z.infer<typeof avatarConfigSchema>
 type ToastVisibility = 'hidden' | 'entering' | 'visible' | 'exiting'
 
 const artisticStyleOptions: ArtisticStyle[] = ['2D', '3D']
+const personalityOptions: Personality[] = ['Friendly', 'Bold', 'Playful']
 
 const mockImageGradients = [
   'from-[#FCE7E7] via-white to-[#dfe6e9]',
@@ -96,7 +101,7 @@ function getAvatarConfigErrorMessage(error: unknown) {
 
 function getSaveErrorMessage(error: unknown) {
   if (error instanceof ApiError && error.status === 422) {
-    return 'Please review the description and style before saving.'
+    return 'Please review the description, style, and personality before saving.'
   }
 
   if (error instanceof ApiError && error.status === 404) {
@@ -125,6 +130,7 @@ export function AvatarDetailsStepPage() {
   const form = useForm<AvatarConfigFormValues>({
     defaultValues: {
       artisticStyle: '2D',
+      personality: 'Friendly',
       prompt: '',
     },
   })
@@ -137,6 +143,8 @@ export function AvatarDetailsStepPage() {
     form.reset({
       artisticStyle:
         avatarConfigQuery.data.avatar_config?.artisticStyle ?? '2D',
+      personality:
+        avatarConfigQuery.data.avatar_config?.personality ?? 'Friendly',
       prompt: avatarConfigQuery.data.avatar_config?.prompt ?? '',
     })
   }, [avatarConfigQuery.data, form])
@@ -171,6 +179,7 @@ export function AvatarDetailsStepPage() {
   }, [feedbackMessage, toastVisibility])
 
   const artisticStyle = form.watch('artisticStyle')
+  const personality = form.watch('personality')
   const prompt = form.watch('prompt')
   const selectedGeneratedOption =
     generatedOptions.find(
@@ -208,6 +217,7 @@ export function AvatarDetailsStepPage() {
       const fieldErrors = parsed.error.flatten().fieldErrors
       const promptMessage = fieldErrors.prompt?.[0]
       const styleMessage = fieldErrors.artisticStyle?.[0]
+      const personalityMessage = fieldErrors.personality?.[0]
 
       if (promptMessage) {
         form.setError('prompt', { message: promptMessage, type: 'validate' })
@@ -216,6 +226,13 @@ export function AvatarDetailsStepPage() {
       if (styleMessage) {
         form.setError('artisticStyle', {
           message: styleMessage,
+          type: 'validate',
+        })
+      }
+
+      if (personalityMessage) {
+        form.setError('personality', {
+          message: personalityMessage,
           type: 'validate',
         })
       }
@@ -288,6 +305,7 @@ export function AvatarDetailsStepPage() {
         onSubmit={(event) => void handleSubmit(event)}
       >
         <input type="hidden" {...form.register('artisticStyle')} />
+        <input type="hidden" {...form.register('personality')} />
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(360px,1fr)]">
           <div className="space-y-5">
@@ -433,6 +451,47 @@ export function AvatarDetailsStepPage() {
                 ) : null}
               </div>
 
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <p className="foundation-section-eyebrow">Personality</p>
+                  <p className="text-lg font-black tracking-tight text-ink">
+                    Choose the brand energy
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {personalityOptions.map((option) => {
+                    const isActive = personality === option
+
+                    return (
+                      <button
+                        aria-pressed={isActive}
+                        className={`cursor-pointer inline-flex min-h-11 items-center rounded-full border px-5 py-2.5 text-sm font-extrabold tracking-[-0.02em] transition ${
+                          isActive
+                            ? 'border-transparent bg-coral text-white shadow-sticker'
+                            : 'border-[color:var(--color-stroke-soft)] bg-surface text-ink hover:bg-white'
+                        }`}
+                        key={option}
+                        onClick={() => {
+                          form.clearErrors('personality')
+                          form.setValue('personality', option, {
+                            shouldDirty: true,
+                            shouldTouch: true,
+                          })
+                        }}
+                        type="button"
+                      >
+                        <span>{option}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+                {form.formState.errors.personality?.message ? (
+                  <p className="text-xs font-bold text-error">
+                    {form.formState.errors.personality.message}
+                  </p>
+                ) : null}
+              </div>
+
               {form.formState.errors.prompt?.message ? (
                 <p className="rounded-2xl bg-error-container px-4 py-3 text-sm font-bold text-error">
                   {form.formState.errors.prompt.message}
@@ -458,6 +517,9 @@ export function AvatarDetailsStepPage() {
                       artisticStyle:
                         avatarConfigQuery.data?.avatar_config?.artisticStyle ??
                         '2D',
+                      personality:
+                        avatarConfigQuery.data?.avatar_config?.personality ??
+                        'Friendly',
                       prompt:
                         avatarConfigQuery.data?.avatar_config?.prompt ?? '',
                     })

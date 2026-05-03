@@ -55,6 +55,7 @@ func buildUpdateAvatarConfigHandler(
 			avatarconfigusecases.UpdateAvatarConfigCommand{
 				AvatarID:      input.AvatarID,
 				ArtisticStyle: input.Body.ArtisticStyle,
+				Personality:   input.Body.Personality,
 				Prompt:        input.Body.Prompt,
 				UserID:        userMetadata.UserId,
 			},
@@ -78,6 +79,10 @@ func mapAvatarConfigError(err error) error {
 
 	if errors.Is(err, avatarconfigdomain.ErrInvalidArtisticStyle) {
 		return huma.Error422UnprocessableEntity("invalid artistic style")
+	}
+
+	if errors.Is(err, avatarconfigdomain.ErrInvalidPersonality) {
+		return huma.Error422UnprocessableEntity("invalid personality")
 	}
 
 	return err
