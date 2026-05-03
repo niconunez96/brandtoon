@@ -388,9 +388,16 @@ describe('App', () => {
       'aria-pressed',
       'true',
     )
+    expect(screen.getByRole('button', { name: /friendly/i })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
     expect(
       screen.getByText(/choose a generated direction/i),
     ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('link', { name: /personality/i }),
+    ).not.toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: /regenerate/i }),
     ).toBeInTheDocument()
@@ -488,6 +495,7 @@ describe('App', () => {
           avatar_config: {
             avatarId: 'avatar-1',
             artisticStyle: '3D',
+            personality: 'Bold',
             prompt: 'Bold editorial mascot',
           },
         }),
@@ -503,11 +511,19 @@ describe('App', () => {
       'aria-pressed',
       'true',
     )
+    expect(screen.getByRole('button', { name: /bold/i })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
   })
 
   it('saves avatar draft updates successfully', async () => {
     const user = userEvent.setup()
-    let savedBody: null | { artisticStyle: string; prompt: string } = null
+    let savedBody: null | {
+      artisticStyle: string
+      personality: string
+      prompt: string
+    } = null
 
     server.use(
       http.get(`${API_BASE_URL}/auth/users/me`, () => {
@@ -528,6 +544,7 @@ describe('App', () => {
         async ({ request }) => {
           savedBody = (await request.json()) as {
             artisticStyle: string
+            personality: string
             prompt: string
           }
 
@@ -548,11 +565,13 @@ describe('App', () => {
       'Energetic coral storyteller',
     )
     await user.click(screen.getByRole('button', { name: /^3d$/i }))
+    await user.click(screen.getByRole('button', { name: /playful/i }))
     await user.click(screen.getByRole('button', { name: /save avatar draft/i }))
 
     expect(await screen.findByText(/avatar draft saved/i)).toBeInTheDocument()
     expect(savedBody).toEqual({
       artisticStyle: '3D',
+      personality: 'Playful',
       prompt: 'Energetic coral storyteller',
     })
   })

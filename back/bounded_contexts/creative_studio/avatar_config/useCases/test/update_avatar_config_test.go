@@ -21,6 +21,7 @@ func TestUpdateAvatarConfigUpsertsDraftForOwnedAvatar(t *testing.T) {
 		avatarconfigusecases.UpdateAvatarConfigCommand{
 			AvatarID:      "avatar-v7",
 			ArtisticStyle: "2D",
+			Personality:   "Friendly",
 			Prompt:        "  ",
 			UserID:        "user-v7",
 		},
@@ -48,6 +49,10 @@ func TestUpdateAvatarConfigUpsertsDraftForOwnedAvatar(t *testing.T) {
 	if persistedConfig.ArtisticStyle != avatarconfigdomain.ArtisticStyle2D {
 		t.Fatalf("expected 2D artistic style, got %s", persistedConfig.ArtisticStyle)
 	}
+
+	if persistedConfig.Personality != avatarconfigdomain.PersonalityFriendly {
+		t.Fatalf("expected Friendly personality, got %s", persistedConfig.Personality)
+	}
 }
 
 func TestUpdateAvatarConfigReturnsAvatarNotFoundWhenAvatarIsMissing(t *testing.T) {
@@ -58,6 +63,7 @@ func TestUpdateAvatarConfigReturnsAvatarNotFoundWhenAvatarIsMissing(t *testing.T
 		avatarconfigusecases.UpdateAvatarConfigCommand{
 			AvatarID:      "avatar-v7",
 			ArtisticStyle: "2D",
+			Personality:   "Friendly",
 			Prompt:        "hello",
 			UserID:        "user-v7",
 		},
@@ -77,6 +83,7 @@ func TestUpdateAvatarConfigRejectsInvalidArtisticStyle(t *testing.T) {
 		avatarconfigusecases.UpdateAvatarConfigCommand{
 			AvatarID:      "avatar-v7",
 			ArtisticStyle: "Clay",
+			Personality:   "Friendly",
 			Prompt:        "hello",
 			UserID:        "user-v7",
 		},
@@ -90,5 +97,30 @@ func TestUpdateAvatarConfigRejectsInvalidArtisticStyle(t *testing.T) {
 	)
 	if !errors.Is(err, avatarconfigdomain.ErrInvalidArtisticStyle) {
 		t.Fatalf("expected ErrInvalidArtisticStyle, got %v", err)
+	}
+}
+
+func TestUpdateAvatarConfigRejectsInvalidPersonality(t *testing.T) {
+	t.Parallel()
+
+	_, err := avatarconfigusecases.UpdateAvatarConfig(
+		context.Background(),
+		avatarconfigusecases.UpdateAvatarConfigCommand{
+			AvatarID:      "avatar-v7",
+			ArtisticStyle: "2D",
+			Personality:   "Serious",
+			Prompt:        "hello",
+			UserID:        "user-v7",
+		},
+		&avatarmocks.AvatarRepositoryMock{
+			FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
+				avatar := avatardomain.NewAvatar(avatarID, userID, "Studio Hero")
+				return &avatar, nil
+			},
+		},
+		&avatarconfigmocks.AvatarConfigRepositoryMock{},
+	)
+	if !errors.Is(err, avatarconfigdomain.ErrInvalidPersonality) {
+		t.Fatalf("expected ErrInvalidPersonality, got %v", err)
 	}
 }

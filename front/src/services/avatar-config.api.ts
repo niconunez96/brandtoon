@@ -2,10 +2,12 @@ import { API_BASE_URL } from '../shared/config/api'
 import { ApiError } from './auth.api'
 
 export type ArtisticStyle = '2D' | '3D'
+export type Personality = 'Friendly' | 'Bold' | 'Playful'
 
 export type AvatarConfig = {
   avatarId: string
   artisticStyle: ArtisticStyle
+  personality: Personality
   prompt: string
 }
 
@@ -15,6 +17,7 @@ export type AvatarConfigResponse = {
 
 export type UpdateAvatarConfigInput = {
   artisticStyle: ArtisticStyle
+  personality: Personality
   prompt: string
 }
 

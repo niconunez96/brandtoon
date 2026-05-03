@@ -77,6 +77,62 @@ func TestAvatarConfigGetReturnsNullPayloadWhenDraftIsMissing(t *testing.T) {
 	}
 }
 
+func TestAvatarConfigGetReturnsStoredDraftPayload(t *testing.T) {
+	t.Parallel()
+
+	server := newAuthenticatedAvatarConfigTestServer(t, avatarconfighttp.RouteDependencies{
+		AvatarConfigRepo: &avatarconfigmocks.AvatarConfigRepositoryMock{
+			FindByAvatarIDFunc: func(ctx context.Context, avatarID string) (*avatarconfigdomain.AvatarConfig, error) {
+				config := avatarconfigdomain.NewAvatarConfig(
+					avatarID,
+					"Energetic mascot",
+					avatarconfigdomain.ArtisticStyle3D,
+					avatarconfigdomain.PersonalityBold,
+				)
+				return &config, nil
+			},
+		},
+		AvatarRepo: &avatarmocks.AvatarRepositoryMock{
+			FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
+				avatar := avatardomain.NewAvatar(avatarID, userID, "Studio Hero")
+				return &avatar, nil
+			},
+		},
+	})
+
+	request := httptest.NewRequest(http.MethodGet, "/creative-studio/avatar_configs/avatar-v7", nil)
+	request.AddCookie(&http.Cookie{Name: "brandtoon_session_id", Value: "session-v7"})
+	recorder := httptest.NewRecorder()
+
+	server.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", recorder.Code)
+	}
+
+	var payload struct {
+		AvatarConfig struct {
+			AvatarID      string `json:"avatarId"`
+			ArtisticStyle string `json:"artisticStyle"`
+			Personality   string `json:"personality"`
+			Prompt        string `json:"prompt"`
+		} `json:"avatar_config"`
+	}
+	decodeAvatarConfigResponse(t, recorder, &payload)
+
+	if payload.AvatarConfig.AvatarID != "avatar-v7" {
+		t.Fatalf("expected avatar-v7, got %s", payload.AvatarConfig.AvatarID)
+	}
+
+	if payload.AvatarConfig.ArtisticStyle != "3D" {
+		t.Fatalf("expected 3D style, got %s", payload.AvatarConfig.ArtisticStyle)
+	}
+
+	if payload.AvatarConfig.Personality != "Bold" {
+		t.Fatalf("expected Bold personality, got %s", payload.AvatarConfig.Personality)
+	}
+}
+
 func TestAvatarConfigGetReturnsNotFoundForMissingAvatar(t *testing.T) {
 	t.Parallel()
 
@@ -112,7 +168,7 @@ func TestAvatarConfigPutRejectsInvalidArtisticStyle(t *testing.T) {
 	request := httptest.NewRequest(
 		http.MethodPut,
 		"/creative-studio/avatar_configs/avatar-v7",
-		bytes.NewBufferString(`{"prompt":"hello","artisticStyle":"Clay"}`),
+		bytes.NewBufferString(`{"prompt":"hello","artisticStyle":"Clay","personality":"Friendly"}`),
 	)
 	request.Header.Set("Content-Type", "application/json")
 	request.AddCookie(&http.Cookie{Name: "brandtoon_session_id", Value: "session-v7"})
@@ -147,7 +203,7 @@ func TestAvatarConfigPutCreatesOrUpdatesDraft(t *testing.T) {
 	request := httptest.NewRequest(
 		http.MethodPut,
 		"/creative-studio/avatar_configs/avatar-v7",
-		bytes.NewBufferString(`{"prompt":"Bold mascot","artisticStyle":"3D"}`),
+		bytes.NewBufferString(`{"prompt":"Bold mascot","artisticStyle":"3D","personality":"Playful"}`),
 	)
 	request.Header.Set("Content-Type", "application/json")
 	request.AddCookie(&http.Cookie{Name: "brandtoon_session_id", Value: "session-v7"})
@@ -163,10 +219,15 @@ func TestAvatarConfigPutCreatesOrUpdatesDraft(t *testing.T) {
 		t.Fatalf("expected persisted 3D style, got %s", persistedConfig.ArtisticStyle)
 	}
 
+	if persistedConfig.Personality != avatarconfigdomain.PersonalityPlayful {
+		t.Fatalf("expected persisted Playful personality, got %s", persistedConfig.Personality)
+	}
+
 	var payload struct {
 		AvatarConfig struct {
 			AvatarID      string `json:"avatarId"`
 			ArtisticStyle string `json:"artisticStyle"`
+			Personality   string `json:"personality"`
 			Prompt        string `json:"prompt"`
 		} `json:"avatar_config"`
 	}
@@ -174,6 +235,39 @@ func TestAvatarConfigPutCreatesOrUpdatesDraft(t *testing.T) {
 
 	if payload.AvatarConfig.AvatarID != "avatar-v7" {
 		t.Fatalf("expected avatar-v7, got %s", payload.AvatarConfig.AvatarID)
+	}
+
+	if payload.AvatarConfig.Personality != "Playful" {
+		t.Fatalf("expected Playful personality, got %s", payload.AvatarConfig.Personality)
+	}
+}
+
+func TestAvatarConfigPutRejectsInvalidPersonality(t *testing.T) {
+	t.Parallel()
+
+	server := newAuthenticatedAvatarConfigTestServer(t, avatarconfighttp.RouteDependencies{
+		AvatarConfigRepo: &avatarconfigmocks.AvatarConfigRepositoryMock{},
+		AvatarRepo: &avatarmocks.AvatarRepositoryMock{
+			FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
+				avatar := avatardomain.NewAvatar(avatarID, userID, "Studio Hero")
+				return &avatar, nil
+			},
+		},
+	})
+
+	request := httptest.NewRequest(
+		http.MethodPut,
+		"/creative-studio/avatar_configs/avatar-v7",
+		bytes.NewBufferString(`{"prompt":"hello","artisticStyle":"2D","personality":"Serious"}`),
+	)
+	request.Header.Set("Content-Type", "application/json")
+	request.AddCookie(&http.Cookie{Name: "brandtoon_session_id", Value: "session-v7"})
+	recorder := httptest.NewRecorder()
+
+	server.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusUnprocessableEntity {
+		t.Fatalf("expected 422, got %d", recorder.Code)
 	}
 }
 
@@ -193,7 +287,7 @@ func TestAvatarConfigPutRejectsPromptLongerThanTwoHundredFiftySixCharacters(t *t
 	request := httptest.NewRequest(
 		http.MethodPut,
 		"/creative-studio/avatar_configs/avatar-v7",
-		bytes.NewBufferString(`{"prompt":"`+strings.Repeat("a", 257)+`","artisticStyle":"2D"}`),
+		bytes.NewBufferString(`{"prompt":"`+strings.Repeat("a", 257)+`","artisticStyle":"2D","personality":"Friendly"}`),
 	)
 	request.Header.Set("Content-Type", "application/json")
 	request.AddCookie(&http.Cookie{Name: "brandtoon_session_id", Value: "session-v7"})

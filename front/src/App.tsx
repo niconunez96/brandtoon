@@ -20,10 +20,6 @@ export function App() {
         >
           <Route element={<AvatarDetailsStepPage />} path="avatar" />
           <Route
-            element={<AvatarPlaceholderStepPage stepLabel="Personality" />}
-            path="personality"
-          />
-          <Route
             element={<AvatarPlaceholderStepPage stepLabel="Voice" />}
             path="voice"
           />

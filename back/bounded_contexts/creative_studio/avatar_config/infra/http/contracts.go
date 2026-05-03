@@ -13,6 +13,7 @@ type RouteDependencies struct {
 type avatarConfigPayload struct {
 	AvatarID      string `json:"avatarId"`
 	ArtisticStyle string `json:"artisticStyle"`
+	Personality   string `json:"personality"`
 	Prompt        string `json:"prompt"`
 }
 
@@ -28,6 +29,7 @@ type avatarConfigPathInput struct {
 
 type updateAvatarConfigBody struct {
 	ArtisticStyle string `json:"artisticStyle" enum:"2D,3D"`
+	Personality   string `json:"personality"  enum:"Friendly,Bold,Playful"`
 	Prompt        string `json:"prompt"                     maxLength:"256"`
 }
 
@@ -42,6 +44,7 @@ func toAvatarConfigPayload(
 	return &avatarConfigPayload{
 		AvatarID:      avatarConfig.AvatarID,
 		ArtisticStyle: string(avatarConfig.ArtisticStyle),
+		Personality:   string(avatarConfig.Personality),
 		Prompt:        avatarConfig.Prompt,
 	}
 }
