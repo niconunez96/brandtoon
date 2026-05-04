@@ -30,6 +30,7 @@ Use this skill when editing `back/bounded_contexts/**/useCases`.
 - Queries return read models without side effects.
 - Use cases MUST return use-case DTOs, not domain entities/aggregates.
 - Use case file/function/DTO names must express business capability, not provider technology.
+- Use cases MUST live in the aggregate that owns the mutated/read model. Do not place cross-aggregate orchestration use cases in foreign aggregates.
 - DTO naming convention is mandatory: file `{name}_dto.go`, struct `{Name}DTO`.
 - Each DTO file must expose `serialize` (single domain object -> DTO) and `serializeList` (list of domain objects -> list of DTOs).
 - Avoid transport schema validation in use cases (required/length/pattern checks for HTTP payload shape); prefer Huma validation tags in `infra/http` contracts.

@@ -20,6 +20,7 @@ Use this skill when changing domain models in `back/bounded_contexts/**/domain`.
 ## Hard Constraints
 
 - Aggregate root is the ONLY entrypoint for domain interactions.
+- Domain aggregates should expose behavior methods rather than having external use cases manipulate aggregate state directly.
 - Package name in `domain/` is `package {aggregate}domain`.
 - Internal entities are not exported for direct external mutation.
 - Value objects are defined via explicit custom types and enum-like constants.
