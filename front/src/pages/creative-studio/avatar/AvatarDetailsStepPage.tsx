@@ -168,6 +168,26 @@ export function AvatarDetailsStepPage() {
 
   return (
     <SectionShell
+      actions={
+        <>
+          <Button
+            isLoading={generateAvatarOptionsMutation.isPending}
+            onClick={() => void handleGenerate()}
+          >
+            Generate
+          </Button>
+          <Button
+            isLoading={
+              updateAvatarConfigMutation.isPending &&
+              !generateAvatarOptionsMutation.isPending
+            }
+            onClick={() => void handleSaveSubmit()}
+            variant="secondary"
+          >
+            Save as draft
+          </Button>
+        </>
+      }
       description="Define the first creative draft for this avatar. The other steps are visible so the workflow feels real, but only this foundation step is active today."
       eyebrow="Avatar step"
       title="Shape the avatar foundation"
@@ -189,26 +209,13 @@ export function AvatarDetailsStepPage() {
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="foundation-section-eyebrow">
-                      Generation Results
-                    </p>
-                    <p className="text-sm text-ink/70">
-                      Choose a generated direction
-                    </p>
-                  </div>
-                  <Button
-                    isLoading={
-                      updateAvatarConfigMutation.isPending ||
-                      generateAvatarOptionsMutation.isPending
-                    }
-                    onClick={() => void handleGenerate()}
-                    type="button"
-                    variant="ghost"
-                  >
-                    Generate
-                  </Button>
+                <div>
+                  <p className="foundation-section-eyebrow">
+                    Generation Results
+                  </p>
+                  <p className="text-sm text-ink/70">
+                    Choose a generated direction
+                  </p>
                 </div>
 
                 {avatarOptions.length === 0 ? (
@@ -270,14 +277,10 @@ export function AvatarDetailsStepPage() {
             <Card className="space-y-5 bg-white p-6">
               <div className="space-y-2">
                 <p className="foundation-section-eyebrow">Create avatar</p>
-                <p className="text-3xl font-black tracking-tight text-ink">
+                <p className="text-xl font-black tracking-tight text-ink">
                   Shape your brand's face
                 </p>
-                <p className="text-sm text-ink/70">
-                  Craft your first draft, then iterate with generated options on
-                  the left.
-                </p>
-              </div>
+                              </div>
 
               <Controller
                 control={form.control}
@@ -397,15 +400,6 @@ export function AvatarDetailsStepPage() {
               ) : null}
 
               <div className="flex flex-wrap gap-3">
-                <Button
-                  isLoading={
-                    updateAvatarConfigMutation.isPending &&
-                    !generateAvatarOptionsMutation.isPending
-                  }
-                  type="submit"
-                >
-                  Save avatar draft
-                </Button>
                 <Button
                   onClick={() =>
                     form.reset({

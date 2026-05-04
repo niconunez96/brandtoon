@@ -18,6 +18,7 @@ import { Button } from '../../shared/components/ui/button'
 import { Card, SectionShell } from '../../shared/components/ui/card'
 import { EmptyState } from '../../shared/components/ui/empty-state'
 import { Input } from '../../shared/components/ui/field'
+import { Modal } from '../../shared/components/ui/modal'
 import { SidebarNav } from '../../shared/components/ui/sidebar-nav'
 import { Topbar } from '../../shared/components/ui/topbar'
 
@@ -44,11 +45,9 @@ function getCreateAvatarErrorMessage(error: unknown) {
 function AvatarComposer({
   isOpen,
   onClose,
-  onOpen,
 }: {
   isOpen: boolean
   onClose: () => void
-  onOpen: () => void
 }) {
   const createAvatarMutation = useCreateAvatarMutation()
   const form = useForm<CreateAvatarFormValues>({
@@ -75,55 +74,49 @@ function AvatarComposer({
     }
   })
 
-  if (!isOpen) {
-    return (
-      <Button icon={<UserRoundPlus className="size-4" />} onClick={onOpen}>
-        Create avatar
-      </Button>
-    )
-  }
-
   return (
-    <Card className="space-y-5 bg-white">
-      <div className="space-y-2">
-        <p className="foundation-section-eyebrow">Avatar composer</p>
-        <h3 className="text-xl font-black tracking-tight text-ink">
-          Name your next avatar
-        </h3>
-        <p className="foundation-body">
-          Start simple. You can enrich each avatar later as the studio grows.
-        </p>
-      </div>
-
-      <form
-        className="space-y-4"
-        onSubmit={(event) => void handleSubmit(event)}
-      >
-        <Input
-          label="Avatar name"
-          maxLength={120}
-          message={form.formState.errors.name?.message}
-          placeholder="For example: Studio Hero"
-          state={form.formState.errors.name ? 'error' : 'default'}
-          {...form.register('name')}
-        />
-
-        {createAvatarMutation.isError ? (
-          <p className="rounded-2xl bg-error-container px-4 py-3 text-sm font-bold text-error">
-            {getCreateAvatarErrorMessage(createAvatarMutation.error)}
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <Card className="space-y-5 bg-white">
+        <div className="space-y-2">
+          <p className="foundation-section-eyebrow">Avatar composer</p>
+          <h3 className="text-xl font-black tracking-tight text-ink">
+            Name your next avatar
+          </h3>
+          <p className="foundation-body">
+            Start simple. You can enrich each avatar later as the studio grows.
           </p>
-        ) : null}
-
-        <div className="flex flex-wrap gap-3">
-          <Button isLoading={createAvatarMutation.isPending} type="submit">
-            Save avatar
-          </Button>
-          <Button onClick={onClose} type="button" variant="ghost">
-            Cancel
-          </Button>
         </div>
-      </form>
-    </Card>
+
+        <form
+          className="space-y-4"
+          onSubmit={(event) => void handleSubmit(event)}
+        >
+          <Input
+            label="Avatar name"
+            maxLength={120}
+            message={form.formState.errors.name?.message}
+            placeholder="For example: Studio Hero"
+            state={form.formState.errors.name ? 'error' : 'default'}
+            {...form.register('name')}
+          />
+
+          {createAvatarMutation.isError ? (
+            <p className="rounded-2xl bg-error-container px-4 py-3 text-sm font-bold text-error">
+              {getCreateAvatarErrorMessage(createAvatarMutation.error)}
+            </p>
+          ) : null}
+
+          <div className="flex flex-wrap gap-3">
+            <Button isLoading={createAvatarMutation.isPending} type="submit">
+              Save avatar
+            </Button>
+            <Button onClick={onClose} type="button" variant="ghost">
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Card>
+    </Modal>
   )
 }
 
@@ -226,11 +219,12 @@ export function CreativeStudioPage() {
                           ready to use
                         </p>
                       </div>
-                      <AvatarComposer
-                        isOpen={isComposerOpen}
-                        onClose={() => setIsComposerOpen(false)}
-                        onOpen={() => setIsComposerOpen(true)}
-                      />
+                      <Button
+                        icon={<UserRoundPlus className="size-4" />}
+                        onClick={() => setIsComposerOpen(true)}
+                      >
+                        Create avatar
+                      </Button>
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -286,17 +280,14 @@ export function CreativeStudioPage() {
                       Create your first avatar to begin shaping the characters
                       that represent your brand.
                     </EmptyState>
-
-                    {isComposerOpen ? (
-                      <AvatarComposer
-                        isOpen={isComposerOpen}
-                        onClose={() => setIsComposerOpen(false)}
-                        onOpen={() => setIsComposerOpen(true)}
-                      />
-                    ) : null}
                   </>
                 )
               ) : null}
+
+              <AvatarComposer
+                isOpen={isComposerOpen}
+                onClose={() => setIsComposerOpen(false)}
+              />
             </div>
           </SectionShell>
         </main>

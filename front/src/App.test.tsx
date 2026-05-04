@@ -543,7 +543,7 @@ describe('App', () => {
     )
     await user.click(screen.getByRole('button', { name: /^3d$/i }))
     await user.click(screen.getByRole('button', { name: /playful/i }))
-    await user.click(screen.getByRole('button', { name: /save avatar draft/i }))
+    await user.click(screen.getByRole('button', { name: /save as draft/i }))
 
     await waitFor(() =>
       expect(savedBody).toEqual({
@@ -690,7 +690,7 @@ describe('App', () => {
       await screen.findByLabelText(/avatar description/i),
       'Energetic coral storyteller',
     )
-    await user.click(screen.getByRole('button', { name: /save avatar draft/i }))
+    await user.click(screen.getByRole('button', { name: /save as draft/i }))
 
     expect(
       await screen.findByText(/we could not save your avatar draft/i),
