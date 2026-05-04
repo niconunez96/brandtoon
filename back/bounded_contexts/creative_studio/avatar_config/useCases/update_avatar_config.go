@@ -19,24 +19,24 @@ func UpdateAvatarConfig(
 	cmd UpdateAvatarConfigCommand,
 	avatarRepo avatardomain.AvatarRepository,
 	avatarConfigRepo avatarconfigdomain.AvatarConfigRepository,
-) (avatarconfigdomain.AvatarConfig, error) {
+) (AvatarConfigDTO, error) {
 	avatar, err := avatarRepo.FindOwnedByID(ctx, cmd.AvatarID, cmd.UserID)
 	if err != nil {
-		return avatarconfigdomain.AvatarConfig{}, err
+		return AvatarConfigDTO{}, err
 	}
 
 	if avatar == nil {
-		return avatarconfigdomain.AvatarConfig{}, ErrAvatarNotFound
+		return AvatarConfigDTO{}, ErrAvatarNotFound
 	}
 
 	artisticStyle, err := avatarconfigdomain.ParseArtisticStyle(cmd.ArtisticStyle)
 	if err != nil {
-		return avatarconfigdomain.AvatarConfig{}, err
+		return AvatarConfigDTO{}, err
 	}
 
 	personality, err := avatarconfigdomain.ParsePersonality(cmd.Personality)
 	if err != nil {
-		return avatarconfigdomain.AvatarConfig{}, err
+		return AvatarConfigDTO{}, err
 	}
 
 	avatarConfig := avatarconfigdomain.NewAvatarConfig(
@@ -46,8 +46,8 @@ func UpdateAvatarConfig(
 		personality,
 	)
 	if err := avatarConfigRepo.Upsert(ctx, avatarConfig); err != nil {
-		return avatarconfigdomain.AvatarConfig{}, err
+		return AvatarConfigDTO{}, err
 	}
 
-	return avatarConfig, nil
+	return serialize(avatarConfig, *avatar), nil
 }

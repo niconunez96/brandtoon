@@ -27,7 +27,12 @@ func TestUpdateAvatarConfigUpsertsDraftForOwnedAvatar(t *testing.T) {
 		},
 		&avatarmocks.AvatarRepositoryMock{
 			FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
-				avatar := avatardomain.NewAvatar(avatarID, userID, "Studio Hero")
+				avatar := avatardomain.NewAvatarWithOptions(
+					avatarID,
+					userID,
+					"Studio Hero",
+					[]avatardomain.AvatarOption{{Href: "https://cdn.brandtoon.local/options/1.png", Selected: false}},
+				)
 				return &avatar, nil
 			},
 		},
@@ -52,6 +57,10 @@ func TestUpdateAvatarConfigUpsertsDraftForOwnedAvatar(t *testing.T) {
 
 	if persistedConfig.Personality != avatarconfigdomain.PersonalityFriendly {
 		t.Fatalf("expected Friendly personality, got %s", persistedConfig.Personality)
+	}
+
+	if len(result.AvatarOptions) != 1 {
+		t.Fatalf("expected avatar options to remain on avatar aggregate, got %d", len(result.AvatarOptions))
 	}
 }
 

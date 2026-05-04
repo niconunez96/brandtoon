@@ -1,9 +1,11 @@
 package avatarhttp
 
 import (
+	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
 	avatarusecases "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases"
 	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
 	"context"
+	"errors"
 
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -23,13 +25,16 @@ func buildListAvatarsHandler(
 			deps.AvatarRepo,
 		)
 		if err != nil {
+			if errors.Is(err, avatardomain.ErrInvalidName) {
+				return nil, huma.Error422UnprocessableEntity("invalid avatar name")
+			}
 			return nil, err
 		}
 
 		response := &listAvatarsOutput{}
-		response.Body.Avatars = make([]avatarPayload, 0, len(avatars))
+		response.Body.Avatars = make([]AvatarDTO, 0, len(avatars))
 		for _, avatar := range avatars {
-			response.Body.Avatars = append(response.Body.Avatars, toAvatarPayload(avatar))
+			response.Body.Avatars = append(response.Body.Avatars, serializeAvatarUseCaseDTO(avatar))
 		}
 
 		return response, nil
@@ -55,11 +60,14 @@ func buildCreateAvatarHandler(
 			deps.IDGenerator,
 		)
 		if err != nil {
+			if errors.Is(err, avatardomain.ErrInvalidName) {
+				return nil, huma.Error422UnprocessableEntity("invalid avatar name")
+			}
 			return nil, err
 		}
 
 		response := &createAvatarOutput{}
-		response.Body.Avatar = toAvatarPayload(avatar)
+		response.Body.Avatar = serializeAvatarUseCaseDTO(avatar)
 		return response, nil
 	}
 }

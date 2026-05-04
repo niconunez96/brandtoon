@@ -8,12 +8,15 @@ import (
 type AvatarConfigRepositoryMock struct {
 	FindByAvatarIDFunc func(ctx context.Context, avatarID string) (*avatarconfigdomain.AvatarConfig, error)
 	UpsertFunc         func(ctx context.Context, avatarConfig avatarconfigdomain.AvatarConfig) error
+	FindCalls          int
+	UpsertCalls        int
 }
 
 func (m *AvatarConfigRepositoryMock) FindByAvatarID(
 	ctx context.Context,
 	avatarID string,
 ) (*avatarconfigdomain.AvatarConfig, error) {
+	m.FindCalls++
 	if m.FindByAvatarIDFunc == nil {
 		return nil, nil
 	}
@@ -25,6 +28,7 @@ func (m *AvatarConfigRepositoryMock) Upsert(
 	ctx context.Context,
 	avatarConfig avatarconfigdomain.AvatarConfig,
 ) error {
+	m.UpsertCalls++
 	if m.UpsertFunc == nil {
 		return nil
 	}

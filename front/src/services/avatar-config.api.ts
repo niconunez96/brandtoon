@@ -7,8 +7,20 @@ export type Personality = 'Friendly' | 'Bold' | 'Playful'
 export type AvatarConfig = {
   avatarId: string
   artisticStyle: ArtisticStyle
+  avatarOptions: AvatarOption[]
   personality: Personality
   prompt: string
+}
+
+export type AvatarOption = {
+  href: string
+  selected: boolean
+}
+
+export type AvatarGenerationCompletedEvent = {
+  avatarId: string
+  avatarName: string
+  userId: string
 }
 
 export type AvatarConfigResponse = {
@@ -59,4 +71,18 @@ export async function updateAvatarConfig(
   }
 
   return response.json()
+}
+
+export async function generateAvatarOptions(avatarId: string): Promise<void> {
+  const response = await fetch(
+    `${API_BASE_URL}/creative-studio/avatar_configs/${avatarId}/generate`,
+    {
+      credentials: 'include',
+      method: 'POST',
+    },
+  )
+
+  if (!response.ok) {
+    throw new ApiError('Failed to generate avatar options', response.status)
+  }
 }

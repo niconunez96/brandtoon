@@ -24,6 +24,7 @@ func AuthMiddleware(deps AuthMiddlewareDeps) sharedhttp.Middleware {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			sessionCookie, err := r.Cookie(sessionCookieName)
 			if err != nil || sessionCookie == nil {
+				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
 			session, err := sessionusecases.FindSession(

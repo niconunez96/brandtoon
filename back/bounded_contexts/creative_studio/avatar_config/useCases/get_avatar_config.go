@@ -16,7 +16,7 @@ func GetAvatarConfig(
 	query GetAvatarConfigQuery,
 	avatarRepo avatardomain.AvatarRepository,
 	avatarConfigRepo avatarconfigdomain.AvatarConfigRepository,
-) (*avatarconfigdomain.AvatarConfig, error) {
+) (*AvatarConfigDTO, error) {
 	avatar, err := avatarRepo.FindOwnedByID(ctx, query.AvatarID, query.UserID)
 	if err != nil {
 		return nil, err
@@ -26,5 +26,15 @@ func GetAvatarConfig(
 		return nil, ErrAvatarNotFound
 	}
 
-	return avatarConfigRepo.FindByAvatarID(ctx, query.AvatarID)
+	avatarConfig, err := avatarConfigRepo.FindByAvatarID(ctx, query.AvatarID)
+	if err != nil {
+		return nil, err
+	}
+
+	if avatarConfig == nil {
+		return nil, nil
+	}
+
+	serialized := serialize(*avatarConfig, *avatar)
+	return &serialized, nil
 }

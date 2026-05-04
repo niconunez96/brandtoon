@@ -1,4 +1,4 @@
-package avatarconfigusecases
+package avatarusecases
 
 import "errors"
 

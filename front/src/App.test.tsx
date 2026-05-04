@@ -1,9 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, within } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse, delay } from 'msw'
 import { MemoryRouter, useLocation } from 'react-router-dom'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { App } from './App'
 import { API_BASE_URL } from './shared/config/api'
 import { navigateToExternalUrl } from './shared/lib/browser'
@@ -12,6 +12,55 @@ import { server } from './test/mocks/server'
 vi.mock('./shared/lib/browser', () => ({
   navigateToExternalUrl: vi.fn(),
 }))
+
+class MockEventSource {
+  static instances: MockEventSource[] = []
+
+  listeners = new Map<string, Set<(event: MessageEvent<string>) => void>>()
+
+  constructor(
+    public readonly url: string,
+    public readonly options?: EventSourceInit,
+  ) {
+    MockEventSource.instances.push(this)
+  }
+
+  addEventListener(
+    type: string,
+    listener: (event: MessageEvent<string>) => void,
+  ) {
+    if (!this.listeners.has(type)) {
+      this.listeners.set(type, new Set())
+    }
+
+    this.listeners.get(type)?.add(listener)
+  }
+
+  removeEventListener(
+    type: string,
+    listener: (event: MessageEvent<string>) => void,
+  ) {
+    this.listeners.get(type)?.delete(listener)
+  }
+
+  emit(type: string, data: unknown) {
+    const event = { data: JSON.stringify(data) } as MessageEvent<string>
+    for (const listener of this.listeners.get(type) ?? []) {
+      listener(event)
+    }
+  }
+
+  close() {}
+}
+
+beforeEach(() => {
+  MockEventSource.instances = []
+  vi.stubGlobal('EventSource', MockEventSource)
+})
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
 
 function LocationProbe() {
   const location = useLocation()
@@ -364,7 +413,7 @@ describe('App', () => {
     ).toBeInTheDocument()
   })
 
-  it('renders default draft values and image options when avatar config is still empty', async () => {
+  it('renders default draft values and waits for backend generated options when avatar config is still empty', async () => {
     server.use(
       http.get(`${API_BASE_URL}/auth/users/me`, () => {
         return HttpResponse.json({
@@ -396,86 +445,12 @@ describe('App', () => {
       screen.getByText(/choose a generated direction/i),
     ).toBeInTheDocument()
     expect(
-      screen.queryByRole('link', { name: /personality/i }),
-    ).not.toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: /regenerate/i }),
+      screen.getByRole('button', { name: /generate/i }),
     ).toBeInTheDocument()
-    expect(screen.getAllByRole('radio')).toHaveLength(4)
+    expect(screen.queryAllByRole('radio')).toHaveLength(0)
     expect(
-      screen.getByRole('button', { name: /save avatar draft/i }),
+      screen.getByText(/save your draft, then generate avatar options/i),
     ).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: /reset draft/i }),
-    ).toBeInTheDocument()
-  })
-
-  it('lets the user select a generated image option in local ui state', async () => {
-    const user = userEvent.setup()
-
-    server.use(
-      http.get(`${API_BASE_URL}/auth/users/me`, () => {
-        return HttpResponse.json({
-          user: {
-            avatarUrl: 'https://avatar.example.com/nico.png',
-            email: 'nico@example.com',
-            id: 'user-v7',
-            name: 'Nico',
-          },
-        })
-      }),
-      http.get(`${API_BASE_URL}/creative-studio/avatar_configs/:avatarId`, () =>
-        HttpResponse.json({ avatar_config: null }),
-      ),
-    )
-
-    renderApp('/creative-studio/avatars/avatar-1/avatar')
-
-    const radios = (await screen.findAllByRole('radio')) as HTMLInputElement[]
-
-    expect(radios[0]).toBeChecked()
-    expect(radios[1]).not.toBeChecked()
-
-    await user.click(radios[1])
-
-    expect(radios[0]).not.toBeChecked()
-    expect(radios[1]).toBeChecked()
-  })
-
-  it('regenerates image options locally and resets the selected option', async () => {
-    const user = userEvent.setup()
-
-    server.use(
-      http.get(`${API_BASE_URL}/auth/users/me`, () => {
-        return HttpResponse.json({
-          user: {
-            avatarUrl: 'https://avatar.example.com/nico.png',
-            email: 'nico@example.com',
-            id: 'user-v7',
-            name: 'Nico',
-          },
-        })
-      }),
-      http.get(`${API_BASE_URL}/creative-studio/avatar_configs/:avatarId`, () =>
-        HttpResponse.json({ avatar_config: null }),
-      ),
-    )
-
-    renderApp('/creative-studio/avatars/avatar-1/avatar')
-
-    const initialRadios = (await screen.findAllByRole(
-      'radio',
-    )) as HTMLInputElement[]
-    await user.click(initialRadios[2])
-    expect(initialRadios[2]).toBeChecked()
-    expect(initialRadios[0]).toHaveAttribute('value', '2d-0-0')
-
-    await user.click(screen.getByRole('button', { name: /regenerate/i }))
-
-    const regeneratedRadios = screen.getAllByRole('radio') as HTMLInputElement[]
-    expect(regeneratedRadios[0]).toHaveAttribute('value', '2d-1-0')
-    expect(regeneratedRadios[0]).toBeChecked()
-    expect(regeneratedRadios[2]).not.toBeChecked()
   })
 
   it('hydrates the avatar editor when a saved draft already exists', async () => {
@@ -495,6 +470,7 @@ describe('App', () => {
           avatar_config: {
             avatarId: 'avatar-1',
             artisticStyle: '3D',
+            avatarOptions: [],
             personality: 'Bold',
             prompt: 'Bold editorial mascot',
           },
@@ -551,6 +527,7 @@ describe('App', () => {
           return HttpResponse.json({
             avatar_config: {
               avatarId: 'avatar-1',
+              avatarOptions: [],
               ...savedBody,
             },
           })
@@ -568,12 +545,118 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: /playful/i }))
     await user.click(screen.getByRole('button', { name: /save avatar draft/i }))
 
-    expect(await screen.findByText(/avatar draft saved/i)).toBeInTheDocument()
-    expect(savedBody).toEqual({
-      artisticStyle: '3D',
-      personality: 'Playful',
-      prompt: 'Energetic coral storyteller',
-    })
+    await waitFor(() =>
+      expect(savedBody).toEqual({
+        artisticStyle: '3D',
+        personality: 'Playful',
+        prompt: 'Energetic coral storyteller',
+      }),
+    )
+  })
+
+  it('stops generation when saving the draft fails', async () => {
+    const user = userEvent.setup()
+    let generateCallCount = 0
+
+    server.use(
+      http.get(`${API_BASE_URL}/auth/users/me`, () => {
+        return HttpResponse.json({
+          user: {
+            avatarUrl: 'https://avatar.example.com/nico.png',
+            email: 'nico@example.com',
+            id: 'user-v7',
+            name: 'Nico',
+          },
+        })
+      }),
+      http.get(`${API_BASE_URL}/creative-studio/avatar_configs/:avatarId`, () =>
+        HttpResponse.json({ avatar_config: null }),
+      ),
+      http.put(
+        `${API_BASE_URL}/creative-studio/avatar_configs/:avatarId`,
+        () => {
+          return HttpResponse.json({ message: 'invalid' }, { status: 422 })
+        },
+      ),
+      http.post(
+        `${API_BASE_URL}/creative-studio/avatar_configs/:avatarId/generate`,
+        () => {
+          generateCallCount += 1
+          return new HttpResponse(null, { status: 200 })
+        },
+      ),
+    )
+
+    renderApp('/creative-studio/avatars/avatar-1/avatar')
+
+    await user.type(
+      await screen.findByLabelText(/avatar description/i),
+      'Energetic coral storyteller',
+    )
+    await user.click(screen.getByRole('button', { name: /generate/i }))
+
+    expect(
+      await screen.findByText(
+        /please review the description, style, and personality before saving/i,
+      ),
+    ).toBeInTheDocument()
+    expect(generateCallCount).toBe(0)
+  })
+
+  it('saves first and then calls generate with no request body', async () => {
+    const user = userEvent.setup()
+    const callOrder: string[] = []
+    let generateBody = 'not-called'
+
+    server.use(
+      http.get(`${API_BASE_URL}/auth/users/me`, () => {
+        return HttpResponse.json({
+          user: {
+            avatarUrl: 'https://avatar.example.com/nico.png',
+            email: 'nico@example.com',
+            id: 'user-v7',
+            name: 'Nico',
+          },
+        })
+      }),
+      http.get(`${API_BASE_URL}/creative-studio/avatar_configs/:avatarId`, () =>
+        HttpResponse.json({ avatar_config: null }),
+      ),
+      http.put(
+        `${API_BASE_URL}/creative-studio/avatar_configs/:avatarId`,
+        () => {
+          callOrder.push('put')
+          return HttpResponse.json({
+            avatar_config: {
+              avatarId: 'avatar-1',
+              artisticStyle: '2D',
+              avatarOptions: [],
+              personality: 'Friendly',
+              prompt: 'Energetic coral storyteller',
+            },
+          })
+        },
+      ),
+      http.post(
+        `${API_BASE_URL}/creative-studio/avatar_configs/:avatarId/generate`,
+        async ({ request }) => {
+          callOrder.push('post')
+          generateBody = await request.text()
+          return new HttpResponse(null, { status: 200 })
+        },
+      ),
+    )
+
+    renderApp('/creative-studio/avatars/avatar-1/avatar')
+
+    await user.type(
+      await screen.findByLabelText(/avatar description/i),
+      'Energetic coral storyteller',
+    )
+    await user.click(screen.getByRole('button', { name: /generate/i }))
+
+    await waitFor(() => expect(callOrder).toEqual(['put', 'post']))
+    expect(generateBody).toBe('')
   })
 
   it('shows avatar draft save errors without leaving the editor', async () => {
@@ -612,9 +695,140 @@ describe('App', () => {
     expect(
       await screen.findByText(/we could not save your avatar draft/i),
     ).toBeInTheDocument()
-    expect(screen.getByTestId('location-display')).toHaveTextContent(
-      '/creative-studio/avatars/avatar-1/avatar',
+  })
+
+  it('shows a global toast and refreshes the active avatar editor on SSE completion', async () => {
+    const avatarConfigResponses = [
+      {
+        avatar_config: {
+          avatarId: 'avatar-1',
+          artisticStyle: '2D',
+          avatarOptions: [],
+          personality: 'Friendly',
+          prompt: 'Energetic coral storyteller',
+        },
+      },
+      {
+        avatar_config: {
+          avatarId: 'avatar-1',
+          artisticStyle: '2D',
+          avatarOptions: [
+            {
+              href: 'https://cdn.brandtoon.local/avatars/avatar-1/options/1.png',
+              selected: false,
+            },
+            {
+              href: 'https://cdn.brandtoon.local/avatars/avatar-1/options/2.png',
+              selected: false,
+            },
+            {
+              href: 'https://cdn.brandtoon.local/avatars/avatar-1/options/3.png',
+              selected: false,
+            },
+            {
+              href: 'https://cdn.brandtoon.local/avatars/avatar-1/options/4.png',
+              selected: false,
+            },
+          ],
+          personality: 'Friendly',
+          prompt: 'Energetic coral storyteller',
+        },
+      },
+    ]
+    let avatarConfigCallCount = 0
+
+    server.use(
+      http.get(`${API_BASE_URL}/auth/users/me`, () => {
+        return HttpResponse.json({
+          user: {
+            avatarUrl: 'https://avatar.example.com/nico.png',
+            email: 'nico@example.com',
+            id: 'user-v7',
+            name: 'Nico',
+          },
+        })
+      }),
+      http.get(
+        `${API_BASE_URL}/creative-studio/avatar_configs/:avatarId`,
+        () => {
+          const response =
+            avatarConfigResponses[
+              Math.min(avatarConfigCallCount, avatarConfigResponses.length - 1)
+            ]
+          avatarConfigCallCount += 1
+          return HttpResponse.json(response)
+        },
+      ),
     )
+
+    renderApp('/creative-studio/avatars/avatar-1/avatar')
+
+    expect(await screen.findByLabelText(/avatar description/i)).toHaveValue(
+      'Energetic coral storyteller',
+    )
+
+    await act(async () => {
+      MockEventSource.instances[0]?.emit('avatar-generation.completed', {
+        avatarId: 'avatar-1',
+        avatarName: 'Studio Hero',
+        userId: 'user-v7',
+      })
+    })
+
+    expect(
+      await screen.findByText(/the avatar studio hero was generated/i),
+    ).toBeInTheDocument()
+
+    await waitFor(() => expect(screen.getAllByRole('radio')).toHaveLength(4))
+    expect(avatarConfigCallCount).toBeGreaterThan(1)
+  })
+
+  it('shows a global toast without refetching avatar options when off-route', async () => {
+    let avatarConfigCallCount = 0
+
+    server.use(
+      http.get(`${API_BASE_URL}/auth/users/me`, () => {
+        return HttpResponse.json({
+          user: {
+            avatarUrl: 'https://avatar.example.com/nico.png',
+            email: 'nico@example.com',
+            id: 'user-v7',
+            name: 'Nico',
+          },
+        })
+      }),
+      http.get(`${API_BASE_URL}/creative-studio/avatars`, () => {
+        return HttpResponse.json({
+          avatars: [{ id: 'avatar-1', name: 'Studio Hero' }],
+        })
+      }),
+      http.get(
+        `${API_BASE_URL}/creative-studio/avatar_configs/:avatarId`,
+        () => {
+          avatarConfigCallCount += 1
+          return HttpResponse.json({ avatar_config: null })
+        },
+      ),
+    )
+
+    renderApp('/creative-studio')
+
+    expect(
+      await screen.findByRole('heading', { name: /^studio hero$/i }),
+    ).toBeInTheDocument()
+
+    await act(async () => {
+      MockEventSource.instances[0]?.emit('avatar-generation.completed', {
+        avatarId: 'avatar-1',
+        avatarName: 'Studio Hero',
+        userId: 'user-v7',
+      })
+    })
+
+    expect(
+      await screen.findByText(/the avatar studio hero was generated/i),
+    ).toBeInTheDocument()
+    expect(avatarConfigCallCount).toBe(0)
   })
 
   it('renders placeholder editor steps for future workflow stages', async () => {

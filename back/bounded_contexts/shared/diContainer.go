@@ -6,6 +6,7 @@ import (
 
 	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
 	avatarrepo "brandtoonapi/bounded_contexts/creative_studio/avatar/infra/repo"
+	avatarusecases "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases"
 	avatarconfigdomain "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain"
 	avatarconfigrepo "brandtoonapi/bounded_contexts/creative_studio/avatar_config/infra/repo"
 	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
@@ -15,8 +16,11 @@ import (
 	sessionrepo "brandtoonapi/bounded_contexts/identity/session/infra/repo"
 	userdomain "brandtoonapi/bounded_contexts/identity/user/domain"
 	userrepo "brandtoonapi/bounded_contexts/identity/user/infra/repo"
+	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
 	sharedconfig "brandtoonapi/bounded_contexts/shared/infra/config"
+	sharedevents "brandtoonapi/bounded_contexts/shared/infra/events"
 	sharedpostgres "brandtoonapi/bounded_contexts/shared/infra/postgres"
+	sharedsse "brandtoonapi/bounded_contexts/shared/infra/sse"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -43,6 +47,9 @@ type DIContainer struct {
 	// Creative studio
 	avatarConfigRepo avatarconfigdomain.AvatarConfigRepository
 	avatarRepo       avatardomain.AvatarRepository
+	eventBus         shareddomain.EventBus
+	sseConnector     *sharedsse.Connector
+	sseHub           *sharedsse.Hub
 }
 
 func NewDIContainer() *DIContainer {
@@ -51,6 +58,39 @@ func NewDIContainer() *DIContainer {
 	})
 
 	return container
+}
+
+func (c *DIContainer) GetEventBus() shareddomain.EventBus {
+	if c.eventBus == nil {
+		c.eventBus = sharedevents.NewInMemoryEventBus()
+	}
+
+	return c.eventBus
+}
+
+func (c *DIContainer) GetSSEHub() *sharedsse.Hub {
+	if c.sseHub == nil {
+		c.sseHub = sharedsse.NewHub()
+	}
+
+	return c.sseHub
+}
+
+func (c *DIContainer) GetSSEConnector() (*sharedsse.Connector, error) {
+	if c.sseConnector == nil {
+		connector, err := sharedsse.NewConnector(
+			c.GetEventBus(),
+			c.GetSSEHub(),
+			[]string{avatarusecases.AvatarGenerationCompletedEventName},
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		c.sseConnector = connector
+	}
+
+	return c.sseConnector, nil
 }
 
 func (c *DIContainer) GetConfig() (sharedconfig.Config, error) {

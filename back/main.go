@@ -12,6 +12,7 @@ import (
 	shared "brandtoonapi/bounded_contexts/shared"
 	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
 	sharedconfig "brandtoonapi/bounded_contexts/shared/infra/config"
+	sharedsse "brandtoonapi/bounded_contexts/shared/infra/sse"
 	"brandtoonapi/bounded_contexts/shared/infra/telemetry"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -63,6 +64,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	sseConnector, err := container.GetSSEConnector()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	router := chi.NewMux()
 	router.Use(corsMiddleware(config))
 	router.Use(t.HttpLoggerMiddleware())
@@ -82,14 +88,23 @@ func main() {
 		StateCodec:     stateCodec,
 		UserRepo:       userRepo,
 	}, authMiddleware)
+	plainAuthMiddleware := authhttp.AuthMiddleware(authhttp.AuthMiddlewareDeps{
+		SessionRepo: sessionRepo,
+		UserRepo:    userRepo,
+		HumaApi:     api,
+	})
 	avatarhttp.RegisterRoutes(api, avatarhttp.RouteDependencies{
 		AvatarRepo:  avatarRepo,
 		IDGenerator: shareddomain.GenerateUUIDv7,
 	}, authMiddleware)
-	avatarconfighttp.RegisterRoutes(api, avatarconfighttp.RouteDependencies{
+	avatarconfighttp.RegisterRoutes(api, router, avatarconfighttp.RouteDependencies{
 		AvatarConfigRepo: avatarConfigRepo,
 		AvatarRepo:       avatarRepo,
-	}, authMiddleware)
+		EventBus:         container.GetEventBus(),
+	}, plainAuthMiddleware, authMiddleware)
+	sharedsse.RegisterRoutes(router, sharedsse.RouteDependencies{
+		Connector: sseConnector,
+	}, plainAuthMiddleware)
 
 	if err := http.ListenAndServe(config.ServerAddress, router); err != nil {
 		log.Fatal(err)

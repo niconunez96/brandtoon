@@ -13,6 +13,11 @@ func ListAvatars(
 	ctx context.Context,
 	query ListAvatarsQuery,
 	avatarRepo avatardomain.AvatarRepository,
-) ([]avatardomain.Avatar, error) {
-	return avatarRepo.ListByUserID(ctx, query.UserID)
+) ([]AvatarDTO, error) {
+	avatars, err := avatarRepo.ListByUserID(ctx, query.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return serializeList(avatars), nil
 }

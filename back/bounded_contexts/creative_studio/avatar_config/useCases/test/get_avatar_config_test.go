@@ -23,7 +23,7 @@ func TestGetAvatarConfigReturnsNilWhenDraftDoesNotExistYet(t *testing.T) {
 		},
 		&avatarmocks.AvatarRepositoryMock{
 			FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
-				avatar := avatardomain.NewAvatar(avatarID, userID, "Studio Hero")
+				avatar := avatardomain.NewAvatarWithOptions(avatarID, userID, "Studio Hero", nil)
 				return &avatar, nil
 			},
 		},
@@ -49,7 +49,12 @@ func TestGetAvatarConfigReturnsStoredDraftForOwnedAvatar(t *testing.T) {
 		},
 		&avatarmocks.AvatarRepositoryMock{
 			FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
-				avatar := avatardomain.NewAvatar(avatarID, userID, "Studio Hero")
+				avatar := avatardomain.NewAvatarWithOptions(
+					avatarID,
+					userID,
+					"Studio Hero",
+					[]avatardomain.AvatarOption{{Href: "https://cdn.brandtoon.local/options/1.png", Selected: false}},
+				)
 				return &avatar, nil
 			},
 		},
@@ -69,12 +74,16 @@ func TestGetAvatarConfigReturnsStoredDraftForOwnedAvatar(t *testing.T) {
 		t.Fatalf("expected nil error, got %v", err)
 	}
 
-	if result == nil || result.ArtisticStyle != avatarconfigdomain.ArtisticStyle3D {
+	if result == nil || result.ArtisticStyle != string(avatarconfigdomain.ArtisticStyle3D) {
 		t.Fatalf("expected stored 3D config, got %+v", result)
 	}
 
-	if result.Personality != avatarconfigdomain.PersonalityBold {
+	if result.Personality != string(avatarconfigdomain.PersonalityBold) {
 		t.Fatalf("expected stored Bold personality, got %+v", result)
+	}
+
+	if len(result.AvatarOptions) != 1 {
+		t.Fatalf("expected 1 avatar option, got %d", len(result.AvatarOptions))
 	}
 }
 
