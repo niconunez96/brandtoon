@@ -2,10 +2,12 @@ package avatarconfighttp
 
 import (
 	avatarhttp "brandtoonapi/bounded_contexts/creative_studio/avatar/infra/http"
+	avatarusecases "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases"
 	avatarconfigdomain "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain"
 	avatarconfigusecases "brandtoonapi/bounded_contexts/creative_studio/avatar_config/useCases"
 	"context"
 	"errors"
+	stdhttp "net/http"
 
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -34,10 +36,51 @@ func buildGetAvatarConfigHandler(
 
 		response := &avatarConfigOutput{}
 		if avatarConfig != nil {
-			response.Body.AvatarConfig = toAvatarConfigPayload(*avatarConfig)
+			response.Body.AvatarConfig = serializeAvatarConfigDTO(*avatarConfig)
 		}
 
 		return response, nil
+	}
+}
+
+func buildGenerateAvatarOptionsHandler(
+	deps RouteDependencies,
+) stdhttp.HandlerFunc {
+	return func(writer stdhttp.ResponseWriter, request *stdhttp.Request) {
+		userMetadata, err := avatarhttp.RequireAuthUserMetadata(request.Context())
+		if err != nil {
+			writer.WriteHeader(stdhttp.StatusUnauthorized)
+			return
+		}
+
+		avatarID := request.PathValue("avatarId")
+		err = avatarusecases.GenerateAvatarOptions(
+			request.Context(),
+			avatarusecases.GenerateAvatarOptionsCommand{
+				AvatarID: avatarID,
+				UserID:   userMetadata.UserId,
+			},
+			avatarusecases.GenerateAvatarOptionsDependencies{
+				AvatarConfigRepo: deps.AvatarConfigRepo,
+				AvatarRepo:       deps.AvatarRepo,
+				EventBus:         deps.EventBus,
+			},
+		)
+		if err != nil {
+			switch {
+			case errors.Is(err, avatarusecases.ErrAvatarNotFound),
+				errors.Is(err, avatarusecases.ErrAvatarConfigNotFound):
+				writer.WriteHeader(stdhttp.StatusNotFound)
+			case errors.Is(err, avatarconfigdomain.ErrInvalidArtisticStyle),
+				errors.Is(err, avatarconfigdomain.ErrInvalidPersonality):
+				writer.WriteHeader(stdhttp.StatusUnprocessableEntity)
+			default:
+				writer.WriteHeader(stdhttp.StatusInternalServerError)
+			}
+			return
+		}
+
+		writer.WriteHeader(stdhttp.StatusOK)
 	}
 }
 
@@ -67,7 +110,7 @@ func buildUpdateAvatarConfigHandler(
 		}
 
 		response := &avatarConfigOutput{}
-		response.Body.AvatarConfig = toAvatarConfigPayload(avatarConfig)
+		response.Body.AvatarConfig = serializeAvatarConfigDTO(avatarConfig)
 		return response, nil
 	}
 }
@@ -75,6 +118,10 @@ func buildUpdateAvatarConfigHandler(
 func mapAvatarConfigError(err error) error {
 	if errors.Is(err, avatarconfigusecases.ErrAvatarNotFound) {
 		return huma.Error404NotFound("avatar not found")
+	}
+
+	if errors.Is(err, avatarconfigusecases.ErrAvatarConfigNotFound) {
+		return huma.Error404NotFound("avatar config not found")
 	}
 
 	if errors.Is(err, avatarconfigdomain.ErrInvalidArtisticStyle) {

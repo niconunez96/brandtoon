@@ -17,18 +17,21 @@ func CreateAvatar(
 	cmd CreateAvatarCommand,
 	avatarRepo avatardomain.AvatarRepository,
 	idGenerator shareddomain.IDGenerator,
-) (avatardomain.Avatar, error) {
+) (AvatarDTO, error) {
 	normalizedName := strings.TrimSpace(cmd.Name)
+	if normalizedName == "" {
+		return AvatarDTO{}, avatardomain.ErrInvalidName
+	}
 
 	avatarID, err := idGenerator()
 	if err != nil {
-		return avatardomain.Avatar{}, err
+		return AvatarDTO{}, err
 	}
 
 	avatar := avatardomain.NewAvatar(avatarID, cmd.UserID, normalizedName)
 	if err := avatarRepo.Create(ctx, avatar); err != nil {
-		return avatardomain.Avatar{}, err
+		return AvatarDTO{}, err
 	}
 
-	return avatar, nil
+	return serialize(avatar), nil
 }

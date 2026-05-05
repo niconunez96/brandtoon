@@ -51,7 +51,7 @@ func TestAvatarConfigGetReturnsNullPayloadWhenDraftIsMissing(t *testing.T) {
 		AvatarConfigRepo: &avatarconfigmocks.AvatarConfigRepositoryMock{},
 		AvatarRepo: &avatarmocks.AvatarRepositoryMock{
 			FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
-				avatar := avatardomain.NewAvatar(avatarID, userID, "Studio Hero")
+				avatar := avatardomain.NewAvatarWithOptions(avatarID, userID, "Studio Hero", nil)
 				return &avatar, nil
 			},
 		},
@@ -94,7 +94,14 @@ func TestAvatarConfigGetReturnsStoredDraftPayload(t *testing.T) {
 		},
 		AvatarRepo: &avatarmocks.AvatarRepositoryMock{
 			FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
-				avatar := avatardomain.NewAvatar(avatarID, userID, "Studio Hero")
+				avatar := avatardomain.NewAvatarWithOptions(
+					avatarID,
+					userID,
+					"Studio Hero",
+					[]avatardomain.AvatarOption{
+						{Href: "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png", Selected: false},
+					},
+				)
 				return &avatar, nil
 			},
 		},
@@ -114,8 +121,12 @@ func TestAvatarConfigGetReturnsStoredDraftPayload(t *testing.T) {
 		AvatarConfig struct {
 			AvatarID      string `json:"avatarId"`
 			ArtisticStyle string `json:"artisticStyle"`
-			Personality   string `json:"personality"`
-			Prompt        string `json:"prompt"`
+			AvatarOptions []struct {
+				Href     string `json:"href"`
+				Selected bool   `json:"selected"`
+			} `json:"avatarOptions"`
+			Personality string `json:"personality"`
+			Prompt      string `json:"prompt"`
 		} `json:"avatar_config"`
 	}
 	decodeAvatarConfigResponse(t, recorder, &payload)
@@ -130,6 +141,10 @@ func TestAvatarConfigGetReturnsStoredDraftPayload(t *testing.T) {
 
 	if payload.AvatarConfig.Personality != "Bold" {
 		t.Fatalf("expected Bold personality, got %s", payload.AvatarConfig.Personality)
+	}
+
+	if len(payload.AvatarConfig.AvatarOptions) != 1 {
+		t.Fatalf("expected avatar options from avatar aggregate, got %d", len(payload.AvatarConfig.AvatarOptions))
 	}
 }
 
@@ -194,7 +209,14 @@ func TestAvatarConfigPutCreatesOrUpdatesDraft(t *testing.T) {
 		},
 		AvatarRepo: &avatarmocks.AvatarRepositoryMock{
 			FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
-				avatar := avatardomain.NewAvatar(avatarID, userID, "Studio Hero")
+				avatar := avatardomain.NewAvatarWithOptions(
+					avatarID,
+					userID,
+					"Studio Hero",
+					[]avatardomain.AvatarOption{
+						{Href: "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png", Selected: false},
+					},
+				)
 				return &avatar, nil
 			},
 		},
@@ -227,8 +249,12 @@ func TestAvatarConfigPutCreatesOrUpdatesDraft(t *testing.T) {
 		AvatarConfig struct {
 			AvatarID      string `json:"avatarId"`
 			ArtisticStyle string `json:"artisticStyle"`
-			Personality   string `json:"personality"`
-			Prompt        string `json:"prompt"`
+			AvatarOptions []struct {
+				Href     string `json:"href"`
+				Selected bool   `json:"selected"`
+			} `json:"avatarOptions"`
+			Personality string `json:"personality"`
+			Prompt      string `json:"prompt"`
 		} `json:"avatar_config"`
 	}
 	decodeAvatarConfigResponse(t, recorder, &payload)
@@ -239,6 +265,51 @@ func TestAvatarConfigPutCreatesOrUpdatesDraft(t *testing.T) {
 
 	if payload.AvatarConfig.Personality != "Playful" {
 		t.Fatalf("expected Playful personality, got %s", payload.AvatarConfig.Personality)
+	}
+
+	if len(payload.AvatarConfig.AvatarOptions) != 1 {
+		t.Fatalf("expected avatar options preserved on put response, got %d", len(payload.AvatarConfig.AvatarOptions))
+	}
+}
+
+func TestAvatarConfigGenerateReturnsImmediateAckWithoutBody(t *testing.T) {
+	t.Parallel()
+
+	server := newAuthenticatedAvatarConfigTestServer(t, avatarconfighttp.RouteDependencies{
+		AvatarConfigRepo: &avatarconfigmocks.AvatarConfigRepositoryMock{
+			FindByAvatarIDFunc: func(ctx context.Context, avatarID string) (*avatarconfigdomain.AvatarConfig, error) {
+				config := avatarconfigdomain.NewAvatarConfig(
+					avatarID,
+					"Energetic mascot",
+					avatarconfigdomain.ArtisticStyle2D,
+					avatarconfigdomain.PersonalityFriendly,
+				)
+				return &config, nil
+			},
+		},
+		AvatarRepo: &avatarmocks.AvatarRepositoryMock{
+			FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
+				avatar := avatardomain.NewAvatar(avatarID, userID, "Studio Hero")
+				return &avatar, nil
+			},
+			UpdateOptionsFunc: func(ctx context.Context, avatarID string, userID string, options []avatardomain.AvatarOption) error {
+				return nil
+			},
+		},
+	})
+
+	request := httptest.NewRequest(http.MethodPost, "/creative-studio/avatar_configs/avatar-v7/generate", nil)
+	request.AddCookie(&http.Cookie{Name: "brandtoon_session_id", Value: "session-v7"})
+	recorder := httptest.NewRecorder()
+
+	server.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", recorder.Code)
+	}
+
+	if recorder.Body.Len() != 0 {
+		t.Fatalf("expected empty response body, got %q", recorder.Body.String())
 	}
 }
 
@@ -287,7 +358,9 @@ func TestAvatarConfigPutRejectsPromptLongerThanTwoHundredFiftySixCharacters(t *t
 	request := httptest.NewRequest(
 		http.MethodPut,
 		"/creative-studio/avatar_configs/avatar-v7",
-		bytes.NewBufferString(`{"prompt":"`+strings.Repeat("a", 257)+`","artisticStyle":"2D","personality":"Friendly"}`),
+		bytes.NewBufferString(
+			`{"prompt":"`+strings.Repeat("a", 257)+`","artisticStyle":"2D","personality":"Friendly"}`,
+		),
 	)
 	request.Header.Set("Content-Type", "application/json")
 	request.AddCookie(&http.Cookie{Name: "brandtoon_session_id", Value: "session-v7"})
@@ -312,6 +385,23 @@ func newAuthenticatedAvatarConfigTestServer(
 func newAvatarConfigTestServer(deps avatarconfighttp.RouteDependencies) http.Handler {
 	router := chi.NewMux()
 	api := humachi.New(router, huma.DefaultConfig("Test API", "1.0.0"))
+	plainAuthMiddleware := authhttp.AuthMiddleware(authhttp.AuthMiddlewareDeps{
+		SessionRepo: &sessionmocks.SessionRepositoryMock{
+			FindActiveByIDFunc: func(ctx context.Context, id string) (*sessiondomain.Session, error) {
+				return &sessiondomain.Session{
+					ID:        id,
+					UserID:    "user-v7",
+					ExpiresAt: time.Now().Add(24 * time.Hour),
+				}, nil
+			},
+		},
+		UserRepo: &usermocks.UserRepositoryMock{
+			FindByIDFunc: func(ctx context.Context, id string) (*userdomain.User, error) {
+				return &userdomain.User{ID: id, Email: "nico@example.com", Name: "Nico"}, nil
+			},
+		},
+		HumaApi: api,
+	})
 	authMiddleware := authhttp.HumaAuthMiddleware(authhttp.AuthMiddlewareDeps{
 		SessionRepo: &sessionmocks.SessionRepositoryMock{
 			FindActiveByIDFunc: func(ctx context.Context, id string) (*sessiondomain.Session, error) {
@@ -329,7 +419,7 @@ func newAvatarConfigTestServer(deps avatarconfighttp.RouteDependencies) http.Han
 		},
 		HumaApi: api,
 	})
-	avatarconfighttp.RegisterRoutes(api, deps, authMiddleware)
+	avatarconfighttp.RegisterRoutes(api, router, deps, plainAuthMiddleware, authMiddleware)
 	return router
 }
 

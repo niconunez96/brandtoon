@@ -6,4 +6,10 @@ type AvatarRepository interface {
 	Create(ctx context.Context, avatar Avatar) error
 	FindOwnedByID(ctx context.Context, avatarID string, userID string) (*Avatar, error)
 	ListByUserID(ctx context.Context, userID string) ([]Avatar, error)
+	UpdateOptions(
+		ctx context.Context,
+		avatarID string,
+		userID string,
+		options []AvatarOption,
+	) error
 }

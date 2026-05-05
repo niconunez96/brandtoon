@@ -1,7 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  type QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import {
   type UpdateAvatarConfigInput,
   fetchAvatarConfig,
+  generateAvatarOptions,
   updateAvatarConfig,
 } from '../services/avatar-config.api'
 
@@ -28,5 +34,20 @@ export function useUpdateAvatarConfigMutation(avatarId: string) {
         queryKey: avatarConfigQueryKey(avatarId),
       })
     },
+  })
+}
+
+export async function invalidateAvatarConfigQuery(
+  queryClient: QueryClient,
+  avatarId: string,
+) {
+  await queryClient.invalidateQueries({
+    queryKey: avatarConfigQueryKey(avatarId),
+  })
+}
+
+export function useGenerateAvatarOptionsMutation(avatarId: string) {
+  return useMutation({
+    mutationFn: () => generateAvatarOptions(avatarId),
   })
 }

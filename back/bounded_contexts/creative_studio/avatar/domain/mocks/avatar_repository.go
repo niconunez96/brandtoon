@@ -9,6 +9,12 @@ type AvatarRepositoryMock struct {
 	CreateFunc        func(ctx context.Context, avatar avatardomain.Avatar) error
 	FindOwnedByIDFunc func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error)
 	ListByUserIDFunc  func(ctx context.Context, userID string) ([]avatardomain.Avatar, error)
+	UpdateOptionsFunc func(
+		ctx context.Context,
+		avatarID string,
+		userID string,
+		options []avatardomain.AvatarOption,
+	) error
 }
 
 func (m *AvatarRepositoryMock) Create(ctx context.Context, avatar avatardomain.Avatar) error {
@@ -40,4 +46,17 @@ func (m *AvatarRepositoryMock) FindOwnedByID(
 	}
 
 	return m.FindOwnedByIDFunc(ctx, avatarID, userID)
+}
+
+func (m *AvatarRepositoryMock) UpdateOptions(
+	ctx context.Context,
+	avatarID string,
+	userID string,
+	options []avatardomain.AvatarOption,
+) error {
+	if m.UpdateOptionsFunc == nil {
+		return nil
+	}
+
+	return m.UpdateOptionsFunc(ctx, avatarID, userID, options)
 }

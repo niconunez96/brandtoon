@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
@@ -32,16 +33,23 @@ function LocationProbe() {
 }
 
 function renderProtectedRoute(initialEntry = '/creative-studio?tab=assets') {
+  const queryClient = new QueryClient()
+
   return render(
-    <MemoryRouter initialEntries={[initialEntry]}>
-      <Routes>
-        <Route path="/login" element={<div>Login page</div>} />
-        <Route element={<ProtectedRoute />}>
-          <Route path="/creative-studio" element={<div>Creative Studio</div>} />
-        </Route>
-      </Routes>
-      <LocationProbe />
-    </MemoryRouter>,
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={[initialEntry]}>
+        <Routes>
+          <Route path="/login" element={<div>Login page</div>} />
+          <Route element={<ProtectedRoute />}>
+            <Route
+              path="/creative-studio"
+              element={<div>Creative Studio</div>}
+            />
+          </Route>
+        </Routes>
+        <LocationProbe />
+      </MemoryRouter>
+    </QueryClientProvider>,
   )
 }
 
@@ -49,6 +57,14 @@ describe('ProtectedRoute', () => {
   beforeEach(() => {
     useCurrentUserQueryMock.mockReset()
     vi.mocked(reloadBrowserWindow).mockReset()
+    vi.stubGlobal(
+      'EventSource',
+      class {
+        addEventListener() {}
+        close() {}
+        removeEventListener() {}
+      },
+    )
   })
 
   it('renders the loading state while the session query is pending', () => {

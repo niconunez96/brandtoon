@@ -2,29 +2,34 @@ package avatarrepo
 
 import (
 	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
-	sharedrepos "brandtoonapi/bounded_contexts/shared/infra/repos"
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type AvatarPostgresRepo struct {
-	*sharedrepos.PostgresRepo[*avatarDBModel]
 	db *sqlx.DB
 }
 
 func NewAvatarPostgresRepo(db *sqlx.DB) *AvatarPostgresRepo {
-	return &AvatarPostgresRepo{
-		PostgresRepo: sharedrepos.NewPostgresRepo(db, func() *avatarDBModel {
-			return &avatarDBModel{}
-		}),
-		db: db,
-	}
+	return &AvatarPostgresRepo{db: db}
 }
 
 func (r *AvatarPostgresRepo) Create(ctx context.Context, avatar avatardomain.Avatar) error {
-	return r.PostgresRepo.Create(ctx, newAvatarDBModel(avatar))
+	now := time.Now().UTC()
+	_, err := r.db.ExecContext(
+		ctx,
+		`INSERT INTO avatars (id, user_id, name, avatar_options, created_at, updated_at, deleted_at)
+		 VALUES ($1, $2, $3, ARRAY[]::jsonb[], $4, $5, NULL)`,
+		avatar.ID,
+		avatar.UserID,
+		avatar.Name,
+		now,
+		now,
+	)
+	return err
 }
 
 func (r *AvatarPostgresRepo) ListByUserID(
@@ -35,7 +40,10 @@ func (r *AvatarPostgresRepo) ListByUserID(
 	err := r.db.SelectContext(
 		ctx,
 		&models,
-		`SELECT * FROM avatars
+		`SELECT id, user_id, name,
+		        COALESCE((SELECT jsonb_agg(elem) FROM unnest(avatar_options) elem), '[]'::jsonb) AS avatar_options_json,
+		        created_at, updated_at, deleted_at
+		 FROM avatars
 		 WHERE user_id = $1 AND deleted_at IS NULL
 		 ORDER BY created_at DESC`,
 		userID,
@@ -61,7 +69,10 @@ func (r *AvatarPostgresRepo) FindOwnedByID(
 	err := r.db.GetContext(
 		ctx,
 		model,
-		`SELECT * FROM avatars
+		`SELECT id, user_id, name,
+		        COALESCE((SELECT jsonb_agg(elem) FROM unnest(avatar_options) elem), '[]'::jsonb) AS avatar_options_json,
+		        created_at, updated_at, deleted_at
+		 FROM avatars
 		 WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL
 		 LIMIT 1`,
 		avatarID,
@@ -77,4 +88,29 @@ func (r *AvatarPostgresRepo) FindOwnedByID(
 
 	avatar := model.ToDomain()
 	return &avatar, nil
+}
+
+func (r *AvatarPostgresRepo) UpdateOptions(
+	ctx context.Context,
+	avatarID string,
+	userID string,
+	options []avatardomain.AvatarOption,
+) error {
+	encoded, err := encodeAvatarOptionsJSON(options)
+	if err != nil {
+		return err
+	}
+
+	_, err = r.db.ExecContext(
+		ctx,
+		`UPDATE avatars
+		 SET avatar_options = ARRAY(SELECT jsonb_array_elements($3::jsonb)),
+		     updated_at = $4
+		 WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL`,
+		avatarID,
+		userID,
+		string(encoded),
+		time.Now().UTC(),
+	)
+	return err
 }

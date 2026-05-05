@@ -5,11 +5,14 @@ import (
 	stdhttp "net/http"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/go-chi/chi/v5"
 )
 
 func RegisterRoutes(
 	api huma.API,
+	router chi.Router,
 	deps RouteDependencies,
+	authMiddleware sharedhttp.Middleware,
 	humaMiddlewares ...sharedhttp.HumaMiddleware,
 ) {
 	creativeStudioGroup := huma.NewGroup(api, "/creative-studio")
@@ -27,4 +30,9 @@ func RegisterRoutes(
 		Summary:       "Create or update an avatar config draft",
 		DefaultStatus: stdhttp.StatusOK,
 	}, buildUpdateAvatarConfigHandler(deps))
+
+	router.With(authMiddleware).Post(
+		"/creative-studio/avatar_configs/{avatarId}/generate",
+		buildGenerateAvatarOptionsHandler(deps),
+	)
 }

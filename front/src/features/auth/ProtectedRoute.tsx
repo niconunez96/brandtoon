@@ -4,6 +4,7 @@ import { isUnauthorizedError } from '../../services/auth.api'
 import { Button } from '../../shared/components/ui/button'
 import { Card } from '../../shared/components/ui/card'
 import { reloadBrowserWindow } from '../../shared/lib/browser'
+import { AvatarGenerationEventsProvider } from './AvatarGenerationEventsProvider'
 
 function buildLoginUrl(pathname: string, search: string) {
   const searchParams = new URLSearchParams({ next: `${pathname}${search}` })
@@ -52,5 +53,9 @@ export function ProtectedRoute() {
     )
   }
 
-  return <Outlet />
+  return (
+    <AvatarGenerationEventsProvider>
+      <Outlet />
+    </AvatarGenerationEventsProvider>
+  )
 }

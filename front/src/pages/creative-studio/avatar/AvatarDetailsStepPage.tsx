@@ -1,10 +1,11 @@
 import { Sparkles, WandSparkles } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
 import { z } from 'zod'
 import {
   useAvatarConfigQuery,
+  useGenerateAvatarOptionsMutation,
   useUpdateAvatarConfigMutation,
 } from '../../../queries/useAvatarConfigQuery'
 import { ApiError } from '../../../services/auth.api'
@@ -15,14 +16,6 @@ import type {
 import { Button } from '../../../shared/components/ui/button'
 import { Card, SectionShell } from '../../../shared/components/ui/card'
 import { PromptField } from '../../../shared/components/ui/field'
-import { Toast } from '../../../shared/components/ui/toast'
-
-type GeneratedAvatarOption = {
-  id: string
-  label: string
-  description: string
-  gradientClassName: string
-}
 
 const avatarConfigSchema = z.object({
   artisticStyle: z.enum(['2D', '3D']),
@@ -34,62 +27,8 @@ const avatarConfigSchema = z.object({
 
 type AvatarConfigFormValues = z.infer<typeof avatarConfigSchema>
 
-type ToastVisibility = 'hidden' | 'entering' | 'visible' | 'exiting'
-
 const artisticStyleOptions: ArtisticStyle[] = ['2D', '3D']
 const personalityOptions: Personality[] = ['Friendly', 'Bold', 'Playful']
-
-const mockImageGradients = [
-  'from-[#FCE7E7] via-white to-[#dfe6e9]',
-  'from-[#6B4EE0]/20 via-white to-[#FCE7E7]',
-  'from-[#00b179]/20 via-white to-[#dfe6e9]',
-  'from-[#FF6B6B]/20 via-white to-[#FCE7E7]',
-] as const
-
-const mockImageDescriptors = {
-  '2D': [
-    'Editorial pose',
-    'Soft sticker energy',
-    'Mascot close-up',
-    'Hero silhouette',
-  ],
-  '3D': [
-    'Studio render',
-    'Glow lighting pass',
-    'Depth-focused angle',
-    'Polished hero frame',
-  ],
-} as const satisfies Record<ArtisticStyle, readonly string[]>
-
-function createGeneratedAvatarOptions({
-  seed,
-  style,
-  prompt,
-}: {
-  seed: number
-  style: ArtisticStyle
-  prompt: string
-}): GeneratedAvatarOption[] {
-  const trimmedPrompt = prompt.trim()
-  const promptDescriptor =
-    trimmedPrompt.length > 0 ? trimmedPrompt : 'Creative direction'
-
-  return Array.from({ length: 4 }, (_, index) => {
-    const descriptor =
-      mockImageDescriptors[style][
-        (seed + index) % mockImageDescriptors[style].length
-      ]
-    const promptSnippet = promptDescriptor.slice(0, 48)
-
-    return {
-      description: `${style} preview ${index + 1}`,
-      gradientClassName:
-        mockImageGradients[(seed + index) % mockImageGradients.length],
-      id: `${style.toLowerCase()}-${seed}-${index}`,
-      label: `${descriptor} · ${promptSnippet}`,
-    }
-  })
-}
 
 function getAvatarConfigErrorMessage(error: unknown) {
   if (error instanceof ApiError && error.status === 404) {
@@ -113,20 +52,10 @@ function getSaveErrorMessage(error: unknown) {
 
 export function AvatarDetailsStepPage() {
   const { avatarId = '' } = useParams()
-  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
-  const [toastVisibility, setToastVisibility] =
-    useState<ToastVisibility>('hidden')
-  const [generationSeed, setGenerationSeed] = useState(0)
-  const [generatedOptions, setGeneratedOptions] = useState<
-    GeneratedAvatarOption[]
-  >(() => createGeneratedAvatarOptions({ prompt: '', seed: 0, style: '2D' }))
-  const [selectedGeneratedOptionId, setSelectedGeneratedOptionId] = useState(
-    () =>
-      createGeneratedAvatarOptions({ prompt: '', seed: 0, style: '2D' })[0]
-        ?.id ?? '',
-  )
   const avatarConfigQuery = useAvatarConfigQuery(avatarId)
   const updateAvatarConfigMutation = useUpdateAvatarConfigMutation(avatarId)
+  const generateAvatarOptionsMutation =
+    useGenerateAvatarOptionsMutation(avatarId)
   const form = useForm<AvatarConfigFormValues>({
     defaultValues: {
       artisticStyle: '2D',
@@ -149,69 +78,15 @@ export function AvatarDetailsStepPage() {
     })
   }, [avatarConfigQuery.data, form])
 
-  useEffect(() => {
-    if (!feedbackMessage || toastVisibility === 'hidden') {
-      return
-    }
-
-    if (toastVisibility === 'entering') {
-      const enterTimer = window.setTimeout(() => {
-        setToastVisibility('visible')
-      }, 16)
-
-      return () => window.clearTimeout(enterTimer)
-    }
-
-    if (toastVisibility === 'visible') {
-      const visibleTimer = window.setTimeout(() => {
-        setToastVisibility('exiting')
-      }, 2400)
-
-      return () => window.clearTimeout(visibleTimer)
-    }
-
-    const exitTimer = window.setTimeout(() => {
-      setToastVisibility('hidden')
-      setFeedbackMessage(null)
-    }, 250)
-
-    return () => window.clearTimeout(exitTimer)
-  }, [feedbackMessage, toastVisibility])
-
   const artisticStyle = form.watch('artisticStyle')
   const personality = form.watch('personality')
-  const prompt = form.watch('prompt')
+
+  const avatarOptions =
+    avatarConfigQuery.data?.avatar_config?.avatarOptions ?? []
   const selectedGeneratedOption =
-    generatedOptions.find(
-      (option) => option.id === selectedGeneratedOptionId,
-    ) ?? generatedOptions[0]
+    avatarOptions.find((option) => option.selected) ?? avatarOptions[0] ?? null
 
-  function showSaveSuccessToast(message: string) {
-    setFeedbackMessage(message)
-    setToastVisibility('entering')
-  }
-
-  function dismissToast() {
-    setToastVisibility((currentVisibility) =>
-      currentVisibility === 'hidden' ? currentVisibility : 'exiting',
-    )
-  }
-
-  function handleRegenerate() {
-    const nextSeed = generationSeed + 1
-    const nextOptions = createGeneratedAvatarOptions({
-      prompt,
-      seed: nextSeed,
-      style: artisticStyle,
-    })
-
-    setGenerationSeed(nextSeed)
-    setGeneratedOptions(nextOptions)
-    setSelectedGeneratedOptionId(nextOptions[0]?.id ?? '')
-  }
-
-  const handleSubmit = form.handleSubmit(async (values) => {
-    setFeedbackMessage(null)
+  async function persistDraft(values: AvatarConfigFormValues) {
     const parsed = avatarConfigSchema.safeParse(values)
     if (!parsed.success) {
       const fieldErrors = parsed.error.flatten().fieldErrors
@@ -237,15 +112,28 @@ export function AvatarDetailsStepPage() {
         })
       }
 
-      return
+      return false
     }
 
     try {
       await updateAvatarConfigMutation.mutateAsync(parsed.data)
-      showSaveSuccessToast('Avatar draft saved.')
+      return true
     } catch {
+      return false
+    }
+  }
+
+  const handleSaveSubmit = form.handleSubmit(async (values) => {
+    await persistDraft(values)
+  })
+
+  const handleGenerate = form.handleSubmit(async (values) => {
+    const saved = await persistDraft(values)
+    if (!saved) {
       return
     }
+
+    await generateAvatarOptionsMutation.mutateAsync()
   })
 
   if (avatarConfigQuery.isLoading) {
@@ -280,29 +168,33 @@ export function AvatarDetailsStepPage() {
 
   return (
     <SectionShell
+      actions={
+        <>
+          <Button
+            isLoading={generateAvatarOptionsMutation.isPending}
+            onClick={() => void handleGenerate()}
+          >
+            Generate
+          </Button>
+          <Button
+            isLoading={
+              updateAvatarConfigMutation.isPending &&
+              !generateAvatarOptionsMutation.isPending
+            }
+            onClick={() => void handleSaveSubmit()}
+            variant="secondary"
+          >
+            Save as draft
+          </Button>
+        </>
+      }
       description="Define the first creative draft for this avatar. The other steps are visible so the workflow feels real, but only this foundation step is active today."
       eyebrow="Avatar step"
       title="Shape the avatar foundation"
     >
-      {feedbackMessage && toastVisibility !== 'hidden' ? (
-        <div className="pointer-events-none fixed right-4 top-4 z-50 sm:right-6 sm:top-6">
-          <div
-            className={`pointer-events-auto transition-all duration-250 ease-out ${
-              toastVisibility === 'visible'
-                ? 'translate-x-0 opacity-100'
-                : '-translate-x-6 opacity-0'
-            }`}
-          >
-            <Toast onDismiss={dismissToast} title={feedbackMessage}>
-              Your latest avatar draft was synced.
-            </Toast>
-          </div>
-        </div>
-      ) : null}
-
       <form
         className="space-y-6"
-        onSubmit={(event) => void handleSubmit(event)}
+        onSubmit={(event) => void handleSaveSubmit(event)}
       >
         <input type="hidden" {...form.register('artisticStyle')} />
         <input type="hidden" {...form.register('personality')} />
@@ -310,72 +202,73 @@ export function AvatarDetailsStepPage() {
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(360px,1fr)]">
           <div className="space-y-5">
             <Card className="space-y-4 bg-white p-4 md:p-6">
-              <div
-                className={`relative flex aspect-square items-end overflow-hidden rounded-[2.25rem] bg-gradient-to-br p-5 shadow-overshoot ${selectedGeneratedOption?.gradientClassName ?? mockImageGradients[0]}`}
-              >
+              <div className="relative flex aspect-square items-end overflow-hidden rounded-[2.25rem] bg-gradient-to-br from-[#FCE7E7] via-white to-[#dfe6e9] p-5 shadow-overshoot">
                 <span className="rounded-full bg-coral px-4 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-sticker">
                   Active prototype
                 </span>
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="foundation-section-eyebrow">
-                      Generation Results
-                    </p>
-                    <p className="text-sm text-ink/70">
-                      Choose a generated direction
-                    </p>
-                  </div>
-                  <Button
-                    onClick={handleRegenerate}
-                    type="button"
-                    variant="ghost"
-                  >
-                    Regenerate
-                  </Button>
+                <div>
+                  <p className="foundation-section-eyebrow">
+                    Generation Results
+                  </p>
+                  <p className="text-sm text-ink/70">
+                    Choose a generated direction
+                  </p>
                 </div>
 
-                <fieldset>
-                  <legend className="sr-only">
-                    Generated avatar image options
-                  </legend>
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    {generatedOptions.map((option, index) => {
-                      const isSelected = selectedGeneratedOptionId === option.id
+                {avatarOptions.length === 0 ? (
+                  <Card className="bg-surface p-4 text-sm text-ink/70">
+                    Save your draft, then generate avatar options from the
+                    backend.
+                  </Card>
+                ) : (
+                  <fieldset>
+                    <legend className="sr-only">
+                      Generated avatar image options
+                    </legend>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                      {avatarOptions.map((option, index) => {
+                        const isSelected = option.selected
 
-                      return (
-                        <label className="block cursor-pointer" key={option.id}>
-                          <input
-                            checked={isSelected}
-                            className="sr-only"
-                            name="generated-avatar-option"
-                            onChange={() =>
-                              setSelectedGeneratedOptionId(option.id)
-                            }
-                            type="radio"
-                            value={option.id}
-                          />
-                          <div
-                            className={`space-y-2 rounded-3xl border p-2 transition focus-within:ring-2 focus-within:ring-coral focus-within:ring-offset-2 focus-within:ring-offset-white ${
-                              isSelected
-                                ? 'border-coral bg-coral/5 shadow-sticker'
-                                : 'border-[color:var(--color-stroke-soft)] bg-surface hover:bg-white'
-                            }`}
+                        return (
+                          <label
+                            className="block cursor-pointer"
+                            key={option.href}
                           >
-                            <div
-                              className={`aspect-square rounded-2xl bg-gradient-to-br ${option.gradientClassName}`}
+                            <input
+                              checked={isSelected}
+                              className="sr-only"
+                              name="generated-avatar-option"
+                              readOnly
+                              type="radio"
+                              value={option.href}
                             />
-                            <p className="px-1 text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink/65">
-                              Option {index + 1}
-                            </p>
-                          </div>
-                        </label>
-                      )
-                    })}
-                  </div>
-                </fieldset>
+                            <div
+                              className={`space-y-2 rounded-3xl border p-2 transition focus-within:ring-2 focus-within:ring-coral focus-within:ring-offset-2 focus-within:ring-offset-white ${
+                                isSelected
+                                  ? 'border-coral bg-coral/5 shadow-sticker'
+                                  : 'border-[color:var(--color-stroke-soft)] bg-surface hover:bg-white'
+                              }`}
+                            >
+                              <div className="aspect-square rounded-2xl bg-gradient-to-br from-[#FCE7E7] via-white to-[#dfe6e9]" />
+                              <p className="px-1 text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink/65">
+                                Option {index + 1}
+                              </p>
+                            </div>
+                          </label>
+                        )
+                      })}
+                    </div>
+                  </fieldset>
+                )}
+
+                {selectedGeneratedOption ? (
+                  <p className="text-sm text-ink/70">
+                    Latest generated asset: {selectedGeneratedOption.href}
+                  </p>
+                ) : null}
               </div>
             </Card>
           </div>
@@ -384,12 +277,8 @@ export function AvatarDetailsStepPage() {
             <Card className="space-y-5 bg-white p-6">
               <div className="space-y-2">
                 <p className="foundation-section-eyebrow">Create avatar</p>
-                <p className="text-3xl font-black tracking-tight text-ink">
+                <p className="text-xl font-black tracking-tight text-ink">
                   Shape your brand's face
-                </p>
-                <p className="text-sm text-ink/70">
-                  Craft your first draft, then iterate with generated options on
-                  the left.
                 </p>
               </div>
 
@@ -504,13 +393,13 @@ export function AvatarDetailsStepPage() {
                 </p>
               ) : null}
 
+              {generateAvatarOptionsMutation.isError ? (
+                <p className="rounded-2xl bg-error-container px-4 py-3 text-sm font-bold text-error">
+                  We could not start avatar generation. Please try again.
+                </p>
+              ) : null}
+
               <div className="flex flex-wrap gap-3">
-                <Button
-                  isLoading={updateAvatarConfigMutation.isPending}
-                  type="submit"
-                >
-                  Save avatar draft
-                </Button>
                 <Button
                   onClick={() =>
                     form.reset({

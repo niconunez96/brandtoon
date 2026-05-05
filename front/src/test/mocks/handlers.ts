@@ -24,4 +24,10 @@ export const handlers = [
   http.put(`${API_BASE_URL}/creative-studio/avatar_configs/:avatarId`, () => {
     return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
   }),
+  http.post(
+    `${API_BASE_URL}/creative-studio/avatar_configs/:avatarId/generate`,
+    () => {
+      return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    },
+  ),
 ]

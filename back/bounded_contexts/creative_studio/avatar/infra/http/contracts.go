@@ -12,14 +12,9 @@ type RouteDependencies struct {
 	AuthDeps    identityauthhttp.AuthMiddlewareDeps
 }
 
-type avatarPayload struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
-
 type listAvatarsOutput struct {
 	Body struct {
-		Avatars []avatarPayload `json:"avatars"`
+		Avatars []AvatarDTO `json:"avatars"`
 	}
 }
 
@@ -33,13 +28,6 @@ type createAvatarInput struct {
 
 type createAvatarOutput struct {
 	Body struct {
-		Avatar avatarPayload `json:"avatar"`
-	}
-}
-
-func toAvatarPayload(avatar avatardomain.Avatar) avatarPayload {
-	return avatarPayload{
-		ID:   avatar.ID,
-		Name: avatar.Name,
+		Avatar AvatarDTO `json:"avatar"`
 	}
 }
