@@ -449,7 +449,7 @@ describe('App', () => {
     ).toBeInTheDocument()
     expect(screen.queryAllByRole('radio')).toHaveLength(0)
     expect(
-      screen.getByText(/save your draft, then generate avatar options/i),
+      screen.getByText(/no image options generated yet/i),
     ).toBeInTheDocument()
   })
 

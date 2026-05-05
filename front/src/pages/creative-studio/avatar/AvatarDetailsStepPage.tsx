@@ -220,8 +220,7 @@ export function AvatarDetailsStepPage() {
 
                 {avatarOptions.length === 0 ? (
                   <Card className="bg-surface p-4 text-sm text-ink/70">
-                    Save your draft, then generate avatar options from the
-                    backend.
+                    No image options generated yet
                   </Card>
                 ) : (
                   <fieldset>
@@ -263,12 +262,6 @@ export function AvatarDetailsStepPage() {
                     </div>
                   </fieldset>
                 )}
-
-                {selectedGeneratedOption ? (
-                  <p className="text-sm text-ink/70">
-                    Latest generated asset: {selectedGeneratedOption.href}
-                  </p>
-                ) : null}
               </div>
             </Card>
           </div>
