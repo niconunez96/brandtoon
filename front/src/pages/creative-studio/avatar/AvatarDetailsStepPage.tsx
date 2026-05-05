@@ -280,7 +280,7 @@ export function AvatarDetailsStepPage() {
                 <p className="text-xl font-black tracking-tight text-ink">
                   Shape your brand's face
                 </p>
-                </div>
+              </div>
 
               <Controller
                 control={form.control}
