@@ -7,15 +7,8 @@ export type Personality = 'Friendly' | 'Bold' | 'Playful'
 export type AvatarConfig = {
   avatarId: string
   artisticStyle: ArtisticStyle
-  avatarOptions: AvatarOption[]
   personality: Personality
   prompt: string
-}
-
-export type AvatarOption = {
-	id: string
-  href: string
-  selected: boolean
 }
 
 export type AvatarGenerationCompletedEvent = {

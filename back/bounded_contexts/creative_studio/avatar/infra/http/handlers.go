@@ -71,6 +71,37 @@ func buildCreateAvatarHandler(
 	}
 }
 
+func buildGetAvatarHandler(
+	deps RouteDependencies,
+) func(ctx context.Context, input *getAvatarInput) (*getAvatarOutput, error) {
+	return func(ctx context.Context, input *getAvatarInput) (*getAvatarOutput, error) {
+		userMetadata, err := requireAuthUserMetadata(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		avatar, err := avatarusecases.GetAvatar(
+			ctx,
+			avatarusecases.GetAvatarQuery{
+				AvatarID: input.AvatarID,
+				UserID:   userMetadata.UserId,
+			},
+			deps.AvatarRepo,
+		)
+		if err != nil {
+			if errors.Is(err, avatarusecases.ErrAvatarNotFound) {
+				return nil, huma.Error404NotFound("avatar not found")
+			}
+
+			return nil, err
+		}
+
+		response := &getAvatarOutput{}
+		response.Body.Avatar = avatar
+		return response, nil
+	}
+}
+
 func buildGenerateAvatarOptionsHandler(
 	deps RouteDependencies,
 ) stdhttp.HandlerFunc {

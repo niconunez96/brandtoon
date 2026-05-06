@@ -121,13 +121,8 @@ func TestAvatarConfigGetReturnsStoredDraftPayload(t *testing.T) {
 		AvatarConfig struct {
 			AvatarID      string `json:"avatarId"`
 			ArtisticStyle string `json:"artisticStyle"`
-			AvatarOptions []struct {
-				ID       string `json:"id"`
-				Href     string `json:"href"`
-				Selected bool   `json:"selected"`
-			} `json:"avatarOptions"`
-			Personality string `json:"personality"`
-			Prompt      string `json:"prompt"`
+			Personality   string `json:"personality"`
+			Prompt        string `json:"prompt"`
 		} `json:"avatar_config"`
 	}
 	decodeAvatarConfigResponse(t, recorder, &payload)
@@ -144,17 +139,6 @@ func TestAvatarConfigGetReturnsStoredDraftPayload(t *testing.T) {
 		t.Fatalf("expected Bold personality, got %s", payload.AvatarConfig.Personality)
 	}
 
-	if len(payload.AvatarConfig.AvatarOptions) != 1 {
-		t.Fatalf("expected avatar options from avatar aggregate, got %d", len(payload.AvatarConfig.AvatarOptions))
-	}
-
-	if payload.AvatarConfig.AvatarOptions[0].ID != "option-v7" {
-		t.Fatalf("expected avatar option ID in payload, got %+v", payload.AvatarConfig.AvatarOptions[0])
-	}
-
-	if !payload.AvatarConfig.AvatarOptions[0].Selected {
-		t.Fatalf("expected read payload normalization to select the first option, got %+v", payload.AvatarConfig.AvatarOptions[0])
-	}
 }
 
 func TestAvatarConfigGetReturnsNotFoundForMissingAvatar(t *testing.T) {
@@ -258,13 +242,8 @@ func TestAvatarConfigPutCreatesOrUpdatesDraft(t *testing.T) {
 		AvatarConfig struct {
 			AvatarID      string `json:"avatarId"`
 			ArtisticStyle string `json:"artisticStyle"`
-			AvatarOptions []struct {
-				ID       string `json:"id"`
-				Href     string `json:"href"`
-				Selected bool   `json:"selected"`
-			} `json:"avatarOptions"`
-			Personality string `json:"personality"`
-			Prompt      string `json:"prompt"`
+			Personality   string `json:"personality"`
+			Prompt        string `json:"prompt"`
 		} `json:"avatar_config"`
 	}
 	decodeAvatarConfigResponse(t, recorder, &payload)
@@ -277,13 +256,6 @@ func TestAvatarConfigPutCreatesOrUpdatesDraft(t *testing.T) {
 		t.Fatalf("expected Playful personality, got %s", payload.AvatarConfig.Personality)
 	}
 
-	if len(payload.AvatarConfig.AvatarOptions) != 1 {
-		t.Fatalf("expected avatar options preserved on put response, got %d", len(payload.AvatarConfig.AvatarOptions))
-	}
-
-	if payload.AvatarConfig.AvatarOptions[0].ID != "option-v7" {
-		t.Fatalf("expected avatar option ID in put response, got %+v", payload.AvatarConfig.AvatarOptions[0])
-	}
 }
 
 func TestAvatarConfigPutRejectsInvalidPersonality(t *testing.T) {

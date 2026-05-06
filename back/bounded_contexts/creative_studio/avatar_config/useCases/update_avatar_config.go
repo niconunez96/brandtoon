@@ -49,5 +49,5 @@ func UpdateAvatarConfig(
 		return AvatarConfigDTO{}, err
 	}
 
-	return serialize(avatarConfig, *avatar), nil
+	return serialize(avatarConfig), nil
 }

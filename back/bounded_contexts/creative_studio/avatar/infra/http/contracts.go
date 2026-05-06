@@ -36,6 +36,16 @@ type createAvatarOutput struct {
 	}
 }
 
+type getAvatarInput struct {
+	AvatarID string `path:"avatarId"`
+}
+
+type getAvatarOutput struct {
+	Body struct {
+		Avatar avatarusecases.AvatarDetailsDTO `json:"avatar"`
+	}
+}
+
 type avatarOptionsPathInput struct {
 	AvatarID string `path:"avatarId"`
 }

@@ -1,4 +1,4 @@
-import type { AvatarOption } from '../../../services/avatar-config.api'
+import type { AvatarOption } from '../../../services/avatar.api'
 
 export function orderAvatarOptionsBySelection(options: AvatarOption[]) {
   const selectedOption = options.find((option) => option.selected)

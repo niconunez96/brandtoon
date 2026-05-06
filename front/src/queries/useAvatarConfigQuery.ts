@@ -4,6 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
+import { avatarQueryKey } from './useAvatarQuery'
 import {
   deleteAvatarOptions,
   selectAvatarOption,
@@ -61,7 +62,7 @@ export function useSelectAvatarOptionMutation(avatarId: string) {
     mutationFn: (id: string) => selectAvatarOption(avatarId, id),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: avatarConfigQueryKey(avatarId),
+        queryKey: avatarQueryKey(avatarId),
       })
     },
   })
@@ -74,7 +75,7 @@ export function useDeleteAvatarOptionsMutation(avatarId: string) {
     mutationFn: (ids: string[]) => deleteAvatarOptions(avatarId, ids),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: avatarConfigQueryKey(avatarId),
+        queryKey: avatarQueryKey(avatarId),
       })
     },
   })

@@ -86,6 +86,84 @@ func TestCreativeStudioAvatarsListsAuthenticatedUserAvatars(t *testing.T) {
 	}
 }
 
+func TestCreativeStudioAvatarReturnsOwnedAvatarDetails(t *testing.T) {
+	t.Parallel()
+
+	server := newAuthenticatedTestServer(t, avatarhttp.RouteDependencies{
+		AvatarRepo: &avatarmocks.AvatarRepositoryMock{
+			FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
+				avatar := avatardomain.NewAvatarWithOptions(
+					avatarID,
+					userID,
+					"Studio Hero",
+					[]avatardomain.AvatarOption{
+						{ID: "option-1", Href: "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png", Selected: false},
+						{ID: "option-2", Href: "https://cdn.brandtoon.local/avatars/avatar-v7/options/2.png", Selected: true},
+					},
+				)
+				return &avatar, nil
+			},
+		},
+	})
+
+	request := httptest.NewRequest(http.MethodGet, "/creative-studio/avatars/avatar-v7", nil)
+	request.AddCookie(&http.Cookie{Name: "brandtoon_session_id", Value: "session-v7"})
+	recorder := httptest.NewRecorder()
+
+	server.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", recorder.Code)
+	}
+
+	var payload struct {
+		Avatar struct {
+			ID            string `json:"id"`
+			Name          string `json:"name"`
+			AvatarOptions []struct {
+				ID       string `json:"id"`
+				Href     string `json:"href"`
+				Selected bool   `json:"selected"`
+			} `json:"avatarOptions"`
+		} `json:"avatar"`
+	}
+	decodeResponse(t, recorder, &payload)
+
+	if payload.Avatar.ID != "avatar-v7" {
+		t.Fatalf("expected avatar-v7, got %s", payload.Avatar.ID)
+	}
+
+	if payload.Avatar.Name != "Studio Hero" {
+		t.Fatalf("expected Studio Hero, got %s", payload.Avatar.Name)
+	}
+
+	if len(payload.Avatar.AvatarOptions) != 2 {
+		t.Fatalf("expected 2 avatar options, got %d", len(payload.Avatar.AvatarOptions))
+	}
+
+	if !payload.Avatar.AvatarOptions[1].Selected {
+		t.Fatalf("expected selected avatar option, got %+v", payload.Avatar.AvatarOptions[1])
+	}
+}
+
+func TestCreativeStudioAvatarReturnsNotFoundWhenMissing(t *testing.T) {
+	t.Parallel()
+
+	server := newAuthenticatedTestServer(t, avatarhttp.RouteDependencies{
+		AvatarRepo: &avatarmocks.AvatarRepositoryMock{},
+	})
+
+	request := httptest.NewRequest(http.MethodGet, "/creative-studio/avatars/avatar-v7", nil)
+	request.AddCookie(&http.Cookie{Name: "brandtoon_session_id", Value: "session-v7"})
+	recorder := httptest.NewRecorder()
+
+	server.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusNotFound {
+		t.Fatalf("expected 404, got %d", recorder.Code)
+	}
+}
+
 func TestCreativeStudioAvatarsRejectsInvalidName(t *testing.T) {
 	t.Parallel()
 

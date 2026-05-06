@@ -10,6 +10,7 @@ import {
   useSelectAvatarOptionMutation,
   useUpdateAvatarConfigMutation,
 } from '../../../queries/useAvatarConfigQuery'
+import { useAvatarQuery } from '../../../queries/useAvatarQuery'
 import { ApiError } from '../../../services/auth.api'
 import type {
   ArtisticStyle,
@@ -53,9 +54,39 @@ function getSaveErrorMessage(error: unknown) {
   return 'We could not save your avatar draft. Please try again.'
 }
 
+function AvatarOptionPreview({
+  href,
+  label,
+}: {
+  href: string
+  label: string
+}) {
+  const [hasImageError, setHasImageError] = useState(false)
+
+  if (hasImageError || href.length === 0) {
+    return (
+      <div className="flex aspect-square items-center justify-center rounded-2xl bg-gradient-to-br from-[#FCE7E7] via-white to-[#dfe6e9] p-3 text-center text-xs font-bold text-ink/60">
+        Image unavailable
+      </div>
+    )
+  }
+
+  return (
+    <img
+      alt={label}
+      className="aspect-square w-full rounded-2xl bg-gradient-to-br from-[#FCE7E7] via-white to-[#dfe6e9] object-cover"
+      onError={() => {
+        setHasImageError(true)
+      }}
+      src={href}
+    />
+  )
+}
+
 export function AvatarDetailsStepPage() {
   const { avatarId = '' } = useParams()
   const avatarConfigQuery = useAvatarConfigQuery(avatarId)
+  const avatarQuery = useAvatarQuery(avatarId)
   const updateAvatarConfigMutation = useUpdateAvatarConfigMutation(avatarId)
   const generateAvatarOptionsMutation =
     useGenerateAvatarOptionsMutation(avatarId)
@@ -90,12 +121,16 @@ export function AvatarDetailsStepPage() {
   const personality = form.watch('personality')
 
   const avatarOptions = orderAvatarOptionsBySelection(
-    avatarConfigQuery.data?.avatar_config?.avatarOptions ?? [],
+    avatarQuery.data?.avatar?.avatarOptions ?? [],
   )
   const avatarOptionIds = useMemo(
     () => new Set(avatarOptions.map((option) => option.id)),
     [avatarOptions],
   )
+  const isSelectingAvatarOption = selectAvatarOptionMutation.isPending
+  const isDeletingAvatarOptions = deleteAvatarOptionsMutation.isPending
+  const isAvatarOptionActionPending =
+    isSelectingAvatarOption || isDeletingAvatarOptions
 
   useEffect(() => {
     setAvatarOptionIdsToDelete((current) => {
@@ -171,7 +206,7 @@ export function AvatarDetailsStepPage() {
     setAvatarOptionIdsToDelete([])
   }
 
-  if (avatarConfigQuery.isLoading) {
+  if (avatarConfigQuery.isLoading || avatarQuery.isLoading) {
     return (
       <Card className="space-y-3 bg-white">
         <p className="foundation-section-eyebrow">Loading avatar draft</p>
@@ -182,17 +217,22 @@ export function AvatarDetailsStepPage() {
     )
   }
 
-  if (avatarConfigQuery.isError) {
+  if (avatarConfigQuery.isError || avatarQuery.isError) {
     return (
       <Card className="space-y-4 bg-white">
         <div className="space-y-2">
           <p className="foundation-section-eyebrow">Avatar draft error</p>
           <p className="text-xl font-black tracking-tight text-ink">
-            {getAvatarConfigErrorMessage(avatarConfigQuery.error)}
+            {getAvatarConfigErrorMessage(
+				avatarConfigQuery.error ?? avatarQuery.error,
+			)}
           </p>
         </div>
         <Button
-          onClick={() => void avatarConfigQuery.refetch()}
+          onClick={() => {
+				void avatarConfigQuery.refetch()
+				void avatarQuery.refetch()
+			}}
           variant="secondary"
         >
           Try again
@@ -267,9 +307,9 @@ export function AvatarDetailsStepPage() {
                       <Button
                         disabled={
                           avatarOptionIdsToDelete.length === 0 ||
-                          deleteAvatarOptionsMutation.isPending
+                          isAvatarOptionActionPending
                         }
-                        isLoading={deleteAvatarOptionsMutation.isPending}
+                        isLoading={isDeletingAvatarOptions}
                         onClick={() => void handleDeleteSelectedOptions()}
                         variant="ghost"
                       >
@@ -303,10 +343,7 @@ export function AvatarDetailsStepPage() {
                                     aria-label={`Mark avatar option ${option.id} for deletion`}
                                     checked={isMarkedForDelete}
                                     className="size-4 rounded border-[color:var(--color-stroke-soft)] text-coral focus:ring-coral"
-                                    disabled={
-                                      deleteAvatarOptionsMutation.isPending ||
-                                      selectAvatarOptionMutation.isPending
-                                    }
+                                    disabled={isAvatarOptionActionPending}
                                     onChange={() => {
                                       setAvatarOptionIdsToDelete((current) =>
                                         current.includes(option.id)
@@ -332,7 +369,7 @@ export function AvatarDetailsStepPage() {
                               <button
                                 aria-label={`Select avatar option ${option.id}`}
                                 className="block w-full text-left"
-                                disabled={selectAvatarOptionMutation.isPending}
+                                disabled={isAvatarOptionActionPending}
                                 onClick={() => {
                                   void selectAvatarOptionMutation.mutateAsync(
                                     option.id,
@@ -340,7 +377,10 @@ export function AvatarDetailsStepPage() {
                                 }}
                                 type="button"
                               >
-                                <div className="aspect-square rounded-2xl bg-gradient-to-br from-[#FCE7E7] via-white to-[#dfe6e9]" />
+                                <AvatarOptionPreview
+                                  href={option.href}
+                                  label={`Avatar option ${index + 1}`}
+                                />
                                 <div className="px-1 pb-1 pt-2">
                                   <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink/65">
                                     Option {index + 1}
