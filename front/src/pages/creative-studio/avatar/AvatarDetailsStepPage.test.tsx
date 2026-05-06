@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { AvatarDetailsStepPage } from './AvatarDetailsStepPage'
 
@@ -198,15 +198,27 @@ describe('AvatarDetailsStepPage', () => {
     expect(selectAvatarOptionMutation.mutateAsync).toHaveBeenCalledWith(
       'option-2',
     )
-    expect(screen.getByText('Selected', { selector: 'span' })).toBeInTheDocument()
+
+    const selectedCard = screen
+      .getByText('Selected', { selector: 'span' })
+      .parentElement?.parentElement
+
+    expect(selectedCard).not.toBeNull()
+    expect(
+      within(selectedCard as HTMLElement).getByRole('button', {
+        name: /select avatar option option-2/i,
+      }),
+    ).toBeInTheDocument()
 
     const renderedImageSources = screen
       .getAllByRole('img', { name: /avatar option/i })
       .map((image) => image.getAttribute('src'))
 
-    expect(renderedImageSources).toContain(
+    expect(renderedImageSources).toEqual([
+      'https://cdn.brandtoon.local/avatars/avatar-1/options/1.png',
       'https://cdn.brandtoon.local/avatars/avatar-1/options/2.png',
-    )
+      'https://cdn.brandtoon.local/avatars/avatar-1/options/3.png',
+    ])
   })
 
 	it('renders avatar options from the avatar query instead of the config query', () => {

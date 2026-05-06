@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { orderAvatarOptionsBySelection } from './avatar-option-order'
 
 describe('orderAvatarOptionsBySelection', () => {
-  it('moves the selected option to the front', () => {
+  it('preserves backend order even when one option is selected', () => {
     const result = orderAvatarOptionsBySelection([
       { id: 'option-1', href: '/1.png', selected: false },
       { id: 'option-2', href: '/2.png', selected: true },
@@ -12,8 +12,8 @@ describe('orderAvatarOptionsBySelection', () => {
     ])
 
     expect(result.map((option) => option.id)).toEqual([
-      'option-2',
       'option-1',
+      'option-2',
       'option-3',
     ])
   })

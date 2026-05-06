@@ -360,7 +360,7 @@ export function AvatarDetailsStepPage() {
                                 </label>
 
                                 {isSelected ? (
-                                  <span className="rounded-full bg-coral px-2 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white">
+                                  <span className="rounded-full bg-coral px-2 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white z-10">
                                     Selected
                                   </span>
                                 ) : null}
