@@ -85,6 +85,17 @@ For each new feature:
   - `pnpm --dir front test`
 - CI and review workflows must stay non-mutating: never replace validation with `just front-format` or `pnpm --dir front lint:fix`.
 
+## Frontend Test Baseline
+
+- Default to **unit tests and focused component tests** for frontend behavior.
+- Prefer mocking hooks, navigation, and API/service seams over MSW-driven app-shell flows when the goal is page or component behavior.
+- Keep `App`-level tests thin and limited to routing composition or other wiring that cannot be validated lower in the tree.
+- Treat **fast feedback** as a requirement: aim for **under 500ms per test/spec where practical**.
+- If a test becomes slow because it crosses too many boundaries, move that coverage down to the owning component/page.
+- Every test must earn its place by increasing **real confidence** in behavior, contracts, decisions, or failure handling.
+- Do **not** preserve tests for coverage theater. If a test only proves superficial rendering and does not meaningfully protect the system, delete it.
+- Prefer fewer high-value tests over broad low-signal suites that slow development while providing fake safety.
+
 ## Async Job UX Pattern (for render/generation flows)
 
 For backend-driven long jobs:

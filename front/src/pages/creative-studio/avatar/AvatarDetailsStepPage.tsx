@@ -98,9 +98,18 @@ export function AvatarDetailsStepPage() {
   )
 
   useEffect(() => {
-    setAvatarOptionIdsToDelete((current) =>
-      current.filter((optionId) => avatarOptionIds.has(optionId)),
-    )
+    setAvatarOptionIdsToDelete((current) => {
+      const next = current.filter((optionId) => avatarOptionIds.has(optionId))
+
+      if (
+        next.length === current.length &&
+        next.every((optionId, index) => optionId === current[index])
+      ) {
+        return current
+      }
+
+      return next
+    })
   }, [avatarOptionIds])
 
   async function persistDraft(values: AvatarConfigFormValues) {

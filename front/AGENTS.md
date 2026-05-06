@@ -162,6 +162,17 @@ Use `frontend-design` only when explicitly asked for visual redesign/creative UI
   - `pnpm --dir front test`
 - CI must stay non-mutating: do NOT use `just front-format` or `pnpm --dir front lint:fix` in validation workflows.
 
+## Frontend Test Policy
+
+- Prefer **unit and focused component tests** over app-shell or router-wide integration flows.
+- Mock hooks, navigation, and service boundaries when the behavior under test belongs to one page or component.
+- Avoid bloated `App`-level coverage for behavior that can be proved closer to the owning unit.
+- Aim for **under 500ms per test/spec where practical** so frontend tests preserve a fast feedback loop.
+- Use app-level route tests only for thin routing wiring, not for end-to-end UI behavior.
+- Every frontend test must add **real confidence** to the system: protect meaningful behavior, decisions, contracts, or failure handling.
+- Do **not** keep tests only for coverage optics or because adding tests feels inherently “good”. Low-value smoke coverage should be deleted.
+- If a test does not help us trust a change, catch a likely regression, or protect important app logic, it is noise and does not belong in the default suite.
+
 ## Styling Rules
 
 1. Tailwind-first with the local project setup only — NEVER use CDN/runtime Tailwind scripts.
