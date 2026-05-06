@@ -206,6 +206,23 @@ func newAuthenticatedTestServer(
 func newTestServer(deps avatarhttp.RouteDependencies) http.Handler {
 	router := chi.NewMux()
 	api := humachi.New(router, huma.DefaultConfig("Test API", "1.0.0"))
+	plainAuthMiddleware := authhttp.AuthMiddleware(authhttp.AuthMiddlewareDeps{
+		SessionRepo: &sessionmocks.SessionRepositoryMock{
+			FindActiveByIDFunc: func(ctx context.Context, id string) (*sessiondomain.Session, error) {
+				return &sessiondomain.Session{
+					ID:        id,
+					UserID:    "user-v7",
+					ExpiresAt: time.Now().Add(24 * time.Hour),
+				}, nil
+			},
+		},
+		UserRepo: &usermocks.UserRepositoryMock{
+			FindByIDFunc: func(ctx context.Context, id string) (*userdomain.User, error) {
+				return &userdomain.User{ID: id, Email: "nico@example.com", Name: "Nico"}, nil
+			},
+		},
+		HumaApi: api,
+	})
 	authMiddleware := authhttp.HumaAuthMiddleware(authhttp.AuthMiddlewareDeps{
 		SessionRepo: &sessionmocks.SessionRepositoryMock{
 			FindActiveByIDFunc: func(ctx context.Context, id string) (*sessiondomain.Session, error) {
@@ -223,7 +240,7 @@ func newTestServer(deps avatarhttp.RouteDependencies) http.Handler {
 		},
 		HumaApi: api,
 	})
-	avatarhttp.RegisterRoutes(api, deps, authMiddleware)
+	avatarhttp.RegisterRoutes(api, router, deps, plainAuthMiddleware, authMiddleware)
 	return router
 }
 

@@ -1,11 +1,13 @@
 import { Sparkles, WandSparkles } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
 import { z } from 'zod'
 import {
+  useDeleteAvatarOptionsMutation,
   useAvatarConfigQuery,
   useGenerateAvatarOptionsMutation,
+  useSelectAvatarOptionMutation,
   useUpdateAvatarConfigMutation,
 } from '../../../queries/useAvatarConfigQuery'
 import { ApiError } from '../../../services/auth.api'
@@ -16,6 +18,7 @@ import type {
 import { Button } from '../../../shared/components/ui/button'
 import { Card, SectionShell } from '../../../shared/components/ui/card'
 import { PromptField } from '../../../shared/components/ui/field'
+import { orderAvatarOptionsBySelection } from './avatar-option-order'
 
 const avatarConfigSchema = z.object({
   artisticStyle: z.enum(['2D', '3D']),
@@ -56,6 +59,11 @@ export function AvatarDetailsStepPage() {
   const updateAvatarConfigMutation = useUpdateAvatarConfigMutation(avatarId)
   const generateAvatarOptionsMutation =
     useGenerateAvatarOptionsMutation(avatarId)
+  const deleteAvatarOptionsMutation = useDeleteAvatarOptionsMutation(avatarId)
+  const selectAvatarOptionMutation = useSelectAvatarOptionMutation(avatarId)
+  const [avatarOptionIdsToDelete, setAvatarOptionIdsToDelete] = useState<
+    string[]
+  >([])
   const form = useForm<AvatarConfigFormValues>({
     defaultValues: {
       artisticStyle: '2D',
@@ -81,10 +89,19 @@ export function AvatarDetailsStepPage() {
   const artisticStyle = form.watch('artisticStyle')
   const personality = form.watch('personality')
 
-  const avatarOptions =
-    avatarConfigQuery.data?.avatar_config?.avatarOptions ?? []
-  const selectedGeneratedOption =
-    avatarOptions.find((option) => option.selected) ?? avatarOptions[0] ?? null
+  const avatarOptions = orderAvatarOptionsBySelection(
+    avatarConfigQuery.data?.avatar_config?.avatarOptions ?? [],
+  )
+  const avatarOptionIds = useMemo(
+    () => new Set(avatarOptions.map((option) => option.id)),
+    [avatarOptions],
+  )
+
+  useEffect(() => {
+    setAvatarOptionIdsToDelete((current) =>
+      current.filter((optionId) => avatarOptionIds.has(optionId)),
+    )
+  }, [avatarOptionIds])
 
   async function persistDraft(values: AvatarConfigFormValues) {
     const parsed = avatarConfigSchema.safeParse(values)
@@ -135,6 +152,15 @@ export function AvatarDetailsStepPage() {
 
     await generateAvatarOptionsMutation.mutateAsync()
   })
+
+  async function handleDeleteSelectedOptions() {
+    if (avatarOptionIdsToDelete.length === 0) {
+      return
+    }
+
+    await deleteAvatarOptionsMutation.mutateAsync(avatarOptionIdsToDelete)
+    setAvatarOptionIdsToDelete([])
+  }
 
   if (avatarConfigQuery.isLoading) {
     return (
@@ -223,44 +249,104 @@ export function AvatarDetailsStepPage() {
                     No image options generated yet
                   </Card>
                 ) : (
-                  <fieldset>
-                    <legend className="sr-only">
-                      Generated avatar image options
-                    </legend>
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                      {avatarOptions.map((option, index) => {
-                        const isSelected = option.selected
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-bold text-ink/70">
+                        Select one option to set it active and mark multiple
+                        options for deletion.
+                      </p>
+                      <Button
+                        disabled={
+                          avatarOptionIdsToDelete.length === 0 ||
+                          deleteAvatarOptionsMutation.isPending
+                        }
+                        isLoading={deleteAvatarOptionsMutation.isPending}
+                        onClick={() => void handleDeleteSelectedOptions()}
+                        variant="ghost"
+                      >
+                        Delete selected ({avatarOptionIdsToDelete.length})
+                      </Button>
+                    </div>
 
-                        return (
-                          <label
-                            className="block cursor-pointer"
-                            key={option.href}
-                          >
-                            <input
-                              checked={isSelected}
-                              className="sr-only"
-                              name="generated-avatar-option"
-                              readOnly
-                              type="radio"
-                              value={option.href}
-                            />
+                    <fieldset>
+                      <legend className="sr-only">
+                        Generated avatar image options
+                      </legend>
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                        {avatarOptions.map((option, index) => {
+                          const isSelected = option.selected
+                          const isMarkedForDelete = avatarOptionIdsToDelete.includes(
+                            option.id,
+                          )
+
+                          return (
                             <div
-                              className={`space-y-2 rounded-3xl border p-2 transition focus-within:ring-2 focus-within:ring-coral focus-within:ring-offset-2 focus-within:ring-offset-white ${
+                              className={`space-y-2 rounded-3xl border p-2 transition ${
                                 isSelected
                                   ? 'border-coral bg-coral/5 shadow-sticker'
                                   : 'border-[color:var(--color-stroke-soft)] bg-surface hover:bg-white'
                               }`}
+                              key={option.id}
                             >
-                              <div className="aspect-square rounded-2xl bg-gradient-to-br from-[#FCE7E7] via-white to-[#dfe6e9]" />
-                              <p className="px-1 text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink/65">
-                                Option {index + 1}
-                              </p>
+                              <div className="flex items-center justify-between gap-2 px-1 pt-1">
+                                <label className="inline-flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink/65">
+                                  <input
+                                    aria-label={`Mark avatar option ${option.id} for deletion`}
+                                    checked={isMarkedForDelete}
+                                    className="size-4 rounded border-[color:var(--color-stroke-soft)] text-coral focus:ring-coral"
+                                    disabled={
+                                      deleteAvatarOptionsMutation.isPending ||
+                                      selectAvatarOptionMutation.isPending
+                                    }
+                                    onChange={() => {
+                                      setAvatarOptionIdsToDelete((current) =>
+                                        current.includes(option.id)
+                                          ? current.filter(
+                                              (optionId) =>
+                                                optionId !== option.id,
+                                            )
+                                          : [...current, option.id],
+                                      )
+                                    }}
+                                    type="checkbox"
+                                  />
+                                  <span>Delete</span>
+                                </label>
+
+                                {isSelected ? (
+                                  <span className="rounded-full bg-coral px-2 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white">
+                                    Selected
+                                  </span>
+                                ) : null}
+                              </div>
+
+                              <button
+                                aria-label={`Select avatar option ${option.id}`}
+                                className="block w-full text-left"
+                                disabled={selectAvatarOptionMutation.isPending}
+                                onClick={() => {
+                                  void selectAvatarOptionMutation.mutateAsync(
+                                    option.id,
+                                  )
+                                }}
+                                type="button"
+                              >
+                                <div className="aspect-square rounded-2xl bg-gradient-to-br from-[#FCE7E7] via-white to-[#dfe6e9]" />
+                                <div className="px-1 pb-1 pt-2">
+                                  <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink/65">
+                                    Option {index + 1}
+                                  </p>
+                                  <p className="text-[11px] font-bold text-ink/50">
+                                    Tap to select this option
+                                  </p>
+                                </div>
+                              </button>
                             </div>
-                          </label>
-                        )
-                      })}
-                    </div>
-                  </fieldset>
+                          )
+                        })}
+                      </div>
+                    </fieldset>
+                  </div>
                 )}
               </div>
             </Card>
@@ -389,6 +475,19 @@ export function AvatarDetailsStepPage() {
               {generateAvatarOptionsMutation.isError ? (
                 <p className="rounded-2xl bg-error-container px-4 py-3 text-sm font-bold text-error">
                   We could not start avatar generation. Please try again.
+                </p>
+              ) : null}
+
+              {selectAvatarOptionMutation.isError ? (
+                <p className="rounded-2xl bg-error-container px-4 py-3 text-sm font-bold text-error">
+                  We could not select this avatar option. Please try again.
+                </p>
+              ) : null}
+
+              {deleteAvatarOptionsMutation.isError ? (
+                <p className="rounded-2xl bg-error-container px-4 py-3 text-sm font-bold text-error">
+                  We could not delete the selected avatar options. Please try
+                  again.
                 </p>
               ) : null}
 

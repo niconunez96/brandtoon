@@ -5,6 +5,8 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import {
+  deleteAvatarOptions,
+  selectAvatarOption,
   type UpdateAvatarConfigInput,
   fetchAvatarConfig,
   generateAvatarOptions,
@@ -49,5 +51,31 @@ export async function invalidateAvatarConfigQuery(
 export function useGenerateAvatarOptionsMutation(avatarId: string) {
   return useMutation({
     mutationFn: () => generateAvatarOptions(avatarId),
+  })
+}
+
+export function useSelectAvatarOptionMutation(avatarId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: string) => selectAvatarOption(avatarId, id),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: avatarConfigQueryKey(avatarId),
+      })
+    },
+  })
+}
+
+export function useDeleteAvatarOptionsMutation(avatarId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (ids: string[]) => deleteAvatarOptions(avatarId, ids),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: avatarConfigQueryKey(avatarId),
+      })
+    },
   })
 }

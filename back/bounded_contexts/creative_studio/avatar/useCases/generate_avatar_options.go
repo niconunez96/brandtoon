@@ -64,7 +64,12 @@ func GenerateAvatarOptions(
 		jobCtx, cancel := context.WithTimeout(context.Background(), generateAvatarOptionsJobTimeout)
 		defer cancel()
 
-		nextAvatar := currentAvatar.AddOptions(buildGeneratedAvatarOptions(cmd.AvatarID))
+		generatedOptions, err := buildGeneratedAvatarOptions(cmd.AvatarID)
+		if err != nil {
+			return
+		}
+
+		nextAvatar := currentAvatar.AddOptions(generatedOptions)
 		if err := deps.AvatarRepo.UpdateOptions(jobCtx, cmd.AvatarID, cmd.UserID, nextAvatar.AvatarOptions); err != nil {
 			return
 		}
@@ -83,14 +88,20 @@ func GenerateAvatarOptions(
 	return nil
 }
 
-func buildGeneratedAvatarOptions(avatarID string) []avatardomain.AvatarOption {
+func buildGeneratedAvatarOptions(avatarID string) ([]avatardomain.AvatarOption, error) {
 	options := make([]avatardomain.AvatarOption, 0, 4)
 	for index := range 4 {
+		optionID, err := shareddomain.GenerateUUIDv7()
+		if err != nil {
+			return nil, err
+		}
+
 		options = append(options, avatardomain.AvatarOption{
+			ID:       optionID,
 			Href:     fmt.Sprintf("https://cdn.brandtoon.local/avatars/%s/options/%d.png", avatarID, index+1),
 			Selected: false,
 		})
 	}
 
-	return options
+	return options, nil
 }

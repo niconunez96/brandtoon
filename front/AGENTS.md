@@ -120,6 +120,17 @@ Do not mix these concerns in one store.
 4. Keep components focused and small.
 5. Avoid clever patterns that reduce readability.
 
+## Core Principles Fallback
+
+If no explicit frontend rule covers a decision, default to the simplest correct option that stays:
+
+- simple
+- straightforward
+- explicit
+- correctly encapsulated
+
+Do not invent abstractions, indirections, or hidden behavior when the core principles are enough.
+
 ## Frontend Boundaries
 
 The backend owns heavy processing (image generation, animation rendering, voice pipeline).

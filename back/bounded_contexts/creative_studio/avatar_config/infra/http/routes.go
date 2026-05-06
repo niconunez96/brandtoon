@@ -30,9 +30,4 @@ func RegisterRoutes(
 		Summary:       "Create or update an avatar config draft",
 		DefaultStatus: stdhttp.StatusOK,
 	}, buildUpdateAvatarConfigHandler(deps))
-
-	router.With(authMiddleware).Post(
-		"/creative-studio/avatar_configs/{avatarId}/generate",
-		buildGenerateAvatarOptionsHandler(deps),
-	)
 }

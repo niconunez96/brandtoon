@@ -714,18 +714,22 @@ describe('App', () => {
           artisticStyle: '2D',
           avatarOptions: [
             {
+              id: 'option-1',
               href: 'https://cdn.brandtoon.local/avatars/avatar-1/options/1.png',
               selected: false,
             },
             {
+              id: 'option-2',
               href: 'https://cdn.brandtoon.local/avatars/avatar-1/options/2.png',
               selected: false,
             },
             {
+              id: 'option-3',
               href: 'https://cdn.brandtoon.local/avatars/avatar-1/options/3.png',
               selected: false,
             },
             {
+              id: 'option-4',
               href: 'https://cdn.brandtoon.local/avatars/avatar-1/options/4.png',
               selected: false,
             },

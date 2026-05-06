@@ -95,6 +95,17 @@ Mark the change type before implementation so the correct guide(s) are applied f
 - Keep changes minimal and scoped; avoid unrelated refactors.
 - If a task is ambiguous (front vs back responsibility), stop and ask for clarification.
 
+## Core Principles Fallback
+
+If no explicit repo rule covers a decision, default to the simplest correct option that stays:
+
+- simple
+- straightforward
+- explicit
+- correctly encapsulated
+
+Do not invent abstractions, indirections, or hidden behavior when the core principles are enough.
+
 ## Skill Loading Gateway
 
 When working from root:

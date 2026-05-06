@@ -25,6 +25,18 @@ export const handlers = [
     return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
   }),
   http.post(
+    `${API_BASE_URL}/creative-studio/avatar_configs/:avatarId/options/select`,
+    () => {
+      return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    },
+  ),
+  http.delete(
+    `${API_BASE_URL}/creative-studio/avatar_configs/:avatarId/options`,
+    () => {
+      return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    },
+  ),
+  http.post(
     `${API_BASE_URL}/creative-studio/avatar_configs/:avatarId/generate`,
     () => {
       return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })

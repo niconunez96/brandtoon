@@ -26,6 +26,8 @@ Use this skill when editing `back/bounded_contexts/**/infra`.
 - Repository implementations use `XXXPostgresRepo` naming.
 - HTTP routes are grouped by prefix in `infra/http/routes.go`.
 - Handlers are function-based and delegate business logic to use cases.
+- Aggregate-owned endpoints MUST be registered in the same aggregate's `infra/http` layer as the use case they invoke; do not host an endpoint in a foreign aggregate just because the URL path mentions that concept.
+- Transport payload DTOs must come from the owning aggregate's `useCases` layer; `infra/http` should use them directly when the shape matches and must not redefine the same payload shape as a parallel DTO.
 - Infra adapters depend inward on domain contracts/use cases.
 - Dependency wiring standards are defined in `go-shared-di-container`.
 - Provider/vendor-specific naming is ALLOWED in infra adapters and route paths when mapping concrete integrations (for example: `GoogleOAuthClient`, `/auth/google/callback`).
@@ -33,6 +35,8 @@ Use this skill when editing `back/bounded_contexts/**/infra`.
 ## Forbidden Patterns
 
 - Business rules implemented in HTTP handlers.
+- Endpoint registration in one aggregate that delegates aggregate-owned behavior to another aggregate's use case.
+- Defining duplicate response/request DTO structs in `infra/http` when the same payload already exists in `useCases`.
 - Direct domain mutations from SQL result mapping without aggregate methods.
 - Multiple route roots spread across endpoint files.
 - Ambiguous adapter names (`RepoImpl`, `StorageAdapter`).
@@ -47,6 +51,7 @@ Use this skill when editing `back/bounded_contexts/**/infra`.
 - Validate route prefix grouping in `routes.go`.
 - Keep one handler function per endpoint concern.
 - Ensure handlers map DTOs and call use cases only.
+- Reuse use-case DTOs for transport payloads; only add aliasing/mapping when transport-specific concerns truly differ, and prefer direct references over alias files.
 - Ensure repository structs satisfy domain interfaces explicitly.
 - Ensure infra package names follow `{aggregate}repo` and `{aggregate}http`.
 - Ensure dependency wiring changes follow `go-shared-di-container`.

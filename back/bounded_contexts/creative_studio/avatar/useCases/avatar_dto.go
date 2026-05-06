@@ -3,8 +3,8 @@ package avatarusecases
 import avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
 
 type AvatarDTO struct {
-	ID   string
-	Name string
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 func serialize(avatar avatardomain.Avatar) AvatarDTO {

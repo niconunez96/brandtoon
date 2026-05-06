@@ -2,19 +2,23 @@ package avatarhttp
 
 import (
 	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
+	avatarusecases "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases"
+	avatarconfigdomain "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain"
 	identityauthhttp "brandtoonapi/bounded_contexts/identity/auth/infra/http"
 	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
 )
 
 type RouteDependencies struct {
-	AvatarRepo  avatardomain.AvatarRepository
-	IDGenerator shareddomain.IDGenerator
-	AuthDeps    identityauthhttp.AuthMiddlewareDeps
+	AvatarConfigRepo avatarconfigdomain.AvatarConfigRepository
+	AvatarRepo       avatardomain.AvatarRepository
+	EventBus         shareddomain.EventBus
+	IDGenerator      shareddomain.IDGenerator
+	AuthDeps         identityauthhttp.AuthMiddlewareDeps
 }
 
 type listAvatarsOutput struct {
 	Body struct {
-		Avatars []AvatarDTO `json:"avatars"`
+		Avatars []avatarusecases.AvatarDTO `json:"avatars"`
 	}
 }
 
@@ -28,6 +32,34 @@ type createAvatarInput struct {
 
 type createAvatarOutput struct {
 	Body struct {
-		Avatar AvatarDTO `json:"avatar"`
+		Avatar avatarusecases.AvatarDTO `json:"avatar"`
+	}
+}
+
+type avatarOptionsPathInput struct {
+	AvatarID string `path:"avatarId"`
+}
+
+type selectAvatarOptionBody struct {
+	ID string `json:"id" minLength:"1"`
+}
+
+type selectAvatarOptionInput struct {
+	AvatarID string `path:"avatarId"`
+	Body     selectAvatarOptionBody
+}
+
+type deleteAvatarOptionsBody struct {
+	IDs []string `json:"ids" minItems:"1"`
+}
+
+type deleteAvatarOptionsInput struct {
+	AvatarID string `path:"avatarId"`
+	Body     deleteAvatarOptionsBody
+}
+
+type avatarOptionsOutput struct {
+	Body struct {
+		Avatar avatarusecases.AvatarOptionsDTO `json:"avatar"`
 	}
 }

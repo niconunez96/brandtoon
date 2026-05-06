@@ -32,6 +32,7 @@ Use this skill when changing `back/main.go` or `back/bounded_contexts/**/infra/h
 - Huma-specific types stay in transport (`infra/http`) and composition root.
 - Do not leak Huma request/response structs into domain.
 - Map Huma input/output to use case command/query DTOs explicitly.
+- Reuse use-case DTOs for response payloads whenever the transport shape matches; reference them directly instead of creating transport aliases unless Huma-specific concerns require a different shape.
 - Keep transport-level validation failures as HTTP validation concerns; use cases should focus on business behavior and invariants.
 
 ## Testing Alignment
