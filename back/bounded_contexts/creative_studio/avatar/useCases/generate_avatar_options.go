@@ -90,7 +90,7 @@ func GenerateAvatarOptions(
 
 func buildGeneratedAvatarOptions(avatarID string) ([]avatardomain.AvatarOption, error) {
 	options := make([]avatardomain.AvatarOption, 0, 4)
-	for index := range 4 {
+	for index := range 2 {
 		optionID, err := shareddomain.GenerateUUIDv7()
 		if err != nil {
 			return nil, err

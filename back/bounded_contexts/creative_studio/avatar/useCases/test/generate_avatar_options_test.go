@@ -72,8 +72,8 @@ func TestGenerateAvatarOptionsAcknowledgesThenPersistsAndPublishes(t *testing.T)
 		t.Fatalf("expected background persistence signal")
 	}
 
-	if len(persistedOptions) != 5 {
-		t.Fatalf("expected existing option + 4 generated options, got %d", len(persistedOptions))
+	if len(persistedOptions) != 3 {
+		t.Fatalf("expected existing option + 3 generated options, got %d", len(persistedOptions))
 	}
 
 	generatedIDs := make(map[string]struct{}, len(persistedOptions)-1)

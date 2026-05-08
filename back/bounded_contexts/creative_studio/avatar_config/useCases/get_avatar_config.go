@@ -35,6 +35,6 @@ func GetAvatarConfig(
 		return nil, nil
 	}
 
-	serialized := serialize(*avatarConfig)
+	serialized := serialize(*avatarConfig, *avatar)
 	return &serialized, nil
 }
