@@ -1,130 +1,46 @@
-# Backend AI Governance (Scope: `back/` only)
+# Brandtoon Backend Policy
 
-This file governs ALL AI-driven work inside `back/`.
+Backend agents must also follow `../.agents/standards/agent-policy.md`.
 
-## Mission
+## Architecture Contract
 
-- Preserve a strict DDD + CQRS-by-use-case structure.
-- Keep domain pure and stable.
-- Keep infrastructure replaceable.
-- Enforce functional use-case and handler style.
+- Preserve strict DDD + CQRS by use case.
+- Dependency flow is `main.go -> routes.go -> handlers -> useCases -> domain`.
+- Domain never imports transport or infrastructure.
+- Shared dependency initialization lives in `bounded_contexts/shared/diContainer.go`.
 
-## Mandatory Backend Structure
+## Backend Structure
 
 - Base path: `bounded_contexts/{context}/{aggregate}/`
-- Layers per aggregate: `domain/`, `infra/`, `useCases/`
-- Shared modules: `bounded_contexts/shared/domain/`, `bounded_contexts/shared/infra/`
-- Shared dependency wiring: `bounded_contexts/shared/diContainer.go` (DI container)
+- Aggregate layers: `domain/`, `useCases/`, `infra/`
+- Shared modules live under `bounded_contexts/shared/`
+- Aggregate package names stay explicit: `{aggregate}domain`, `{aggregate}usecases`, `{aggregate}repo`, `{aggregate}http`
 
-Expected shape:
+## Application Rules
 
-```text
-bounded_contexts/
-  shared/
-    domain/
-    infra/
-  identity/
-    user/
-      domain/
-      useCases/
-      infra/
-```
+- One use case per file.
+- Use cases and handlers are functions, not service structs.
+- Commands do side effects; queries do reads.
+- Use-case DTOs are the canonical payload types when transport shape matches.
+- Aggregate-owned endpoints, handlers, and use cases stay in the same aggregate.
+- Domain and use-case naming must stay provider-agnostic.
 
-## Dependency Flow (Hard Rule)
+## Infrastructure Rules
 
-- `main.go -> routes.go -> handlers -> useCases -> domain`
-- `main.go` owns dependency initialization and injection.
-- `main.go` must resolve dependencies from shared `DIContainer` getters and pass them down.
-- Domain NEVER imports infra or transport.
-
-## Auto-Load Skills (BEFORE coding)
-
-When work touches `back/`, load skills by context before writing code:
-
-- Aggregate/domain modeling -> `go-ddd-aggregate`
-- Application behavior/CQRS use cases -> `go-usecase-cqrs-functions`
-- HTTP, repository adapters, integrations -> `go-infra-http-repo-adapters`
-- Any Huma API wiring, operation contracts, service config, validation, or schema tags -> `go-huma-api-contracts`
-- Any dependency initialization/composition root wiring (`diContainer.go`, `main.go`) -> `go-shared-di-container`
-- Any feature/fix/refactor touching `useCases` or `infra/http` -> `go-testing-tdd-backend`
-
-If work spans multiple areas, load multiple skills.
-
-## Hard Constraints
-
-- One use case per file (`authenticate_user.go`, `reset_password.go`, ...).
-- Use cases are functions (not service structs) that receive:
-  - command/query DTO
-  - injected domain interfaces as function args
-- Commands perform side effects; queries perform read operations.
-- Handlers are functions (not stateful classes).
-- HTTP routes are grouped by prefix in `infra/http/routes.go`.
-- Huma is the standard HTTP framework for `back/`.
+- Huma is the standard HTTP framework.
+- HTTP routes are grouped in `infra/http/routes.go`.
 - Repository adapters live in `infra/repo/`.
-- Aggregate package naming is mandatory in aggregate layers:
-  - `domain/` -> `package {aggregate}domain`
-  - `useCases/` -> `package {aggregate}usecases`
-  - `infra/repo/` -> `package {aggregate}repo`
-  - `infra/http/` -> `package {aggregate}http`
-- Postgres repositories follow `XXXPostgresRepo` naming.
-- Third-party dependency initialization must live in shared `DIContainer` (not in handlers/useCases/domain).
-- `DIContainer` exposes `GetX()` methods that lazily initialize once (singleton-style) and reuse instances.
-- Domain contracts define external ports (`EmailSender`, `XXRepository`) with NO third-party dependencies in signatures.
-- Domain and `useCases` naming must stay provider-agnostic: never encode vendor names (`Google`, `GitHub`, etc.) in domain types/fields/interfaces or use case names/DTOs.
-- Provider/vendor-specific naming is allowed only in `infra/` and configuration/composition wiring.
-- Aggregate root is the only domain interaction entrypoint.
-- Internal entities stay encapsulated inside aggregate boundaries.
-- Value objects are modeled as explicit enum/type definitions.
-- TDD is mandatory for backend changes in `useCases` and `infra/http`:
-  - RED: write/adjust a failing test first
-  - GREEN: implement minimal code to pass
-  - REFACTOR: improve design while tests remain green
-- A backend feature/fix/refactor is NOT complete until all relevant tests pass.
-- If tests are missing for touched `useCases` or `infra/http` handlers, add them.
-- Tests are required only for:
-  - `bounded_contexts/{context}/{aggregate}/useCases`
-  - `bounded_contexts/{context}/{aggregate}/infra/http`
-- Test file placement:
-  - `bounded_contexts/{context}/{aggregate}/useCases/test/*_test.go`
-  - `bounded_contexts/{context}/{aggregate}/infra/http/test/*_test.go`
-- Mocks must be reusable and placed closest to their domain interface:
-  - Aggregate-specific: `bounded_contexts/{context}/{aggregate}/domain/mocks/`
-  - Shared cross-context: `bounded_contexts/shared/domain/mocks/`
-- Never define repository/service mocks inline in test files when they can live in `domain/mocks`.
+- Third-party clients must be initialized through the shared DI container.
 
-## Forbidden Patterns
+## Testing Policy
 
-- Domain importing framework/driver packages (`gin`, `fiber`, `gorm`, `sqlx`, SMTP clients, etc.).
-- Provider/vendor-specific names in `domain/` and `useCases/` identifiers (for example: `GoogleIdentityProvider`, `googleSubject`, `GetGoogleAuthURL`).
-- Use case structs with hidden mutable state.
-- Fat handlers containing business rules.
-- Route definitions scattered across handler files.
-- Generic repository names that hide implementation (`UserRepoImpl`).
-- Generic aggregate package names inside aggregate layers (`package domain`, `package useCases`, `package repo`, `package http`).
-- Cross-aggregate mutation bypassing aggregate roots.
-- Marking a change as done with failing tests.
-- Skipping test creation for modified `useCases` or `infra/http` handlers.
-- Duplicating one-off test-local mocks instead of reusing `domain/mocks`.
-- Implementing new HTTP API endpoints without following Huma operation/contract patterns.
-- Initializing third-party clients directly inside handlers, useCases, or domain.
-- Bypassing `DIContainer` and constructing infra dependencies ad-hoc in `main.go`.
+- TDD is mandatory for backend changes in `useCases` and `infra/http`.
+- Tests for those areas are required when touched.
+- Reusable mocks belong near the owning domain interfaces.
 
-## Execution Checklist (Use on every backend task)
+## Backend Guardrails
 
-- Confirm paths are only under `back/`.
-- Load required skill(s) before editing.
-- Validate dependency direction stays inward to domain.
-- Validate names and file placement follow conventions.
-- Validate aggregate package naming follows `{aggregate}domain|usecases|repo|http` in aggregate layers.
-- Validate domain/use case names are business-language and provider-agnostic.
-- Ensure commands/queries are separated clearly.
-- Ensure domain contracts stay vendor-neutral.
-
-## Validation Commands
-
-- Canonical backend validation entrypoint: `just back-check`
-- Non-mutating backend validation steps:
-  - `just back-format-check`
-  - `just back-lint`
-  - `just back-test`
-- CI must stay non-mutating: do NOT use `just back-format` in validation workflows.
+- Do not leak provider-specific language into `domain/` or `useCases/`.
+- Do not duplicate transport DTOs when the canonical use-case DTO already fits.
+- Do not scatter route registration or business rules across handlers.
+- If a new backend convention is needed, ask the user instead of inventing it.

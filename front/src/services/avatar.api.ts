@@ -6,12 +6,26 @@ export type Avatar = {
   name: string
 }
 
+export type AvatarOption = {
+  id: string
+  href: string
+  selected: boolean
+}
+
+export type AvatarDetails = Avatar & {
+  avatarOptions: AvatarOption[]
+}
+
 export type ListAvatarsResponse = {
   avatars: Avatar[]
 }
 
 export type CreateAvatarResponse = {
   avatar: Avatar
+}
+
+export type AvatarResponse = {
+  avatar: AvatarDetails | null
 }
 
 export async function fetchAvatars(): Promise<ListAvatarsResponse> {
@@ -40,6 +54,21 @@ export async function createAvatar(
 
   if (!response.ok) {
     throw new ApiError('Failed to create avatar', response.status)
+  }
+
+  return response.json()
+}
+
+export async function fetchAvatar(avatarId: string): Promise<AvatarResponse> {
+  const response = await fetch(
+    `${API_BASE_URL}/creative-studio/avatars/${avatarId}`,
+    {
+      credentials: 'include',
+    },
+  )
+
+  if (!response.ok) {
+    throw new ApiError('Failed to fetch avatar', response.status)
   }
 
   return response.json()

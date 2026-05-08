@@ -10,6 +10,7 @@ import (
 	avatarconfigdomain "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain"
 	avatarconfigmocks "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain/mocks"
 	avatarconfigusecases "brandtoonapi/bounded_contexts/creative_studio/avatar_config/useCases"
+	avatarconfigdto "brandtoonapi/bounded_contexts/creative_studio/avatar_config/useCases/dto"
 )
 
 func TestUpdateAvatarConfigUpsertsDraftForOwnedAvatar(t *testing.T) {
@@ -47,8 +48,10 @@ func TestUpdateAvatarConfigUpsertsDraftForOwnedAvatar(t *testing.T) {
 		t.Fatalf("expected nil error, got %v", err)
 	}
 
-	if result.Prompt != "  " {
-		t.Fatalf("expected whitespace prompt to be preserved, got %q", result.Prompt)
+	resultDTO := avatarconfigdto.AvatarConfigDTO(result)
+
+	if resultDTO.Prompt != "  " {
+		t.Fatalf("expected whitespace prompt to be preserved, got %q", resultDTO.Prompt)
 	}
 
 	if persistedConfig.ArtisticStyle != avatarconfigdomain.ArtisticStyle2D {
@@ -57,10 +60,6 @@ func TestUpdateAvatarConfigUpsertsDraftForOwnedAvatar(t *testing.T) {
 
 	if persistedConfig.Personality != avatarconfigdomain.PersonalityFriendly {
 		t.Fatalf("expected Friendly personality, got %s", persistedConfig.Personality)
-	}
-
-	if len(result.AvatarOptions) != 1 {
-		t.Fatalf("expected avatar options to remain on avatar aggregate, got %d", len(result.AvatarOptions))
 	}
 }
 

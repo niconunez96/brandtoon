@@ -11,6 +11,11 @@ allowed-tools: Bash, Grep, Glob, Read, Write, Edit
 
 Use this skill when changing dependency initialization or composition root wiring.
 
+## Canonical Policy First
+
+- Backend policy lives in `back/AGENTS.md`.
+- This skill adds composition-root and dependency-container workflow guidance.
+
 ## Scope
 
 - `back/bounded_contexts/shared/diContainer.go`
@@ -45,5 +50,6 @@ Use this skill when changing dependency initialization or composition root wirin
 - Getters are idempotent and reuse the same instance.
 - `main.go` only composes through container getters.
 - Dependency direction stays `main -> routes -> handlers -> useCases -> domain`.
+- After editing backend dependency wiring, run `just back-format` and then `just back-check`; iterate until the canonical backend check passes.
 
 See `REFERENCE.md` for examples.

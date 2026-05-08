@@ -3,6 +3,7 @@ package avatarconfigusecases
 import (
 	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
 	avatarconfigdomain "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain"
+	avatarconfigdto "brandtoonapi/bounded_contexts/creative_studio/avatar_config/useCases/dto"
 	"context"
 )
 
@@ -16,7 +17,7 @@ func GetAvatarConfig(
 	query GetAvatarConfigQuery,
 	avatarRepo avatardomain.AvatarRepository,
 	avatarConfigRepo avatarconfigdomain.AvatarConfigRepository,
-) (*AvatarConfigDTO, error) {
+) (*avatarconfigdto.AvatarConfigDTO, error) {
 	avatar, err := avatarRepo.FindOwnedByID(ctx, query.AvatarID, query.UserID)
 	if err != nil {
 		return nil, err
@@ -35,6 +36,6 @@ func GetAvatarConfig(
 		return nil, nil
 	}
 
-	serialized := serialize(*avatarConfig, *avatar)
+	serialized := avatarconfigdto.SerializeAvatarConfig(*avatarConfig)
 	return &serialized, nil
 }

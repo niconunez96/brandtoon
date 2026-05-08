@@ -11,6 +11,11 @@ allowed-tools: Bash, Grep, Glob, Read, Write, Edit
 
 Use this skill when changing domain models in `back/bounded_contexts/**/domain`.
 
+## Canonical Policy First
+
+- Backend policy lives in `back/AGENTS.md`.
+- This skill adds domain-layer operational guidance and review checks.
+
 ## Objective
 
 - Keep domain behavior inside aggregate root boundaries.
@@ -49,6 +54,7 @@ Use this skill when changing domain models in `back/bounded_contexts/**/domain`.
 - Define/adjust domain interfaces for external side effects.
 - Verify no third-party dependency leaks into domain signatures.
 - Verify domain names survive provider swap without renaming (`Google -> GitHub` test).
+- After editing backend domain code, run `just back-format` and then `just back-check`; iterate until the canonical backend check passes.
 
 ## Output Standard
 

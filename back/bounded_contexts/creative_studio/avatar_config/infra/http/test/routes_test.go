@@ -99,7 +99,11 @@ func TestAvatarConfigGetReturnsStoredDraftPayload(t *testing.T) {
 					userID,
 					"Studio Hero",
 					[]avatardomain.AvatarOption{
-						{Href: "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png", Selected: false},
+						{
+							ID:       "option-v7",
+							Href:     "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png",
+							Selected: false,
+						},
 					},
 				)
 				return &avatar, nil
@@ -121,12 +125,8 @@ func TestAvatarConfigGetReturnsStoredDraftPayload(t *testing.T) {
 		AvatarConfig struct {
 			AvatarID      string `json:"avatarId"`
 			ArtisticStyle string `json:"artisticStyle"`
-			AvatarOptions []struct {
-				Href     string `json:"href"`
-				Selected bool   `json:"selected"`
-			} `json:"avatarOptions"`
-			Personality string `json:"personality"`
-			Prompt      string `json:"prompt"`
+			Personality   string `json:"personality"`
+			Prompt        string `json:"prompt"`
 		} `json:"avatar_config"`
 	}
 	decodeAvatarConfigResponse(t, recorder, &payload)
@@ -143,9 +143,6 @@ func TestAvatarConfigGetReturnsStoredDraftPayload(t *testing.T) {
 		t.Fatalf("expected Bold personality, got %s", payload.AvatarConfig.Personality)
 	}
 
-	if len(payload.AvatarConfig.AvatarOptions) != 1 {
-		t.Fatalf("expected avatar options from avatar aggregate, got %d", len(payload.AvatarConfig.AvatarOptions))
-	}
 }
 
 func TestAvatarConfigGetReturnsNotFoundForMissingAvatar(t *testing.T) {
@@ -214,7 +211,11 @@ func TestAvatarConfigPutCreatesOrUpdatesDraft(t *testing.T) {
 					userID,
 					"Studio Hero",
 					[]avatardomain.AvatarOption{
-						{Href: "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png", Selected: false},
+						{
+							ID:       "option-v7",
+							Href:     "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png",
+							Selected: false,
+						},
 					},
 				)
 				return &avatar, nil
@@ -249,12 +250,8 @@ func TestAvatarConfigPutCreatesOrUpdatesDraft(t *testing.T) {
 		AvatarConfig struct {
 			AvatarID      string `json:"avatarId"`
 			ArtisticStyle string `json:"artisticStyle"`
-			AvatarOptions []struct {
-				Href     string `json:"href"`
-				Selected bool   `json:"selected"`
-			} `json:"avatarOptions"`
-			Personality string `json:"personality"`
-			Prompt      string `json:"prompt"`
+			Personality   string `json:"personality"`
+			Prompt        string `json:"prompt"`
 		} `json:"avatar_config"`
 	}
 	decodeAvatarConfigResponse(t, recorder, &payload)
@@ -267,50 +264,6 @@ func TestAvatarConfigPutCreatesOrUpdatesDraft(t *testing.T) {
 		t.Fatalf("expected Playful personality, got %s", payload.AvatarConfig.Personality)
 	}
 
-	if len(payload.AvatarConfig.AvatarOptions) != 1 {
-		t.Fatalf("expected avatar options preserved on put response, got %d", len(payload.AvatarConfig.AvatarOptions))
-	}
-}
-
-func TestAvatarConfigGenerateReturnsImmediateAckWithoutBody(t *testing.T) {
-	t.Parallel()
-
-	server := newAuthenticatedAvatarConfigTestServer(t, avatarconfighttp.RouteDependencies{
-		AvatarConfigRepo: &avatarconfigmocks.AvatarConfigRepositoryMock{
-			FindByAvatarIDFunc: func(ctx context.Context, avatarID string) (*avatarconfigdomain.AvatarConfig, error) {
-				config := avatarconfigdomain.NewAvatarConfig(
-					avatarID,
-					"Energetic mascot",
-					avatarconfigdomain.ArtisticStyle2D,
-					avatarconfigdomain.PersonalityFriendly,
-				)
-				return &config, nil
-			},
-		},
-		AvatarRepo: &avatarmocks.AvatarRepositoryMock{
-			FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
-				avatar := avatardomain.NewAvatar(avatarID, userID, "Studio Hero")
-				return &avatar, nil
-			},
-			UpdateOptionsFunc: func(ctx context.Context, avatarID string, userID string, options []avatardomain.AvatarOption) error {
-				return nil
-			},
-		},
-	})
-
-	request := httptest.NewRequest(http.MethodPost, "/creative-studio/avatar_configs/avatar-v7/generate", nil)
-	request.AddCookie(&http.Cookie{Name: "brandtoon_session_id", Value: "session-v7"})
-	recorder := httptest.NewRecorder()
-
-	server.ServeHTTP(recorder, request)
-
-	if recorder.Code != http.StatusOK {
-		t.Fatalf("expected 200, got %d", recorder.Code)
-	}
-
-	if recorder.Body.Len() != 0 {
-		t.Fatalf("expected empty response body, got %q", recorder.Body.String())
-	}
 }
 
 func TestAvatarConfigPutRejectsInvalidPersonality(t *testing.T) {

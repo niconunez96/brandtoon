@@ -1,6 +1,13 @@
 # React Best Practices
 
-A structured repository for creating and maintaining React Best Practices optimized for agents and LLMs.
+This directory is an upstream Vercel React performance reference that Brandtoon keeps as supporting material only.
+
+## Brandtoon Usage
+
+- Canonical repo behavior lives in `../../AGENTS.md` and `../../../.agents/standards/agent-policy.md`.
+- Canonical operational guidance for this skill lives in `SKILL.md`.
+- The broad upstream `rules/` content is **not** authoritative for Brandtoon when it conflicts with the Vite + React + TanStack Query stack.
+- Do not adopt Next.js-, SWR-, Server Actions-, or React-Compiler-specific patterns here unless the user explicitly changes the project stack.
 
 ## Structure
 
@@ -13,43 +20,11 @@ A structured repository for creating and maintaining React Best Practices optimi
 - __`AGENTS.md`__ - Compiled output (generated)
 - __`test-cases.json`__ - Test cases for LLM evaluation (generated)
 
-## Getting Started
+## Brandtoon Maintenance Rule
 
-1. Install dependencies:
-   ```bash
-   pnpm install
-   ```
-
-2. Build AGENTS.md from rules:
-   ```bash
-   pnpm build
-   ```
-
-3. Validate rule files:
-   ```bash
-   pnpm validate
-   ```
-
-4. Extract test cases:
-   ```bash
-   pnpm extract-tests
-   ```
-
-## Creating a New Rule
-
-1. Copy `rules/_template.md` to `rules/area-description.md`
-2. Choose the appropriate area prefix:
-   - `async-` for Eliminating Waterfalls (Section 1)
-   - `bundle-` for Bundle Size Optimization (Section 2)
-   - `server-` for Server-Side Performance (Section 3)
-   - `client-` for Client-Side Data Fetching (Section 4)
-   - `rerender-` for Re-render Optimization (Section 5)
-   - `rendering-` for Rendering Performance (Section 6)
-   - `js-` for JavaScript Performance (Section 7)
-   - `advanced-` for Advanced Patterns (Section 8)
-3. Fill in the frontmatter and content
-4. Ensure you have clear examples with explanations
-5. Run `pnpm build` to regenerate AGENTS.md and test-cases.json
+- Do **not** treat this directory as an active build/generated workflow for routine Brandtoon work.
+- `AGENTS.md`, `test-cases.json`, and the `src/` scripts belong to the upstream reference toolchain, not the default Brandtoon operating model.
+- If this upstream mirror ever needs maintenance, first verify the change is explicitly required and then follow the local `SKILL.md` plus canonical standards.
 
 ## Rule File Structure
 
@@ -100,7 +75,9 @@ Reference: [Link](https://example.com)
 - `LOW-MEDIUM` - Low-medium gains
 - `LOW` - Incremental improvements
 
-## Scripts
+## Upstream Tooling Reference
+
+These scripts describe the upstream source project only:
 
 - `pnpm build` - Compile rules into AGENTS.md
 - `pnpm validate` - Validate all rule files
@@ -109,14 +86,8 @@ Reference: [Link](https://example.com)
 
 ## Contributing
 
-When adding or modifying rules:
-
-1. Use the correct filename prefix for your section
-2. Follow the `_template.md` structure
-3. Include clear bad/good examples with explanations
-4. Add appropriate tags
-5. Run `pnpm build` to regenerate AGENTS.md and test-cases.json
-6. Rules are automatically sorted by title - no need to manage numbers!
+For Brandtoon, prefer updating `SKILL.md`, scoped `AGENTS.md`, or canonical standards when local guidance changes.
+Only touch this upstream reference structure when the task is specifically about maintaining the imported Vercel material.
 
 ## Acknowledgments
 

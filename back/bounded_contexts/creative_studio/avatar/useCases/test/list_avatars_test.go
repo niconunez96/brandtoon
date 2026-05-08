@@ -7,6 +7,7 @@ import (
 	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
 	avatarmocks "brandtoonapi/bounded_contexts/creative_studio/avatar/domain/mocks"
 	avatarusecases "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases"
+	avatardto "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases/dto"
 )
 
 func TestListAvatarsReturnsPerUserListing(t *testing.T) {
@@ -32,7 +33,9 @@ func TestListAvatarsReturnsPerUserListing(t *testing.T) {
 		t.Fatalf("expected nil error, got %v", err)
 	}
 
-	if len(result) != 2 {
-		t.Fatalf("expected 2 avatars, got %d", len(result))
+	avatars := []avatardto.AvatarDTO(result)
+
+	if len(avatars) != 2 {
+		t.Fatalf("expected 2 avatars, got %d", len(avatars))
 	}
 }

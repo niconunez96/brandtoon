@@ -7,6 +7,7 @@ import (
 	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
 	avatarmocks "brandtoonapi/bounded_contexts/creative_studio/avatar/domain/mocks"
 	avatarusecases "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases"
+	avatardto "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases/dto"
 )
 
 func TestCreateAvatarGeneratesIDNormalizesNameAndPersistsAvatar(t *testing.T) {
@@ -31,12 +32,14 @@ func TestCreateAvatarGeneratesIDNormalizesNameAndPersistsAvatar(t *testing.T) {
 		t.Fatalf("expected nil error, got %v", err)
 	}
 
-	if result.ID != "avatar-v7" {
-		t.Fatalf("expected avatar-v7, got %s", result.ID)
+	dto := avatardto.AvatarDTO(result)
+
+	if dto.ID != "avatar-v7" {
+		t.Fatalf("expected avatar-v7, got %s", dto.ID)
 	}
 
-	if result.Name != "Nico Hero" {
-		t.Fatalf("expected normalized name, got %q", result.Name)
+	if dto.Name != "Nico Hero" {
+		t.Fatalf("expected normalized name, got %q", dto.Name)
 	}
 
 	if createdAvatar.UserID != "user-v7" {

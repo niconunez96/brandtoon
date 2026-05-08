@@ -11,6 +11,11 @@ allowed-tools: Bash, Grep, Glob, Read, Write, Edit
 
 Use this skill when changing `back/bounded_contexts/**/useCases` or `back/bounded_contexts/**/infra/http`.
 
+## Canonical Policy First
+
+- Backend policy lives in `back/AGENTS.md`.
+- This skill adds backend TDD workflow and test-organization rules.
+
 ## Objective
 
 - Enforce fast feedback loop with strict TDD.
@@ -72,6 +77,10 @@ A backend change is complete only if:
 
 ## Validation Commands
 
+- Required local implementation loop for backend feature/fix work:
+  1. Run `just back-format` after adding or changing Go code so formatting and imports are normalized.
+  2. Run `just back-check` as the canonical feedback loop.
+  3. Iterate on failures until `just back-check` passes.
 - Canonical backend validation entrypoint: `just back-check`
 - Root Justfile commands used for local/CI parity:
   - `just back-format-check`

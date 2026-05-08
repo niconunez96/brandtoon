@@ -1,5 +1,7 @@
 # Reference — go-testing-tdd-backend
 
+Examples in this file complement `back/AGENTS.md`; canonical backend policy lives there.
+
 ## Minimal TDD workflow per change
 
 1. Write/update failing test in target `test/` directory.

@@ -59,9 +59,9 @@ front-dev:
 front-lint:
     corepack pnpm --dir front lint
 
-# Format frontend code (mutating)
+# Format frontend code and fix imports/lintable issues (mutating)
 front-format:
-    corepack pnpm --dir front format
+    corepack pnpm --dir front lint:fix && corepack pnpm --dir front format
 
 # Run frontend tests
 front-test:

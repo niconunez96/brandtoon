@@ -1,5 +1,7 @@
 # Reference - Go Use Cases with CQRS Functions
 
+Examples in this file complement `back/AGENTS.md`; canonical backend policy lives there.
+
 ## Directory Contract
 
 ```text

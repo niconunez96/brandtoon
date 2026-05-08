@@ -12,6 +12,11 @@ allowed-tools: Bash, Grep, Glob, Read, Write, Edit
 
 Use this skill when editing `back/bounded_contexts/**/useCases`.
 
+## Canonical Policy First
+
+- Backend policy lives in `back/AGENTS.md`.
+- This skill adds use-case workflow, DTO, and CQRS execution guidance.
+
 ## Objective
 
 - Keep application logic explicit, composable, and testable.
@@ -29,10 +34,14 @@ Use this skill when editing `back/bounded_contexts/**/useCases`.
 - Commands perform writes or side effects.
 - Queries return read models without side effects.
 - Use cases MUST return use-case DTOs, not domain entities/aggregates.
+- Use-case DTOs are the canonical payload types for the aggregate; downstream `infra/http` code should reference them directly when the shape matches and must not introduce parallel DTO structs for the same payload.
 - Use case file/function/DTO names must express business capability, not provider technology.
 - Use cases MUST live in the aggregate that owns the mutated/read model. Do not place cross-aggregate orchestration use cases in foreign aggregates.
+- If a use case owns aggregate behavior, its HTTP endpoint/handler must be hosted by the same aggregate's `infra/http` layer.
+- DTO type declarations must live in `useCases/dto/` using the aggregate DTO package name (for example `avatardto`, `avatarconfigdto`).
 - DTO naming convention is mandatory: file `{name}_dto.go`, struct `{Name}DTO`.
-- Each DTO file must expose `serialize` (single domain object -> DTO) and `serializeList` (list of domain objects -> list of DTOs).
+- DTO serialization helpers live alongside their DTO type declarations inside `useCases/dto/` and expose package-level functions that return the canonical DTO package types.
+- Avoid alias files for DTOs unless there is a concrete transport reason; direct references are preferred for clarity.
 - Avoid transport schema validation in use cases (required/length/pattern checks for HTTP payload shape); prefer Huma validation tags in `infra/http` contracts.
 
 ## Forbidden Patterns
@@ -56,12 +65,13 @@ Use this skill when editing `back/bounded_contexts/**/useCases`.
 - Return domain/application errors explicitly.
 - Confirm command/query intent by side-effect behavior.
 - Apply provider-swap naming check: would `Google -> GitHub` require renaming in `useCases/`? If yes, rename to domain language.
+- After editing backend use-case code, run `just back-format` and then `just back-check`; iterate until the canonical backend check passes.
 
 ## Output Standard
 
 - Use case functions are focused and single-purpose.
 - Signatures reveal contract and dependencies immediately.
 - Handlers can orchestrate without embedding business rules.
-- DTO transformations are explicit and follow `{name}_dto.go` + `{Name}DTO` + `serialize` / `serializeList` convention.
+- DTO transformations are explicit: DTO structs and their serializer functions live together in `useCases/dto/`, and sibling use-case files call that DTO package API directly.
 
 See `REFERENCE.md` for canonical templates.

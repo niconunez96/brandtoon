@@ -2,6 +2,7 @@ package avatarusecases
 
 import (
 	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
+	avatardto "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases/dto"
 	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
 	"context"
 	"strings"
@@ -17,21 +18,21 @@ func CreateAvatar(
 	cmd CreateAvatarCommand,
 	avatarRepo avatardomain.AvatarRepository,
 	idGenerator shareddomain.IDGenerator,
-) (AvatarDTO, error) {
+) (avatardto.AvatarDTO, error) {
 	normalizedName := strings.TrimSpace(cmd.Name)
 	if normalizedName == "" {
-		return AvatarDTO{}, avatardomain.ErrInvalidName
+		return avatardto.AvatarDTO{}, avatardomain.ErrInvalidName
 	}
 
 	avatarID, err := idGenerator()
 	if err != nil {
-		return AvatarDTO{}, err
+		return avatardto.AvatarDTO{}, err
 	}
 
 	avatar := avatardomain.NewAvatar(avatarID, cmd.UserID, normalizedName)
 	if err := avatarRepo.Create(ctx, avatar); err != nil {
-		return AvatarDTO{}, err
+		return avatardto.AvatarDTO{}, err
 	}
 
-	return serialize(avatar), nil
+	return avatardto.SerializeAvatar(avatar), nil
 }

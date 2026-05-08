@@ -12,6 +12,8 @@ import (
 	avatarconfigdomain "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain"
 	avatarconfigmocks "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain/mocks"
 	sharedmocks "brandtoonapi/bounded_contexts/shared/domain/mocks"
+
+	"github.com/google/uuid"
 )
 
 func TestGenerateAvatarOptionsAcknowledgesThenPersistsAndPublishes(t *testing.T) {
@@ -70,11 +72,26 @@ func TestGenerateAvatarOptionsAcknowledgesThenPersistsAndPublishes(t *testing.T)
 		t.Fatalf("expected background persistence signal")
 	}
 
-	if len(persistedOptions) != 5 {
-		t.Fatalf("expected existing option + 4 generated options, got %d", len(persistedOptions))
+	if len(persistedOptions) != 3 {
+		t.Fatalf("expected existing option + 3 generated options, got %d", len(persistedOptions))
 	}
 
+	generatedIDs := make(map[string]struct{}, len(persistedOptions)-1)
 	for _, option := range persistedOptions[1:] {
+		parsedID, parseErr := uuid.Parse(option.ID)
+		if parseErr != nil {
+			t.Fatalf("expected generated option ID to be a UUID, got %q (%v)", option.ID, parseErr)
+		}
+
+		if parsedID.Version() != 7 {
+			t.Fatalf("expected generated option ID to be UUID v7, got version %d", parsedID.Version())
+		}
+
+		if _, exists := generatedIDs[option.ID]; exists {
+			t.Fatalf("expected generated option IDs to be unique, duplicated %q", option.ID)
+		}
+		generatedIDs[option.ID] = struct{}{}
+
 		if option.Selected {
 			t.Fatalf("expected generated options selected=false by default")
 		}

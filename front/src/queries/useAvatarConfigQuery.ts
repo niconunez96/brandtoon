@@ -6,10 +6,13 @@ import {
 } from '@tanstack/react-query'
 import {
   type UpdateAvatarConfigInput,
+  deleteAvatarOptions,
   fetchAvatarConfig,
   generateAvatarOptions,
+  selectAvatarOption,
   updateAvatarConfig,
 } from '../services/avatar-config.api'
+import { avatarQueryKey } from './useAvatarQuery'
 
 export const avatarConfigQueryKey = (avatarId: string) =>
   ['creative-studio', 'avatar-config', avatarId] as const
@@ -49,5 +52,31 @@ export async function invalidateAvatarConfigQuery(
 export function useGenerateAvatarOptionsMutation(avatarId: string) {
   return useMutation({
     mutationFn: () => generateAvatarOptions(avatarId),
+  })
+}
+
+export function useSelectAvatarOptionMutation(avatarId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: string) => selectAvatarOption(avatarId, id),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: avatarQueryKey(avatarId),
+      })
+    },
+  })
+}
+
+export function useDeleteAvatarOptionsMutation(avatarId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (ids: string[]) => deleteAvatarOptions(avatarId, ids),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: avatarQueryKey(avatarId),
+      })
+    },
   })
 }

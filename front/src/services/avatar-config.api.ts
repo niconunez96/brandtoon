@@ -7,14 +7,8 @@ export type Personality = 'Friendly' | 'Bold' | 'Playful'
 export type AvatarConfig = {
   avatarId: string
   artisticStyle: ArtisticStyle
-  avatarOptions: AvatarOption[]
   personality: Personality
   prompt: string
-}
-
-export type AvatarOption = {
-  href: string
-  selected: boolean
 }
 
 export type AvatarGenerationCompletedEvent = {
@@ -84,5 +78,47 @@ export async function generateAvatarOptions(avatarId: string): Promise<void> {
 
   if (!response.ok) {
     throw new ApiError('Failed to generate avatar options', response.status)
+  }
+}
+
+export async function selectAvatarOption(
+  avatarId: string,
+  id: string,
+): Promise<void> {
+  const response = await fetch(
+    `${API_BASE_URL}/creative-studio/avatar_configs/${avatarId}/options/select`,
+    {
+      body: JSON.stringify({ id }),
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    },
+  )
+
+  if (!response.ok) {
+    throw new ApiError('Failed to select avatar option', response.status)
+  }
+}
+
+export async function deleteAvatarOptions(
+  avatarId: string,
+  ids: string[],
+): Promise<void> {
+  const response = await fetch(
+    `${API_BASE_URL}/creative-studio/avatar_configs/${avatarId}/options`,
+    {
+      body: JSON.stringify({ ids }),
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'DELETE',
+    },
+  )
+
+  if (!response.ok) {
+    throw new ApiError('Failed to delete avatar options', response.status)
   }
 }

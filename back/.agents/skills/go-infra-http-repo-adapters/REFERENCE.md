@@ -1,5 +1,7 @@
 # Reference - Go Infra HTTP and Repository Adapters
 
+Examples in this file complement `back/AGENTS.md`; canonical backend policy lives there.
+
 ## Directory Contract
 
 ```text
@@ -14,16 +16,19 @@ bounded_contexts/{context}/{aggregate}/infra/
 
 ## Main Wiring Flow
 
-`main.go` composes the app using the shared DI container and injects adapters into route registration.
+`main.go` composes the app using the shared DI container, creates the Huma API, and injects adapters into aggregate route registration.
 
 ```go
 func main() {
     c := shared.NewDIContainer()
     userRepo := c.GetIdentityUserRepo()
 
-    r := http.NewRouter()
-    http.RegisterIdentityRoutes(r, userRepo)
-    r.ListenAndServe()
+    router := chi.NewMux()
+    api := humachi.New(router, huma.DefaultConfig("Brandtoon API", "1.0.0"))
+
+    identityhttp.RegisterRoutes(api, identityhttp.Dependencies{
+        Users: userRepo,
+    })
 }
 ```
 
@@ -31,38 +36,42 @@ For the full dependency wiring standard (singleton getters, lifecycle, compositi
 
 ## Routes Pattern
 
-`infra/http/routes.go` groups by prefix and composes handlers.
+`infra/http/routes.go` registers Huma operations for the aggregate and composes handlers from explicit dependencies.
 
 ```go
-func RegisterIdentityRoutes(r Router, users domain.UserRepository) {
-    grp := r.Group("/identity")
-    grp.POST("/authenticate", AuthenticateUserHandler(users))
-    grp.POST("/reset-password", ResetPasswordHandler(users))
+func RegisterRoutes(api huma.API, deps Dependencies) {
+    huma.Register(api, huma.Operation{
+        OperationID: "post-authenticate-user",
+        Method:      http.MethodPost,
+        Path:        "/identity/authenticate",
+        Summary:     "Authenticate user",
+    }, PostAuthenticateHandler(deps))
 }
 ```
 
 ## Handler Pattern (Function-Based)
 
 ```go
-func AuthenticateUserHandler(users domain.UserRepository) HandlerFunc {
-    return func(ctx Context) error {
-        var req AuthenticateUserRequest
-        if err := ctx.Bind(&req); err != nil {
-            return ctx.JSON(400, ErrorResponse("invalid payload"))
+func PostAuthenticateHandler(deps Dependencies) func(context.Context, *AuthenticateInput) (*AuthenticateOutput, error) {
+    return func(ctx context.Context, input *AuthenticateInput) (*AuthenticateOutput, error) {
+        cmd := identityusecases.AuthenticateUserCommand{
+            Email:    input.Body.Email,
+            Password: input.Body.Password,
         }
 
-        cmd := useCases.AuthenticateUserCommand{Email: req.Email, Password: req.Password}
-        out, err := useCases.AuthenticateUser(ctx.RequestContext(), cmd, users)
+        out, err := identityusecases.AuthenticateUser(ctx, cmd, deps.Users)
         if err != nil {
-            return mapError(ctx, err)
+            return nil, mapError(err)
         }
 
-        return ctx.JSON(200, out)
+        return &AuthenticateOutput{
+            Body: out,
+        }, nil
     }
 }
 ```
 
-Handlers adapt transport DTOs and call use cases. They do not implement business rules.
+Handlers adapt Huma transport DTOs and call use cases. They do not implement business rules.
 
 ## Repository Naming and Contract
 

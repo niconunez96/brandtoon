@@ -10,6 +10,7 @@ import (
 	avatarconfigdomain "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain"
 	avatarconfigmocks "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain/mocks"
 	avatarconfigusecases "brandtoonapi/bounded_contexts/creative_studio/avatar_config/useCases"
+	avatarconfigdto "brandtoonapi/bounded_contexts/creative_studio/avatar_config/useCases/dto"
 )
 
 func TestGetAvatarConfigReturnsNilWhenDraftDoesNotExistYet(t *testing.T) {
@@ -53,7 +54,13 @@ func TestGetAvatarConfigReturnsStoredDraftForOwnedAvatar(t *testing.T) {
 					avatarID,
 					userID,
 					"Studio Hero",
-					[]avatardomain.AvatarOption{{Href: "https://cdn.brandtoon.local/options/1.png", Selected: false}},
+					[]avatardomain.AvatarOption{
+						{
+							ID:       "option-v7",
+							Href:     "https://cdn.brandtoon.local/options/1.png",
+							Selected: false,
+						},
+					},
 				)
 				return &avatar, nil
 			},
@@ -74,16 +81,14 @@ func TestGetAvatarConfigReturnsStoredDraftForOwnedAvatar(t *testing.T) {
 		t.Fatalf("expected nil error, got %v", err)
 	}
 
-	if result == nil || result.ArtisticStyle != string(avatarconfigdomain.ArtisticStyle3D) {
-		t.Fatalf("expected stored 3D config, got %+v", result)
+	configDTO := (*avatarconfigdto.AvatarConfigDTO)(result)
+
+	if configDTO == nil || configDTO.ArtisticStyle != string(avatarconfigdomain.ArtisticStyle3D) {
+		t.Fatalf("expected stored 3D config, got %+v", configDTO)
 	}
 
-	if result.Personality != string(avatarconfigdomain.PersonalityBold) {
-		t.Fatalf("expected stored Bold personality, got %+v", result)
-	}
-
-	if len(result.AvatarOptions) != 1 {
-		t.Fatalf("expected 1 avatar option, got %d", len(result.AvatarOptions))
+	if configDTO.Personality != string(avatarconfigdomain.PersonalityBold) {
+		t.Fatalf("expected stored Bold personality, got %+v", configDTO)
 	}
 }
 

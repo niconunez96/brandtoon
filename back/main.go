@@ -93,14 +93,15 @@ func main() {
 		UserRepo:    userRepo,
 		HumaApi:     api,
 	})
-	avatarhttp.RegisterRoutes(api, avatarhttp.RouteDependencies{
-		AvatarRepo:  avatarRepo,
-		IDGenerator: shareddomain.GenerateUUIDv7,
-	}, authMiddleware)
-	avatarconfighttp.RegisterRoutes(api, router, avatarconfighttp.RouteDependencies{
+	avatarhttp.RegisterRoutes(api, router, avatarhttp.RouteDependencies{
 		AvatarConfigRepo: avatarConfigRepo,
 		AvatarRepo:       avatarRepo,
 		EventBus:         container.GetEventBus(),
+		IDGenerator:      shareddomain.GenerateUUIDv7,
+	}, plainAuthMiddleware, authMiddleware)
+	avatarconfighttp.RegisterRoutes(api, router, avatarconfighttp.RouteDependencies{
+		AvatarConfigRepo: avatarConfigRepo,
+		AvatarRepo:       avatarRepo,
 	}, plainAuthMiddleware, authMiddleware)
 	sharedsse.RegisterRoutes(router, sharedsse.RouteDependencies{
 		Connector: sseConnector,
@@ -121,7 +122,7 @@ func corsMiddleware(config sharedconfig.Config) func(http.Handler) http.Handler 
 				writer.Header().Set("Vary", "Origin")
 			}
 
-			writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS")
+			writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 			writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 			if request.Method == http.MethodOptions {
