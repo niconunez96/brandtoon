@@ -2,6 +2,7 @@ package avatarusecases
 
 import (
 	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
+	avatardto "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases/dto"
 	"context"
 )
 
@@ -14,14 +15,14 @@ func GetAvatar(
 	ctx context.Context,
 	query GetAvatarQuery,
 	avatarRepo avatardomain.AvatarRepository,
-) (AvatarDetailsDTO, error) {
+) (avatardto.AvatarDetailsDTO, error) {
 	avatar, err := avatarRepo.FindOwnedByID(ctx, query.AvatarID, query.UserID)
 	if err != nil {
-		return AvatarDetailsDTO{}, err
+		return avatardto.AvatarDetailsDTO{}, err
 	}
 
 	if avatar == nil {
-		return AvatarDetailsDTO{}, ErrAvatarNotFound
+		return avatardto.AvatarDetailsDTO{}, ErrAvatarNotFound
 	}
 
 	return serializeAvatarDetails(avatar.WithNormalizedOptions()), nil

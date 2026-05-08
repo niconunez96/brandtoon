@@ -1,15 +1,12 @@
 package avatarusecases
 
-import avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
+import (
+	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
+	avatardto "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases/dto"
+)
 
-type AvatarDetailsDTO struct {
-	ID            string            `json:"id"`
-	Name          string            `json:"name"`
-	AvatarOptions []AvatarOptionDTO `json:"avatarOptions"`
-}
-
-func serializeAvatarDetails(avatar avatardomain.Avatar) AvatarDetailsDTO {
-	return AvatarDetailsDTO{
+func serializeAvatarDetails(avatar avatardomain.Avatar) avatardto.AvatarDetailsDTO {
+	return avatardto.AvatarDetailsDTO{
 		ID:            avatar.ID,
 		Name:          avatar.Name,
 		AvatarOptions: serializeAvatarOptions(avatar).AvatarOptions,

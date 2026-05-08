@@ -3,24 +3,14 @@ package avatarconfigusecases
 import (
 	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
 	avatarconfigdomain "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain"
+	avatarconfigdto "brandtoonapi/bounded_contexts/creative_studio/avatar_config/useCases/dto"
 )
 
-type AvatarConfigDTO struct {
-	AvatarID      string `json:"avatarId"`
-	ArtisticStyle string `json:"artisticStyle"`
-	Personality   string `json:"personality"`
-	Prompt        string `json:"prompt"`
-	AvatarOptions []AvatarOptionDTO `json:"avatarOptions"`
-}
-
-type AvatarOptionDTO struct {
-	ID       string `json:"id"`
-	Href     string `json:"href"`
-	Selected bool   `json:"selected"`
-}
-
-func serialize(avatarConfig avatarconfigdomain.AvatarConfig, avatar avatardomain.Avatar) AvatarConfigDTO {
-	return AvatarConfigDTO{
+func serialize(
+	avatarConfig avatarconfigdomain.AvatarConfig,
+	avatar avatardomain.Avatar,
+) avatarconfigdto.AvatarConfigDTO {
+	return avatarconfigdto.AvatarConfigDTO{
 		AvatarID:      avatarConfig.AvatarID,
 		ArtisticStyle: string(avatarConfig.ArtisticStyle),
 		Personality:   string(avatarConfig.Personality),
@@ -29,14 +19,14 @@ func serialize(avatarConfig avatarconfigdomain.AvatarConfig, avatar avatardomain
 	}
 }
 
-func serializeAvatarOptions(options []avatardomain.AvatarOption) []AvatarOptionDTO {
+func serializeAvatarOptions(options []avatardomain.AvatarOption) []avatarconfigdto.AvatarOptionDTO {
 	if len(options) == 0 {
-		return []AvatarOptionDTO{}
+		return []avatarconfigdto.AvatarOptionDTO{}
 	}
 
-	serialized := make([]AvatarOptionDTO, len(options))
+	serialized := make([]avatarconfigdto.AvatarOptionDTO, len(options))
 	for index, option := range options {
-		serialized[index] = AvatarOptionDTO{
+		serialized[index] = avatarconfigdto.AvatarOptionDTO{
 			ID:       option.ID,
 			Href:     option.Href,
 			Selected: option.Selected,

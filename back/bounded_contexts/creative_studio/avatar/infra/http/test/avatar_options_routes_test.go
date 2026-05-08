@@ -66,8 +66,16 @@ func TestAvatarAggregateSelectRoutePersistsRequestedOption(t *testing.T) {
 					userID,
 					"Studio Hero",
 					[]avatardomain.AvatarOption{
-						{ID: "option-1", Href: "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png", Selected: true},
-						{ID: "option-2", Href: "https://cdn.brandtoon.local/avatars/avatar-v7/options/2.png", Selected: false},
+						{
+							ID:       "option-1",
+							Href:     "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png",
+							Selected: true,
+						},
+						{
+							ID:       "option-2",
+							Href:     "https://cdn.brandtoon.local/avatars/avatar-v7/options/2.png",
+							Selected: false,
+						},
 					},
 				)
 				return &avatar, nil
@@ -105,8 +113,16 @@ func TestAvatarAggregateDeleteOptionsRouteRemovesRequestedIDs(t *testing.T) {
 					userID,
 					"Studio Hero",
 					[]avatardomain.AvatarOption{
-						{ID: "option-1", Href: "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png", Selected: false},
-						{ID: "option-2", Href: "https://cdn.brandtoon.local/avatars/avatar-v7/options/2.png", Selected: true},
+						{
+							ID:       "option-1",
+							Href:     "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png",
+							Selected: false,
+						},
+						{
+							ID:       "option-2",
+							Href:     "https://cdn.brandtoon.local/avatars/avatar-v7/options/2.png",
+							Selected: true,
+						},
 					},
 				)
 				return &avatar, nil

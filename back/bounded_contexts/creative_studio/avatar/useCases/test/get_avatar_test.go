@@ -7,6 +7,7 @@ import (
 	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
 	avatarmocks "brandtoonapi/bounded_contexts/creative_studio/avatar/domain/mocks"
 	avatarusecases "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases"
+	avatardto "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases/dto"
 )
 
 func TestGetAvatarReturnsOwnedAvatarWithNormalizedOptions(t *testing.T) {
@@ -22,8 +23,16 @@ func TestGetAvatarReturnsOwnedAvatarWithNormalizedOptions(t *testing.T) {
 					userID,
 					"Studio Hero",
 					[]avatardomain.AvatarOption{
-						{ID: "option-1", Href: "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png", Selected: false},
-						{ID: "option-2", Href: "https://cdn.brandtoon.local/avatars/avatar-v7/options/2.png", Selected: true},
+						{
+							ID:       "option-1",
+							Href:     "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png",
+							Selected: false,
+						},
+						{
+							ID:       "option-2",
+							Href:     "https://cdn.brandtoon.local/avatars/avatar-v7/options/2.png",
+							Selected: true,
+						},
 					},
 				)
 				return &storedAvatar, nil
@@ -34,20 +43,22 @@ func TestGetAvatarReturnsOwnedAvatarWithNormalizedOptions(t *testing.T) {
 		t.Fatalf("expected nil error, got %v", err)
 	}
 
-	if avatar.ID != "avatar-v7" {
-		t.Fatalf("expected avatar-v7, got %s", avatar.ID)
+	avatarDTO := avatardto.AvatarDetailsDTO(avatar)
+
+	if avatarDTO.ID != "avatar-v7" {
+		t.Fatalf("expected avatar-v7, got %s", avatarDTO.ID)
 	}
 
-	if avatar.Name != "Studio Hero" {
-		t.Fatalf("expected Studio Hero, got %s", avatar.Name)
+	if avatarDTO.Name != "Studio Hero" {
+		t.Fatalf("expected Studio Hero, got %s", avatarDTO.Name)
 	}
 
-	if len(avatar.AvatarOptions) != 2 {
-		t.Fatalf("expected 2 avatar options, got %d", len(avatar.AvatarOptions))
+	if len(avatarDTO.AvatarOptions) != 2 {
+		t.Fatalf("expected 2 avatar options, got %d", len(avatarDTO.AvatarOptions))
 	}
 
-	if !avatar.AvatarOptions[1].Selected {
-		t.Fatalf("expected selected option to remain selected, got %+v", avatar.AvatarOptions[1])
+	if !avatarDTO.AvatarOptions[1].Selected {
+		t.Fatalf("expected selected option to remain selected, got %+v", avatarDTO.AvatarOptions[1])
 	}
 }
 

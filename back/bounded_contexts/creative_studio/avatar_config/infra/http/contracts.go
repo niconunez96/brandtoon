@@ -3,7 +3,7 @@ package avatarconfighttp
 import (
 	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
 	avatarconfigdomain "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain"
-	avatarconfigusecases "brandtoonapi/bounded_contexts/creative_studio/avatar_config/useCases"
+	avatarconfigdto "brandtoonapi/bounded_contexts/creative_studio/avatar_config/useCases/dto"
 )
 
 type RouteDependencies struct {
@@ -13,7 +13,7 @@ type RouteDependencies struct {
 
 type avatarConfigOutput struct {
 	Body struct {
-		AvatarConfig *avatarconfigusecases.AvatarConfigDTO `json:"avatar_config"`
+		AvatarConfig *avatarconfigdto.AvatarConfigDTO `json:"avatar_config"`
 	}
 }
 

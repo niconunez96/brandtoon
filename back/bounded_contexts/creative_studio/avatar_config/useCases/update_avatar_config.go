@@ -3,6 +3,7 @@ package avatarconfigusecases
 import (
 	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
 	avatarconfigdomain "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain"
+	avatarconfigdto "brandtoonapi/bounded_contexts/creative_studio/avatar_config/useCases/dto"
 	"context"
 )
 
@@ -19,24 +20,24 @@ func UpdateAvatarConfig(
 	cmd UpdateAvatarConfigCommand,
 	avatarRepo avatardomain.AvatarRepository,
 	avatarConfigRepo avatarconfigdomain.AvatarConfigRepository,
-) (AvatarConfigDTO, error) {
+) (avatarconfigdto.AvatarConfigDTO, error) {
 	avatar, err := avatarRepo.FindOwnedByID(ctx, cmd.AvatarID, cmd.UserID)
 	if err != nil {
-		return AvatarConfigDTO{}, err
+		return avatarconfigdto.AvatarConfigDTO{}, err
 	}
 
 	if avatar == nil {
-		return AvatarConfigDTO{}, ErrAvatarNotFound
+		return avatarconfigdto.AvatarConfigDTO{}, ErrAvatarNotFound
 	}
 
 	artisticStyle, err := avatarconfigdomain.ParseArtisticStyle(cmd.ArtisticStyle)
 	if err != nil {
-		return AvatarConfigDTO{}, err
+		return avatarconfigdto.AvatarConfigDTO{}, err
 	}
 
 	personality, err := avatarconfigdomain.ParsePersonality(cmd.Personality)
 	if err != nil {
-		return AvatarConfigDTO{}, err
+		return avatarconfigdto.AvatarConfigDTO{}, err
 	}
 
 	avatarConfig := avatarconfigdomain.NewAvatarConfig(
@@ -46,7 +47,7 @@ func UpdateAvatarConfig(
 		personality,
 	)
 	if err := avatarConfigRepo.Upsert(ctx, avatarConfig); err != nil {
-		return AvatarConfigDTO{}, err
+		return avatarconfigdto.AvatarConfigDTO{}, err
 	}
 
 	return serialize(avatarConfig, *avatar), nil

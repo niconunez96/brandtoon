@@ -99,7 +99,11 @@ func TestAvatarConfigGetReturnsStoredDraftPayload(t *testing.T) {
 					userID,
 					"Studio Hero",
 					[]avatardomain.AvatarOption{
-						{ID: "option-v7", Href: "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png", Selected: false},
+						{
+							ID:       "option-v7",
+							Href:     "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png",
+							Selected: false,
+						},
 					},
 				)
 				return &avatar, nil
@@ -207,7 +211,11 @@ func TestAvatarConfigPutCreatesOrUpdatesDraft(t *testing.T) {
 					userID,
 					"Studio Hero",
 					[]avatardomain.AvatarOption{
-						{ID: "option-v7", Href: "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png", Selected: false},
+						{
+							ID:       "option-v7",
+							Href:     "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png",
+							Selected: false,
+						},
 					},
 				)
 				return &avatar, nil

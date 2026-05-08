@@ -8,6 +8,7 @@ import (
 	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
 	avatarmocks "brandtoonapi/bounded_contexts/creative_studio/avatar/domain/mocks"
 	avatarusecases "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases"
+	avatardto "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases/dto"
 )
 
 func TestSelectAvatarOptionPersistsExactlyOneSelection(t *testing.T) {
@@ -45,6 +46,8 @@ func TestSelectAvatarOptionPersistsExactlyOneSelection(t *testing.T) {
 		t.Fatalf("expected nil error, got %v", err)
 	}
 
+	resultDTO := avatardto.AvatarOptionsDTO(result)
+
 	if len(persistedOptions) != 3 {
 		t.Fatalf("expected 3 persisted options, got %d", len(persistedOptions))
 	}
@@ -64,8 +67,8 @@ func TestSelectAvatarOptionPersistsExactlyOneSelection(t *testing.T) {
 		t.Fatalf("expected requested option to become selected, got %+v", persistedOptions)
 	}
 
-	if result.AvatarID != "avatar-v7" || len(result.AvatarOptions) != 3 {
-		t.Fatalf("expected updated avatar option DTO, got %+v", result)
+	if resultDTO.AvatarID != "avatar-v7" || len(resultDTO.AvatarOptions) != 3 {
+		t.Fatalf("expected updated avatar option DTO, got %+v", resultDTO)
 	}
 }
 
@@ -85,7 +88,9 @@ func TestSelectAvatarOptionReturnsNotFoundWhenOptionIDIsMissing(t *testing.T) {
 					avatarID,
 					userID,
 					"Studio Hero",
-					[]avatardomain.AvatarOption{{ID: "option-1", Href: "https://cdn.brandtoon.local/options/1.png", Selected: false}},
+					[]avatardomain.AvatarOption{
+						{ID: "option-1", Href: "https://cdn.brandtoon.local/options/1.png", Selected: false},
+					},
 				)
 				return &avatar, nil
 			},
@@ -131,6 +136,8 @@ func TestDeleteAvatarOptionsRemovesRequestedOptionsAndNormalizesSelection(t *tes
 		t.Fatalf("expected nil error, got %v", err)
 	}
 
+	resultDTO := avatardto.AvatarOptionsDTO(result)
+
 	if len(persistedOptions) != 1 {
 		t.Fatalf("expected 1 remaining option, got %d with %+v", len(persistedOptions), persistedOptions)
 	}
@@ -139,8 +146,8 @@ func TestDeleteAvatarOptionsRemovesRequestedOptionsAndNormalizesSelection(t *tes
 		t.Fatalf("expected remaining option to be normalized as selected, got %+v", persistedOptions)
 	}
 
-	if len(result.AvatarOptions) != 1 || result.AvatarOptions[0].ID != "option-3" {
-		t.Fatalf("expected response DTO with remaining option, got %+v", result)
+	if len(resultDTO.AvatarOptions) != 1 || resultDTO.AvatarOptions[0].ID != "option-3" {
+		t.Fatalf("expected response DTO with remaining option, got %+v", resultDTO)
 	}
 }
 
@@ -160,7 +167,9 @@ func TestDeleteAvatarOptionsReturnsNotFoundWhenNothingMatches(t *testing.T) {
 					avatarID,
 					userID,
 					"Studio Hero",
-					[]avatardomain.AvatarOption{{ID: "option-1", Href: "https://cdn.brandtoon.local/options/1.png", Selected: false}},
+					[]avatardomain.AvatarOption{
+						{ID: "option-1", Href: "https://cdn.brandtoon.local/options/1.png", Selected: false},
+					},
 				)
 				return &avatar, nil
 			},
