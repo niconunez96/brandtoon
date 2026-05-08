@@ -61,10 +61,6 @@ func TestUpdateAvatarConfigUpsertsDraftForOwnedAvatar(t *testing.T) {
 	if persistedConfig.Personality != avatarconfigdomain.PersonalityFriendly {
 		t.Fatalf("expected Friendly personality, got %s", persistedConfig.Personality)
 	}
-
-	if len(resultDTO.AvatarOptions) != 1 {
-		t.Fatalf("expected avatar options to remain on avatar aggregate, got %d", len(resultDTO.AvatarOptions))
-	}
 }
 
 func TestUpdateAvatarConfigReturnsAvatarNotFoundWhenAvatarIsMissing(t *testing.T) {

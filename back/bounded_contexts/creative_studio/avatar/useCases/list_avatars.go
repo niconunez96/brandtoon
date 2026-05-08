@@ -20,5 +20,5 @@ func ListAvatars(
 		return nil, err
 	}
 
-	return serializeList(avatars), nil
+	return avatardto.SerializeAvatarList(avatars), nil
 }

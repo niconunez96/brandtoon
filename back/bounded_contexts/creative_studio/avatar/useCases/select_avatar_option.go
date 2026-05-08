@@ -40,5 +40,5 @@ func SelectAvatarOption(
 		return avatardto.AvatarOptionsDTO{}, err
 	}
 
-	return serializeAvatarOptions(selectedAvatar), nil
+	return avatardto.SerializeAvatarOptions(selectedAvatar), nil
 }

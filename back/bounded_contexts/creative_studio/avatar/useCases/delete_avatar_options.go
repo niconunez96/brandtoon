@@ -40,5 +40,5 @@ func DeleteAvatarOptions(
 		return avatardto.AvatarOptionsDTO{}, err
 	}
 
-	return serializeAvatarOptions(updatedAvatar), nil
+	return avatardto.SerializeAvatarOptions(updatedAvatar), nil
 }

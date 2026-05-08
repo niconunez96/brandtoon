@@ -25,5 +25,5 @@ func GetAvatar(
 		return avatardto.AvatarDetailsDTO{}, ErrAvatarNotFound
 	}
 
-	return serializeAvatarDetails(avatar.WithNormalizedOptions()), nil
+	return avatardto.SerializeAvatarDetails(avatar.WithNormalizedOptions()), nil
 }
