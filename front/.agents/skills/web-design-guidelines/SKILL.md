@@ -11,6 +11,11 @@ metadata:
 
 Review files for compliance with Web Interface Guidelines.
 
+## Brandtoon Precedence
+
+- `front/AGENTS.md` and `front/docs/design-foundations.md` own Brandtoon frontend policy.
+- This skill complements those docs for UI review and accessibility checks; it does **not** override local Brandtoon conventions.
+
 ## How It Works
 
 1. Fetch the latest guidelines from the source URL below

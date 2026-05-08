@@ -1,6 +1,6 @@
 # Reference — go-huma-api-contracts
 
-This reference adapts Huma docs to Brandtoon backend conventions.
+This reference adapts Huma docs to Brandtoon backend conventions and complements `back/AGENTS.md`.
 
 ## Sources
 
@@ -16,7 +16,7 @@ Keep operation wiring out of `main` and expose a reusable registration function.
 
 ```go
 // infra/http/routes.go
-package http
+package identityhttp
 
 import (
     "net/http"
@@ -41,7 +41,7 @@ func RegisterRoutes(api huma.API, deps Dependencies) {
 
 ```go
 // infra/http/post_authenticate_handler.go
-package http
+package identityhttp
 
 import (
     "context"
@@ -91,8 +91,8 @@ func main() {
     router := chi.NewMux()
     api := humachi.New(router, huma.DefaultConfig("Brandtoon API", "1.0.0"))
 
-    deps := http.Dependencies{}
-    http.RegisterRoutes(api, deps)
+    deps := identityhttp.Dependencies{}
+    identityhttp.RegisterRoutes(api, deps)
 }
 ```
 

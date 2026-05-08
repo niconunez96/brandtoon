@@ -12,6 +12,11 @@ allowed-tools: Bash, Grep, Glob, Read, Write, Edit
 
 Use this skill when editing `back/bounded_contexts/**/useCases`.
 
+## Canonical Policy First
+
+- Backend policy lives in `back/AGENTS.md`.
+- This skill adds use-case workflow, DTO, and CQRS execution guidance.
+
 ## Objective
 
 - Keep application logic explicit, composable, and testable.
@@ -60,6 +65,7 @@ Use this skill when editing `back/bounded_contexts/**/useCases`.
 - Return domain/application errors explicitly.
 - Confirm command/query intent by side-effect behavior.
 - Apply provider-swap naming check: would `Google -> GitHub` require renaming in `useCases/`? If yes, rename to domain language.
+- After editing backend use-case code, run `just back-format` and then `just back-check`; iterate until the canonical backend check passes.
 
 ## Output Standard
 

@@ -11,6 +11,11 @@ allowed-tools: Bash, Grep, Glob, Read, Write, Edit
 
 Use this skill when changing `back/main.go` or `back/bounded_contexts/**/infra/http`.
 
+## Canonical Policy First
+
+- Backend policy lives in `back/AGENTS.md`.
+- This skill adds Huma-specific transport and contract guidance.
+
 ## Objective
 
 - Keep HTTP APIs aligned with Huma contracts and validation model.
@@ -40,6 +45,11 @@ Use this skill when changing `back/main.go` or `back/bounded_contexts/**/infra/h
 - HTTP endpoint tests should use Huma's `humatest` utilities where practical.
 - Keep route registration in a reusable function so tests can mount API and call endpoints.
 - Transport tests assert status code, payload, and validation behavior.
+
+## Validation Loop
+
+- After editing backend HTTP contracts, route registration, or `main.go`, run `just back-format` and then `just back-check`.
+- Iterate on failures until the canonical backend check passes.
 
 ## Forbidden
 

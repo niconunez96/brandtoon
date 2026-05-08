@@ -1,170 +1,72 @@
 # Skill Registry
 
 Project: brandtoon
-Generated: 2026-05-03
-Mode: base SDD conventions + Engram persistence
+Generated: 2026-05-08
+
+## Canonical Docs
+
+- Root gateway: `AGENTS.md`
+- Repo-wide agent policy: `.agents/standards/agent-policy.md`
+- Skill authoring policy: `.agents/standards/skill-authoring.md`
+- Frontend scope: `front/AGENTS.md`
+- Backend scope: `back/AGENTS.md`
 
 ## Resolution Rules
 
 - Project-level skills override user-level skills with the same name.
-- `sdd-*`, `_shared`, and `skill-registry` skills are excluded from this registry.
-- Root integration work follows `AGENTS.md` first, then scoped guides under `front/` and `back/`.
-
-## Project Conventions
-
-| Type | Path | Purpose |
-|---|---|---|
-| gateway | `AGENTS.md` | Root routing for frontend, backend, and integration work |
-| scope | `front/AGENTS.md` | Frontend baseline, state boundaries, required frontend skills |
-| scope | `back/AGENTS.md` | Backend DDD + CQRS + Huma + TDD governance |
+- `sdd-*`, `_shared`, and `skill-registry` skills are excluded from runtime matching here.
+- Keep project policy in `AGENTS.md` and standards docs; keep operational detail in skills.
 
 ## Project Skills
 
-| Skill | Level | Path | Trigger / Use When |
-|---|---|---|---|
-| justfile-expert | project | `.agents/skills/justfile-expert/SKILL.md` | justfile, recipes, task automation, project commands |
-| brandtoon-frontend-baseline | project | `front/.agents/skills/brandtoon-frontend-baseline/SKILL.md` | any feature work in `front/`; frontend architecture and state boundaries |
-| frontend-design | project | `front/.agents/skills/frontend-design/SKILL.md` | explicit visual redesign or polished frontend/artifact creation |
-| tailwind-design-system | project | `front/.agents/skills/tailwind-design-system/SKILL.md` | Tailwind design systems, tokens, standardized UI patterns |
-| vercel-react-best-practices | project | `front/.agents/skills/vercel-react-best-practices/SKILL.md` | React code, performance work, data fetching, bundle optimization |
-| web-design-guidelines | project | `front/.agents/skills/web-design-guidelines/SKILL.md` | UI review, accessibility audit, UX/design best-practice checks |
-| go-ddd-aggregate | project | `back/.agents/skills/go-ddd-aggregate/SKILL.md` | editing `back/bounded_contexts/**/domain` |
-| go-usecase-cqrs-functions | project | `back/.agents/skills/go-usecase-cqrs-functions/SKILL.md` | editing `back/bounded_contexts/**/useCases` |
-| go-infra-http-repo-adapters | project | `back/.agents/skills/go-infra-http-repo-adapters/SKILL.md` | editing `back/bounded_contexts/**/infra` |
-| go-huma-api-contracts | project | `back/.agents/skills/go-huma-api-contracts/SKILL.md` | Huma API contracts, validation, `back/main.go`, `infra/http` |
-| go-shared-di-container | project | `back/.agents/skills/go-shared-di-container/SKILL.md` | `bounded_contexts/shared/diContainer.go`, composition root wiring |
-| go-testing-tdd-backend | project | `back/.agents/skills/go-testing-tdd-backend/SKILL.md` | backend `useCases` / `infra/http` changes requiring RED-GREEN-REFACTOR |
+| Skill | Path | Use when |
+|---|---|---|
+| justfile-expert | `.agents/skills/justfile-expert/SKILL.md` | Justfile, recipes, task automation |
+| brandtoon-frontend-baseline | `front/.agents/skills/brandtoon-frontend-baseline/SKILL.md` | Any work in `front/` needing frontend workflow and boundaries |
+| frontend-design | `front/.agents/skills/frontend-design/SKILL.md` | Explicit visual redesign |
+| tailwind-design-system | `front/.agents/skills/tailwind-design-system/SKILL.md` | Design tokens or component standardization |
+| vercel-react-best-practices | `front/.agents/skills/vercel-react-best-practices/SKILL.md` | React performance and implementation patterns |
+| web-design-guidelines | `front/.agents/skills/web-design-guidelines/SKILL.md` | UI review, accessibility, UX audits |
+| go-ddd-aggregate | `back/.agents/skills/go-ddd-aggregate/SKILL.md` | `back/**/domain` modeling |
+| go-usecase-cqrs-functions | `back/.agents/skills/go-usecase-cqrs-functions/SKILL.md` | `back/**/useCases` work |
+| go-infra-http-repo-adapters | `back/.agents/skills/go-infra-http-repo-adapters/SKILL.md` | `back/**/infra` work |
+| go-huma-api-contracts | `back/.agents/skills/go-huma-api-contracts/SKILL.md` | Huma contracts, validation, route wiring |
+| go-shared-di-container | `back/.agents/skills/go-shared-di-container/SKILL.md` | Shared dependency wiring and `main.go` composition |
+| go-testing-tdd-backend | `back/.agents/skills/go-testing-tdd-backend/SKILL.md` | Backend TDD for `useCases` and `infra/http` |
 
 ## User Skills Available
 
-| Skill | Level | Path | Trigger / Use When |
-|---|---|---|---|
-| branch-pr | user | `~/.config/opencode/skills/branch-pr/SKILL.md` | creating or preparing a pull request |
-| issue-creation | user | `~/.config/opencode/skills/issue-creation/SKILL.md` | creating a GitHub issue |
-| go-testing | user | `~/.config/opencode/skills/go-testing/SKILL.md` | Go tests and Bubbletea TUI testing |
-| judgment-day | user | `~/.config/opencode/skills/judgment-day/SKILL.md` | adversarial dual review |
-| skill-creator | user | `~/.config/opencode/skills/skill-creator/SKILL.md` | creating new AI skills |
-| workito-ai-git-workflow | user | `~/.config/opencode/skills/workito-ai-git-workflow/SKILL.md` | branch/worktree/commit/PR workflow orchestration |
+| Skill | Path | Use when |
+|---|---|---|
+| workito-ai-git-workflow | `~/.config/opencode/skills/workito-ai-git-workflow/SKILL.md` | Branch/worktree/commit/PR workflow |
+| branch-pr | `~/.config/opencode/skills/branch-pr/SKILL.md` | Creating or preparing a PR |
+| issue-creation | `~/.config/opencode/skills/issue-creation/SKILL.md` | Creating GitHub issues |
+| skill-creator | `~/.config/opencode/skills/skill-creator/SKILL.md` | Creating new skills |
+| go-testing | `~/.config/opencode/skills/go-testing/SKILL.md` | Go testing patterns |
+| judgment-day | `~/.config/opencode/skills/judgment-day/SKILL.md` | Dual review workflow |
+| find-skills | `~/.agents/skills/find-skills/SKILL.md` | Discovering/installing skills |
 
-## Default Stack Skill Resolution
+## Scoped Skill Defaults
 
-### Frontend (`front/`)
+### Frontend
 
 1. `brandtoon-frontend-baseline`
 2. `vercel-react-best-practices`
 3. `web-design-guidelines`
 4. `frontend-design` only when explicitly requested
-5. `tailwind-design-system` when design system or Tailwind standardization work appears
+5. `tailwind-design-system` when design-system standardization is part of the task
 
-### Backend (`back/`)
+### Backend
 
-Load by touched layer:
+- `go-ddd-aggregate` -> domain
+- `go-usecase-cqrs-functions` -> use cases
+- `go-infra-http-repo-adapters` -> infra
+- `go-huma-api-contracts` -> Huma transport contracts
+- `go-shared-di-container` -> DI wiring
+- `go-testing-tdd-backend` -> `useCases` or `infra/http`
 
-- `go-ddd-aggregate` -> domain modeling
-- `go-usecase-cqrs-functions` -> use case logic
-- `go-infra-http-repo-adapters` -> infra/http or repo adapters
-- `go-huma-api-contracts` -> API contracts and Huma registration
-- `go-shared-di-container` -> dependency wiring and container work
-- `go-testing-tdd-backend` -> any `useCases` or `infra/http` change
+### Integration
 
-### Integration (root)
-
-1. Follow `AGENTS.md` contract-first order.
-2. Backend contract is source of truth.
-3. Then load frontend/backend scoped skills based on touched files.
-# Skill Registry — brandtoon
-
-Generated by `sdd-init` on 2026-05-03.
-
-## Project Conventions
-
-- `/home/nico/development/brandtoon/AGENTS.md` (root gateway)
-- `/home/nico/development/brandtoon/front/AGENTS.md` (frontend baseline + UI/state boundaries)
-- `/home/nico/development/brandtoon/back/AGENTS.md` (backend DDD/CQRS + TDD rules)
-
-## Skills Inventory
-
-### Project-level skills (highest precedence)
-
-| Skill | Source | Trigger / Scope |
-|---|---|---|
-| justfile-expert | `.agents/skills/justfile-expert/SKILL.md` | Justfile recipes, task automation |
-| go-ddd-aggregate | `back/.agents/skills/go-ddd-aggregate/SKILL.md` | `back/**/domain` modeling, aggregate boundaries |
-| go-usecase-cqrs-functions | `back/.agents/skills/go-usecase-cqrs-functions/SKILL.md` | `back/**/useCases`, function-style CQRS |
-| go-infra-http-repo-adapters | `back/.agents/skills/go-infra-http-repo-adapters/SKILL.md` | `back/**/infra`, HTTP/repo adapters |
-| go-huma-api-contracts | `back/.agents/skills/go-huma-api-contracts/SKILL.md` | Huma API contracts, routes, validation |
-| go-shared-di-container | `back/.agents/skills/go-shared-di-container/SKILL.md` | `back/main.go`, shared DI wiring |
-| go-testing-tdd-backend | `back/.agents/skills/go-testing-tdd-backend/SKILL.md` | Backend TDD for useCases + infra/http |
-| brandtoon-frontend-baseline | `front/.agents/skills/brandtoon-frontend-baseline/SKILL.md` | Any feature work in `front/` |
-| vercel-react-best-practices | `front/.agents/skills/vercel-react-best-practices/SKILL.md` | React performance/refactors/reviews |
-| web-design-guidelines | `front/.agents/skills/web-design-guidelines/SKILL.md` | UI/UX/a11y review requests |
-| tailwind-design-system | `front/.agents/skills/tailwind-design-system/SKILL.md` | Design system/token/component standardization |
-| frontend-design | `front/.agents/skills/frontend-design/SKILL.md` | Explicit creative redesign / visual direction |
-
-### User-level skills
-
-| Skill | Source | Trigger / Scope |
-|---|---|---|
-| workito-ai-git-workflow | `~/.config/opencode/skills/workito-ai-git-workflow/SKILL.md` | Branch/worktree/commit/PR workflow |
-| issue-creation | `~/.config/opencode/skills/issue-creation/SKILL.md` | Creating/triaging GitHub issues |
-| branch-pr | `~/.config/opencode/skills/branch-pr/SKILL.md` | Preparing/opening pull requests |
-| skill-creator | `~/.config/opencode/skills/skill-creator/SKILL.md` | Creating new AI skills |
-| go-testing | `~/.config/opencode/skills/go-testing/SKILL.md` | Go test authoring patterns |
-| judgment-day | `~/.config/opencode/skills/judgment-day/SKILL.md` | Dual adversarial review workflow |
-| find-skills | `~/.agents/skills/find-skills/SKILL.md` | Discover/install skills |
-
-> `sdd-*`, `_shared`, and `skill-registry` skills are intentionally excluded from this registry for runtime matching.
-
-## Compact Rules (auto-resolved injection blocks)
-
-### rule:root-routing
-- Classify task first: `front/` only, `back/` only, or integration.
-- Integration order MUST be: contract → backend → frontend → end-to-end verification.
-- Backend API contract is source of truth for frontend integration.
-
-### rule:core-principles-fallback
-- When no explicit repo rule applies, choose the simplest correct option.
-- Prefer solutions that are simple, straightforward, explicit, and correctly encapsulated.
-- Do not invent abstractions, indirections, or hidden behavior when the core principles are enough.
-
-### rule:frontend-baseline
-- Stack: Vite + React + TypeScript + Tailwind + React Router + TanStack Query + Zustand + RHF+Zod.
-- Keep state boundaries strict: server state in Query, UI state in Zustand, forms in RHF.
-- Compose shared UI primitives first; avoid ad-hoc design tokens.
-
-### rule:backend-architecture
-- Enforce DDD + CQRS flow: `main -> routes -> handlers -> useCases -> domain`.
-- One use-case per file; function-based use-cases/handlers; domain remains framework-free.
-- Aggregate package naming required (`{aggregate}domain|usecases|repo|http`).
-- Use-cases MUST live in the same aggregate that owns the mutated/read model. Do not place cross-aggregate orchestration use-cases in foreign aggregates.
-- Endpoint handlers and route registration MUST live in the same aggregate as the use-case they invoke for aggregate-owned behavior, even when the public URL path uses another bounded-context term.
-- Use-case DTOs are the canonical payload types for aggregate behavior; `infra/http` should reference them directly when the shape matches and MUST NOT redefine the same payload shape as a parallel DTO.
-- Use-cases MUST return DTOs (not domain entities). DTO convention: `{name}_dto.go`, `{Name}DTO`, plus `serialize` (single) and `serializeList` (list) factories mapping from domain object(s).
-
-### rule:backend-testing
-- Strict RED → GREEN → REFACTOR for `back/**/useCases` and `back/**/infra/http`.
-- Tests required when those areas change.
-- Place tests under `useCases/test` and `infra/http/test`; reuse mocks in `domain/mocks`.
-
-### rule:huma-contracts
-- Use Huma registration and explicit request/response contracts with validation tags.
-- Keep route registration testable and isolated in infra/http.
-
-### rule:di-container
-- Initialize third-party dependencies in shared DI container only.
-- `main.go` must consume dependencies through container getters.
-
-### rule:git-workflow
-- Run branch gate before edits; use `feat/` or `fix/` branches.
-- Commit/push/PR requires explicit user consent.
-
-## User Skills Trigger Table
-
-| If task mentions… | Load skills |
-|---|---|
-| go test, coverage, TUI testing | `go-testing` (+ `go-testing-tdd-backend` if in `back/`) |
-| branching, commits, PRs, worktrees | `workito-ai-git-workflow` (+ `branch-pr` for PR creation) |
-| issue creation / bug report / feature request | `issue-creation` |
-| dual review / judgment day | `judgment-day` |
-| skill discovery/installation | `find-skills` |
-| justfile / recipes / task automation | `justfile-expert` |
+1. Follow `AGENTS.md` and the canonical standards first.
+2. Backend contract remains the source of truth.
+3. Then load frontend/backend scoped skills by touched files.

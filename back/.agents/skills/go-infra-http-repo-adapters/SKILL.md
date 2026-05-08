@@ -11,6 +11,11 @@ allowed-tools: Bash, Grep, Glob, Read, Write, Edit
 
 Use this skill when editing `back/bounded_contexts/**/infra`.
 
+## Canonical Policy First
+
+- Backend policy lives in `back/AGENTS.md`.
+- This skill adds infra-layer adapter, routing, and repository guidance.
+
 ## Objective
 
 - Keep third-party integrations isolated in infra.
@@ -56,6 +61,7 @@ Use this skill when editing `back/bounded_contexts/**/infra`.
 - Ensure infra package names follow `{aggregate}repo` and `{aggregate}http`.
 - Ensure dependency wiring changes follow `go-shared-di-container`.
 - Confirm provider-specific terms stay contained to `infra/` and do not leak into `domain/` or `useCases/` naming.
+- After editing backend infra code, run `just back-format` and then `just back-check`; iterate until the canonical backend check passes.
 
 ## Output Standard
 
