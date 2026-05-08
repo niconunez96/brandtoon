@@ -13,7 +13,8 @@ vi.mock('@tanstack/react-query', () => ({
 }))
 
 vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom')
+  const actual =
+    await vi.importActual<typeof import('react-router-dom')>('react-router-dom')
 
   return {
     ...actual,
@@ -31,61 +32,64 @@ vi.mock('../../shared/components/ui/toast', () => ({
 }))
 
 describe('AvatarGenerationEventsProvider', () => {
-	afterEach(() => {
-		invalidateAvatarQueryMock.mockReset()
-		addEventListenerMock.mockReset()
-		removeEventListenerMock.mockReset()
-		closeMock.mockReset()
-		useLocationMock.mockReset()
-		vi.unstubAllGlobals()
-	})
+  afterEach(() => {
+    invalidateAvatarQueryMock.mockReset()
+    addEventListenerMock.mockReset()
+    removeEventListenerMock.mockReset()
+    closeMock.mockReset()
+    useLocationMock.mockReset()
+    vi.unstubAllGlobals()
+  })
 
-	it('invalidates the avatar query when generation completes for the active avatar', () => {
-		let completedHandler: ((event: MessageEvent<string>) => void) | undefined
+  it('invalidates the avatar query when generation completes for the active avatar', () => {
+    let completedHandler: ((event: MessageEvent<string>) => void) | undefined
 
-		class EventSourceMock {
-			constructor() {}
+    class EventSourceMock {
+      constructor() {}
 
-			addEventListener(type: string, handler: (event: MessageEvent<string>) => void) {
-				addEventListenerMock(type)
-				if (type === 'avatar-generation.completed') {
-					completedHandler = handler
-				}
-			}
+      addEventListener(
+        type: string,
+        handler: (event: MessageEvent<string>) => void,
+      ) {
+        addEventListenerMock(type)
+        if (type === 'avatar-generation.completed') {
+          completedHandler = handler
+        }
+      }
 
-			removeEventListener(type: string) {
-				removeEventListenerMock(type)
-			}
+      removeEventListener(type: string) {
+        removeEventListenerMock(type)
+      }
 
-			close() {
-				closeMock()
-			}
-		}
+      close() {
+        closeMock()
+      }
+    }
 
-		vi.stubGlobal('EventSource', EventSourceMock)
-		useLocationMock.mockReturnValue({
-			pathname: '/creative-studio/avatars/avatar-v7/avatar',
-		})
+    vi.stubGlobal('EventSource', EventSourceMock)
+    useLocationMock.mockReturnValue({
+      pathname: '/creative-studio/avatars/avatar-v7/avatar',
+    })
 
-		render(
-			<AvatarGenerationEventsProvider>
-				<div>child</div>
-			</AvatarGenerationEventsProvider>,
-		)
+    render(
+      <AvatarGenerationEventsProvider>
+        <div>child</div>
+      </AvatarGenerationEventsProvider>,
+    )
 
-		act(() => {
-			completedHandler?.({
-				data: JSON.stringify({
-					avatarId: 'avatar-v7',
-					avatarName: 'Studio Hero',
-					userId: 'user-v7',
-				}),
-			} as MessageEvent<string>)
-		})
+    act(() => {
+      completedHandler?.({
+        data: JSON.stringify({
+          avatarId: 'avatar-v7',
+          avatarName: 'Studio Hero',
+          userId: 'user-v7',
+        }),
+      } as MessageEvent<string>)
+    })
 
-		expect(invalidateAvatarQueryMock).toHaveBeenCalledWith(
-			expect.anything(),
-			'avatar-v7',
-		)
-	})
+    expect(invalidateAvatarQueryMock).toHaveBeenCalledWith(
+      expect.anything(),
+      'avatar-v7',
+    )
+  })
 })

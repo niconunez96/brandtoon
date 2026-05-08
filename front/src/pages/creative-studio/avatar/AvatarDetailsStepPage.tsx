@@ -224,15 +224,15 @@ export function AvatarDetailsStepPage() {
           <p className="foundation-section-eyebrow">Avatar draft error</p>
           <p className="text-xl font-black tracking-tight text-ink">
             {getAvatarConfigErrorMessage(
-				avatarConfigQuery.error ?? avatarQuery.error,
-			)}
+              avatarConfigQuery.error ?? avatarQuery.error,
+            )}
           </p>
         </div>
         <Button
           onClick={() => {
-				void avatarConfigQuery.refetch()
-				void avatarQuery.refetch()
-			}}
+            void avatarConfigQuery.refetch()
+            void avatarQuery.refetch()
+          }}
           variant="secondary"
         >
           Try again
@@ -324,9 +324,8 @@ export function AvatarDetailsStepPage() {
                       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                         {avatarOptions.map((option, index) => {
                           const isSelected = option.selected
-                          const isMarkedForDelete = avatarOptionIdsToDelete.includes(
-                            option.id,
-                          )
+                          const isMarkedForDelete =
+                            avatarOptionIdsToDelete.includes(option.id)
 
                           return (
                             <div

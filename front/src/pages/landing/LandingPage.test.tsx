@@ -21,7 +21,10 @@ vi.mock('../../shared/components/ui/badge', () => ({
 }))
 
 vi.mock('../../shared/components/ui/button', () => ({
-  Button: ({ children, onClick }: { children: unknown; onClick?: () => void }) => (
+  Button: ({
+    children,
+    onClick,
+  }: { children: unknown; onClick?: () => void }) => (
     <button onClick={onClick} type="button">
       {children}
     </button>
@@ -30,7 +33,9 @@ vi.mock('../../shared/components/ui/button', () => ({
 
 vi.mock('../../shared/components/ui/card', () => ({
   Card: ({ children }: { children: unknown }) => <div>{children}</div>,
-  SectionShell: ({ children }: { children: unknown }) => <section>{children}</section>,
+  SectionShell: ({ children }: { children: unknown }) => (
+    <section>{children}</section>
+  ),
 }))
 
 vi.mock('../../shared/components/ui/field', () => ({

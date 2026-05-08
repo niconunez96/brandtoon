@@ -12,7 +12,10 @@ vi.mock('../../shared/components/ui/badge', () => ({
 }))
 
 vi.mock('../../shared/components/ui/button', () => ({
-  Button: ({ children, onClick }: { children: unknown; onClick?: () => void }) => (
+  Button: ({
+    children,
+    onClick,
+  }: { children: unknown; onClick?: () => void }) => (
     <button onClick={onClick} type="button">
       {children}
     </button>
@@ -52,7 +55,9 @@ describe('LoginPage', () => {
   it('sends users to the backend Google auth endpoint with the sanitized redirect', () => {
     render(<LoginPage />)
 
-    fireEvent.click(screen.getByRole('button', { name: /continue with google/i }))
+    fireEvent.click(
+      screen.getByRole('button', { name: /continue with google/i }),
+    )
 
     expect(navigateToExternalUrl).toHaveBeenCalledWith(
       `${API_BASE_URL}/auth/google/login?redirectTo=%2Fcreative-studio`,

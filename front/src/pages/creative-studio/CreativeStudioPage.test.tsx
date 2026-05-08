@@ -28,7 +28,10 @@ vi.mock('react-hook-form', () => ({
 }))
 
 vi.mock('../../shared/components/ui/button', () => ({
-  Button: ({ children, onClick }: { children: unknown; onClick?: () => void }) => (
+  Button: ({
+    children,
+    onClick,
+  }: { children: unknown; onClick?: () => void }) => (
     <button onClick={onClick} type="button">
       {children}
     </button>
@@ -37,11 +40,17 @@ vi.mock('../../shared/components/ui/button', () => ({
 
 vi.mock('../../shared/components/ui/card', () => ({
   Card: ({ children }: { children: unknown }) => <div>{children}</div>,
-  SectionShell: ({ children }: { children: unknown }) => <section>{children}</section>,
+  SectionShell: ({ children }: { children: unknown }) => (
+    <section>{children}</section>
+  ),
 }))
 
 vi.mock('../../shared/components/ui/empty-state', () => ({
-  EmptyState: ({ action, children, title }: { action?: unknown; children?: unknown; title?: string }) => (
+  EmptyState: ({
+    action,
+    children,
+    title,
+  }: { action?: unknown; children?: unknown; title?: string }) => (
     <section>
       <h2>{title}</h2>
       <div>{children}</div>

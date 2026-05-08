@@ -76,9 +76,9 @@ export async function generateAvatarOptions(avatarId: string): Promise<void> {
     },
   )
 
-	if (!response.ok) {
-		throw new ApiError('Failed to generate avatar options', response.status)
-	}
+  if (!response.ok) {
+    throw new ApiError('Failed to generate avatar options', response.status)
+  }
 }
 
 export async function selectAvatarOption(

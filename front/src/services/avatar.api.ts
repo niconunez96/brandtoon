@@ -7,13 +7,13 @@ export type Avatar = {
 }
 
 export type AvatarOption = {
-	id: string
-	href: string
-	selected: boolean
+  id: string
+  href: string
+  selected: boolean
 }
 
 export type AvatarDetails = Avatar & {
-	avatarOptions: AvatarOption[]
+  avatarOptions: AvatarOption[]
 }
 
 export type ListAvatarsResponse = {
@@ -25,7 +25,7 @@ export type CreateAvatarResponse = {
 }
 
 export type AvatarResponse = {
-	avatar: AvatarDetails | null
+  avatar: AvatarDetails | null
 }
 
 export async function fetchAvatars(): Promise<ListAvatarsResponse> {
@@ -60,16 +60,16 @@ export async function createAvatar(
 }
 
 export async function fetchAvatar(avatarId: string): Promise<AvatarResponse> {
-	const response = await fetch(
-		`${API_BASE_URL}/creative-studio/avatars/${avatarId}`,
-		{
-			credentials: 'include',
-		},
-	)
+  const response = await fetch(
+    `${API_BASE_URL}/creative-studio/avatars/${avatarId}`,
+    {
+      credentials: 'include',
+    },
+  )
 
-	if (!response.ok) {
-		throw new ApiError('Failed to fetch avatar', response.status)
-	}
+  if (!response.ok) {
+    throw new ApiError('Failed to fetch avatar', response.status)
+  }
 
-	return response.json()
+  return response.json()
 }

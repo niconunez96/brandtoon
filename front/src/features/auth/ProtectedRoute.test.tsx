@@ -19,9 +19,9 @@ vi.mock('./AvatarGenerationEventsProvider', () => ({
 }))
 
 vi.mock('../../shared/lib/browser', async () => {
-  const actual = await vi.importActual<typeof import('../../shared/lib/browser')>(
-    '../../shared/lib/browser',
-  )
+  const actual = await vi.importActual<
+    typeof import('../../shared/lib/browser')
+  >('../../shared/lib/browser')
 
   return {
     ...actual,

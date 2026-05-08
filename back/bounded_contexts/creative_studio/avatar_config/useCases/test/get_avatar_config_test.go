@@ -92,8 +92,6 @@ func TestGetAvatarConfigReturnsStoredDraftForOwnedAvatar(t *testing.T) {
 	}
 }
 
-
-
 func TestGetAvatarConfigReturnsAvatarNotFoundWhenAvatarIsNotOwned(t *testing.T) {
 	t.Parallel()
 
