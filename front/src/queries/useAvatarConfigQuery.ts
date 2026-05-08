@@ -4,15 +4,15 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import { avatarQueryKey } from './useAvatarQuery'
 import {
-  deleteAvatarOptions,
-  selectAvatarOption,
   type UpdateAvatarConfigInput,
+  deleteAvatarOptions,
   fetchAvatarConfig,
   generateAvatarOptions,
+  selectAvatarOption,
   updateAvatarConfig,
 } from '../services/avatar-config.api'
+import { avatarQueryKey } from './useAvatarQuery'
 
 export const avatarConfigQueryKey = (avatarId: string) =>
   ['creative-studio', 'avatar-config', avatarId] as const

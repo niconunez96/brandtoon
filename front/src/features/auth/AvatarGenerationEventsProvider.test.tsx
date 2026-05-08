@@ -45,8 +45,6 @@ describe('AvatarGenerationEventsProvider', () => {
     let completedHandler: ((event: MessageEvent<string>) => void) | undefined
 
     class EventSourceMock {
-      constructor() {}
-
       addEventListener(
         type: string,
         handler: (event: MessageEvent<string>) => void,
