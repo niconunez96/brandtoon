@@ -3,6 +3,7 @@ package test
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	avatarusecases "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases"
 	avatarconfigdomain "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain"
 	avatarconfigmocks "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain/mocks"
+	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
 	sharedmocks "brandtoonapi/bounded_contexts/shared/domain/mocks"
 
 	"github.com/google/uuid"
@@ -22,6 +24,31 @@ func TestGenerateAvatarOptionsAcknowledgesThenPersistsAndPublishes(t *testing.T)
 	persistedOptions := []avatardomain.AvatarOption{}
 	persistedSignal := make(chan struct{}, 1)
 	eventBus := &sharedmocks.EventBusMock{}
+	avatarGenerator := &avatarmocks.AvatarGeneratorMock{
+		GenerateOptionsFunc: func(ctx context.Context, prompt string, count int) ([]avatardomain.GeneratedAvatarImage, error) {
+			if count != 2 {
+				t.Fatalf("expected generator count 2, got %d", count)
+			}
+
+			for _, fragment := range []string{"Studio Hero", "Energetic mascot", "2D", "Friendly"} {
+				if !strings.Contains(prompt, fragment) {
+					t.Fatalf("expected prompt to contain %q, got %q", fragment, prompt)
+				}
+			}
+
+			return []avatardomain.GeneratedAvatarImage{
+				{ContentType: "image/png", Data: []byte("image-one")},
+				{ContentType: "image/png", Data: []byte("image-two")},
+			}, nil
+		},
+	}
+	fileStorage := &sharedmocks.FileStorageMock{
+		StoreFunc: func(ctx context.Context, input shareddomain.StoreFileInput) (shareddomain.StoredFile, error) {
+			return shareddomain.StoredFile{
+				PublicURL: "http://127.0.0.1:8888/files/" + input.Directory + "/" + input.Name + ".png",
+			}, nil
+		},
+	}
 
 	err := avatarusecases.GenerateAvatarOptions(
 		context.Background(),
@@ -38,6 +65,7 @@ func TestGenerateAvatarOptionsAcknowledgesThenPersistsAndPublishes(t *testing.T)
 					return &config, nil
 				},
 			},
+			AvatarGenerator: avatarGenerator,
 			AvatarRepo: &avatarmocks.AvatarRepositoryMock{
 				FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
 					avatar := avatardomain.NewAvatarWithOptions(
@@ -59,7 +87,8 @@ func TestGenerateAvatarOptionsAcknowledgesThenPersistsAndPublishes(t *testing.T)
 					return nil
 				},
 			},
-			EventBus: eventBus,
+			EventBus:    eventBus,
+			FileStorage: fileStorage,
 		},
 	)
 	if err != nil {
@@ -73,7 +102,7 @@ func TestGenerateAvatarOptionsAcknowledgesThenPersistsAndPublishes(t *testing.T)
 	}
 
 	if len(persistedOptions) != 3 {
-		t.Fatalf("expected existing option + 3 generated options, got %d", len(persistedOptions))
+		t.Fatalf("expected existing option + 2 generated options, got %d", len(persistedOptions))
 	}
 
 	generatedIDs := make(map[string]struct{}, len(persistedOptions)-1)
@@ -95,10 +124,18 @@ func TestGenerateAvatarOptionsAcknowledgesThenPersistsAndPublishes(t *testing.T)
 		if option.Selected {
 			t.Fatalf("expected generated options selected=false by default")
 		}
+
+		if !strings.HasPrefix(option.Href, "http://127.0.0.1:8888/files/avatars/avatar-v7/options/") {
+			t.Fatalf("expected stored public url, got %q", option.Href)
+		}
 	}
 
 	if len(eventBus.PublishedEvents) != 1 {
 		t.Fatalf("expected exactly one event, got %d", len(eventBus.PublishedEvents))
+	}
+
+	if fileStorage.StoreCalls != 2 {
+		t.Fatalf("expected 2 stored files, got %d", fileStorage.StoreCalls)
 	}
 }
 
@@ -123,8 +160,10 @@ func TestGenerateAvatarOptionsStopsWhenDraftIsMissing(t *testing.T) {
 		avatarusecases.GenerateAvatarOptionsCommand{AvatarID: "avatar-v7", UserID: "user-v7"},
 		avatarusecases.GenerateAvatarOptionsDependencies{
 			AvatarConfigRepo: avatarConfigRepo,
+			AvatarGenerator:  &avatarmocks.AvatarGeneratorMock{},
 			AvatarRepo:       avatarRepo,
 			EventBus:         eventBus,
+			FileStorage:      &sharedmocks.FileStorageMock{},
 		},
 	)
 	if !errors.Is(err, avatarusecases.ErrAvatarConfigNotFound) {
@@ -156,6 +195,14 @@ func TestGenerateAvatarOptionsSuppressesPublishWhenPersistenceFails(t *testing.T
 					return &config, nil
 				},
 			},
+			AvatarGenerator: &avatarmocks.AvatarGeneratorMock{
+				GenerateOptionsFunc: func(ctx context.Context, prompt string, count int) ([]avatardomain.GeneratedAvatarImage, error) {
+					return []avatardomain.GeneratedAvatarImage{
+						{ContentType: "image/png", Data: []byte("image-one")},
+						{ContentType: "image/png", Data: []byte("image-two")},
+					}, nil
+				},
+			},
 			AvatarRepo: &avatarmocks.AvatarRepositoryMock{
 				FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
 					avatar := avatardomain.NewAvatar(avatarID, userID, "Studio Hero")
@@ -167,6 +214,11 @@ func TestGenerateAvatarOptionsSuppressesPublishWhenPersistenceFails(t *testing.T
 				},
 			},
 			EventBus: eventBus,
+			FileStorage: &sharedmocks.FileStorageMock{
+				StoreFunc: func(ctx context.Context, input shareddomain.StoreFileInput) (shareddomain.StoredFile, error) {
+					return shareddomain.StoredFile{PublicURL: "http://127.0.0.1:8888/files/test.png"}, nil
+				},
+			},
 		},
 	)
 	if err != nil {

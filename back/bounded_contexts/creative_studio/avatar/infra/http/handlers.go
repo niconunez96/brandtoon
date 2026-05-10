@@ -121,8 +121,10 @@ func buildGenerateAvatarOptionsHandler(
 			},
 			avatarusecases.GenerateAvatarOptionsDependencies{
 				AvatarConfigRepo: deps.AvatarConfigRepo,
+				AvatarGenerator:  deps.AvatarGenerator,
 				AvatarRepo:       deps.AvatarRepo,
 				EventBus:         deps.EventBus,
+				FileStorage:      deps.FileStorage,
 			},
 		)
 		if err != nil {

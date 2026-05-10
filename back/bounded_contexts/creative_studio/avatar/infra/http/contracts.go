@@ -10,8 +10,10 @@ import (
 
 type RouteDependencies struct {
 	AvatarConfigRepo avatarconfigdomain.AvatarConfigRepository
+	AvatarGenerator  avatardomain.AvatarGenerator
 	AvatarRepo       avatardomain.AvatarRepository
 	EventBus         shareddomain.EventBus
+	FileStorage      shareddomain.FileStorage
 	IDGenerator      shareddomain.IDGenerator
 	AuthDeps         identityauthhttp.AuthMiddlewareDeps
 }

@@ -13,6 +13,7 @@ import (
 	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
 	sharedconfig "brandtoonapi/bounded_contexts/shared/infra/config"
 	sharedsse "brandtoonapi/bounded_contexts/shared/infra/sse"
+	sharedstorage "brandtoonapi/bounded_contexts/shared/infra/storage"
 	"brandtoonapi/bounded_contexts/shared/infra/telemetry"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -64,6 +65,16 @@ func main() {
 		log.Fatal(err)
 	}
 
+	avatarGenerator, err := container.GetAvatarGenerator()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fileStorage, err := container.GetFileStorage()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	sseConnector, err := container.GetSSEConnector()
 	if err != nil {
 		log.Fatal(err)
@@ -72,6 +83,7 @@ func main() {
 	router := chi.NewMux()
 	router.Use(corsMiddleware(config))
 	router.Use(t.HttpLoggerMiddleware())
+	router.Handle(config.PublicFileURLPrefix+"/*", sharedstorage.NewPublicFileHandler(fileStorage, config.PublicFileURLPrefix))
 	api := humachi.New(router, huma.DefaultConfig("Brandtoon API", "1.0.0"))
 
 	authMiddleware := authhttp.HumaAuthMiddleware(authhttp.AuthMiddlewareDeps{
@@ -95,8 +107,10 @@ func main() {
 	})
 	avatarhttp.RegisterRoutes(api, router, avatarhttp.RouteDependencies{
 		AvatarConfigRepo: avatarConfigRepo,
+		AvatarGenerator:  avatarGenerator,
 		AvatarRepo:       avatarRepo,
 		EventBus:         container.GetEventBus(),
+		FileStorage:      fileStorage,
 		IDGenerator:      shareddomain.GenerateUUIDv7,
 	}, plainAuthMiddleware, authMiddleware)
 	avatarconfighttp.RegisterRoutes(api, router, avatarconfighttp.RouteDependencies{

@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
+	avatargenerator "brandtoonapi/bounded_contexts/creative_studio/avatar/infra/generator"
 	avatarrepo "brandtoonapi/bounded_contexts/creative_studio/avatar/infra/repo"
 	avatarusecases "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases"
 	avatarconfigdomain "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain"
@@ -21,6 +22,7 @@ import (
 	sharedevents "brandtoonapi/bounded_contexts/shared/infra/events"
 	sharedpostgres "brandtoonapi/bounded_contexts/shared/infra/postgres"
 	sharedsse "brandtoonapi/bounded_contexts/shared/infra/sse"
+	sharedstorage "brandtoonapi/bounded_contexts/shared/infra/storage"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -46,8 +48,10 @@ type DIContainer struct {
 	sessionRepo    sessiondomain.SessionRepository
 	// Creative studio
 	avatarConfigRepo avatarconfigdomain.AvatarConfigRepository
+	avatarGenerator  avatardomain.AvatarGenerator
 	avatarRepo       avatardomain.AvatarRepository
 	eventBus         shareddomain.EventBus
+	fileStorage      shareddomain.FileStorage
 	sseConnector     *sharedsse.Connector
 	sseHub           *sharedsse.Hub
 }
@@ -177,6 +181,49 @@ func (c *DIContainer) GetAvatarRepo(ctx context.Context) (avatardomain.AvatarRep
 	}
 
 	return c.avatarRepo, nil
+}
+
+func (c *DIContainer) GetAvatarGenerator() (avatardomain.AvatarGenerator, error) {
+	if c.avatarGenerator == nil {
+		config, err := c.GetConfig()
+		if err != nil {
+			return nil, err
+		}
+
+		generator, err := avatargenerator.NewOpenAIDALLEGenerator(
+			config.OpenAIAPIKey,
+			config.OpenAIImageModel,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		c.avatarGenerator = generator
+	}
+
+	return c.avatarGenerator, nil
+}
+
+func (c *DIContainer) GetFileStorage() (shareddomain.FileStorage, error) {
+	if c.fileStorage == nil {
+		config, err := c.GetConfig()
+		if err != nil {
+			return nil, err
+		}
+
+		storage, err := sharedstorage.NewLocalFileStorage(
+			config.LocalFileStorageRootPath,
+			config.BackendPublicBaseURL,
+			config.PublicFileURLPrefix,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		c.fileStorage = storage
+	}
+
+	return c.fileStorage, nil
 }
 
 func (c *DIContainer) GetAvatarConfigRepo(

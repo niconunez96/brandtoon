@@ -12,12 +12,22 @@ import (
 	avatarhttp "brandtoonapi/bounded_contexts/creative_studio/avatar/infra/http"
 	avatarconfigdomain "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain"
 	avatarconfigmocks "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain/mocks"
+	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
+	sharedmocks "brandtoonapi/bounded_contexts/shared/domain/mocks"
 )
 
 func TestAvatarAggregateGenerateRouteReturnsImmediateAckWithoutBody(t *testing.T) {
 	t.Parallel()
 
 	server := newAuthenticatedTestServer(t, avatarhttp.RouteDependencies{
+		AvatarGenerator: &avatarmocks.AvatarGeneratorMock{
+			GenerateOptionsFunc: func(ctx context.Context, prompt string, count int) ([]avatardomain.GeneratedAvatarImage, error) {
+				return []avatardomain.GeneratedAvatarImage{
+					{ContentType: "image/png", Data: []byte("image-one")},
+					{ContentType: "image/png", Data: []byte("image-two")},
+				}, nil
+			},
+		},
 		AvatarConfigRepo: &avatarconfigmocks.AvatarConfigRepositoryMock{
 			FindByAvatarIDFunc: func(ctx context.Context, avatarID string) (*avatarconfigdomain.AvatarConfig, error) {
 				config := avatarconfigdomain.NewAvatarConfig(
@@ -36,6 +46,11 @@ func TestAvatarAggregateGenerateRouteReturnsImmediateAckWithoutBody(t *testing.T
 			},
 			UpdateOptionsFunc: func(ctx context.Context, avatarID string, userID string, options []avatardomain.AvatarOption) error {
 				return nil
+			},
+		},
+		FileStorage: &sharedmocks.FileStorageMock{
+			StoreFunc: func(ctx context.Context, input shareddomain.StoreFileInput) (shareddomain.StoredFile, error) {
+				return shareddomain.StoredFile{PublicURL: "http://127.0.0.1:8888/files/avatars/avatar-v7/options/" + input.Name + ".png"}, nil
 			},
 		},
 	})
