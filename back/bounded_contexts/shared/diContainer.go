@@ -5,11 +5,13 @@ import (
 	"sync"
 
 	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
-	avatargenerator "brandtoonapi/bounded_contexts/creative_studio/avatar/infra/generator"
 	avatarrepo "brandtoonapi/bounded_contexts/creative_studio/avatar/infra/repo"
-	avatarusecases "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases"
 	avatarconfigdomain "brandtoonapi/bounded_contexts/creative_studio/avatar_config/domain"
 	avatarconfigrepo "brandtoonapi/bounded_contexts/creative_studio/avatar_config/infra/repo"
+	avataroptiondomain "brandtoonapi/bounded_contexts/creative_studio/avatar_option/domain"
+	avataroptiongenerator "brandtoonapi/bounded_contexts/creative_studio/avatar_option/infra/generator"
+	avataroptionrepo "brandtoonapi/bounded_contexts/creative_studio/avatar_option/infra/repo"
+	avataroptionusecases "brandtoonapi/bounded_contexts/creative_studio/avatar_option/useCases"
 	authdomain "brandtoonapi/bounded_contexts/identity/auth/domain"
 	authoauth "brandtoonapi/bounded_contexts/identity/auth/infra/oauth"
 	authsecurity "brandtoonapi/bounded_contexts/identity/auth/infra/security"
@@ -48,8 +50,9 @@ type DIContainer struct {
 	sessionRepo    sessiondomain.SessionRepository
 	// Creative studio
 	avatarConfigRepo avatarconfigdomain.AvatarConfigRepository
-	avatarGenerator  avatardomain.AvatarGenerator
+	avatarGenerator  avataroptiondomain.AvatarGenerator
 	avatarRepo       avatardomain.AvatarRepository
+	avatarOptionRepo avataroptiondomain.AvatarOptionRepository
 	eventBus         shareddomain.EventBus
 	fileStorage      shareddomain.FileStorage
 	sseConnector     *sharedsse.Connector
@@ -85,7 +88,7 @@ func (c *DIContainer) GetSSEConnector() (*sharedsse.Connector, error) {
 		connector, err := sharedsse.NewConnector(
 			c.GetEventBus(),
 			c.GetSSEHub(),
-			[]string{avatarusecases.AvatarGenerationCompletedEventName},
+			[]string{avataroptionusecases.AvatarGenerationCompletedEventName},
 		)
 		if err != nil {
 			return nil, err
@@ -183,14 +186,27 @@ func (c *DIContainer) GetAvatarRepo(ctx context.Context) (avatardomain.AvatarRep
 	return c.avatarRepo, nil
 }
 
-func (c *DIContainer) GetAvatarGenerator() (avatardomain.AvatarGenerator, error) {
+func (c *DIContainer) GetAvatarOptionRepo(ctx context.Context) (avataroptiondomain.AvatarOptionRepository, error) {
+	if c.avatarOptionRepo == nil {
+		db, err := c.GetDB(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		c.avatarOptionRepo = avataroptionrepo.NewAvatarOptionPostgresRepo(db)
+	}
+
+	return c.avatarOptionRepo, nil
+}
+
+func (c *DIContainer) GetAvatarGenerator() (avataroptiondomain.AvatarGenerator, error) {
 	if c.avatarGenerator == nil {
 		config, err := c.GetConfig()
 		if err != nil {
 			return nil, err
 		}
 
-		generator, err := avatargenerator.NewOpenAIDALLEGenerator(
+		generator, err := avataroptiongenerator.NewOpenAIDALLEGenerator(
 			config.OpenAIAPIKey,
 			config.OpenAIImageModel,
 		)

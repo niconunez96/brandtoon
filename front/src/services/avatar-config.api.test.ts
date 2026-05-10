@@ -1,53 +1,54 @@
 // @vitest-environment node
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { deleteAvatarOptions, selectAvatarOption } from './avatar-config.api'
+import { fetchAvatarConfig, updateAvatarConfig } from './avatar-config.api'
 
-describe('selectAvatarOption', () => {
+describe('avatar config api', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
   })
 
-  it('posts the selected option id to the select endpoint', async () => {
+  it('requests the avatar-config read endpoint', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ avatar_config: null }),
     })
     vi.stubGlobal('fetch', fetchMock)
 
-    await selectAvatarOption('avatar-v7', 'option-v7')
+    await fetchAvatarConfig('avatar-v7')
 
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringContaining(
-        '/creative-studio/avatar_configs/avatar-v7/options/select',
-      ),
+      expect.stringContaining('/creative-studio/avatar_configs/avatar-v7'),
       expect.objectContaining({
-        body: JSON.stringify({ id: 'option-v7' }),
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        method: 'POST',
       }),
     )
   })
 
-  it('posts selected ids to the delete endpoint', async () => {
+  it('updates the avatar-config draft payload', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ avatar_config: null }),
     })
     vi.stubGlobal('fetch', fetchMock)
 
-    await deleteAvatarOptions('avatar-v7', ['option-v7', 'option-v8'])
+    await updateAvatarConfig('avatar-v7', {
+      artisticStyle: '2D',
+      personality: 'Friendly',
+      prompt: 'Studio mascot',
+    })
 
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringContaining(
-        '/creative-studio/avatar_configs/avatar-v7/options',
-      ),
+      expect.stringContaining('/creative-studio/avatar_configs/avatar-v7'),
       expect.objectContaining({
-        body: JSON.stringify({ ids: ['option-v7', 'option-v8'] }),
+        body: JSON.stringify({
+          artisticStyle: '2D',
+          personality: 'Friendly',
+          prompt: 'Studio mascot',
+        }),
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        method: 'DELETE',
+        method: 'PUT',
       }),
     )
   })

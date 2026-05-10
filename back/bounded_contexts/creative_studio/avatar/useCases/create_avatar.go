@@ -34,5 +34,5 @@ func CreateAvatar(
 		return avatardto.AvatarDTO{}, err
 	}
 
-	return avatardto.SerializeAvatar(avatar), nil
+	return avatardto.Serialize(avatar), nil
 }

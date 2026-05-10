@@ -8,6 +8,7 @@ import (
 
 	avatarhttp "brandtoonapi/bounded_contexts/creative_studio/avatar/infra/http"
 	avatarconfighttp "brandtoonapi/bounded_contexts/creative_studio/avatar_config/infra/http"
+	avataroptionhttp "brandtoonapi/bounded_contexts/creative_studio/avatar_option/infra/http"
 	authhttp "brandtoonapi/bounded_contexts/identity/auth/infra/http"
 	shared "brandtoonapi/bounded_contexts/shared"
 	shareddomain "brandtoonapi/bounded_contexts/shared/domain"
@@ -60,6 +61,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	avatarOptionRepo, err := container.GetAvatarOptionRepo(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	avatarConfigRepo, err := container.GetAvatarConfigRepo(ctx)
 	if err != nil {
 		log.Fatal(err)
@@ -83,7 +89,10 @@ func main() {
 	router := chi.NewMux()
 	router.Use(corsMiddleware(config))
 	router.Use(t.HttpLoggerMiddleware())
-	router.Handle(config.PublicFileURLPrefix+"/*", sharedstorage.NewPublicFileHandler(fileStorage, config.PublicFileURLPrefix))
+	router.Handle(
+		config.PublicFileURLPrefix+"/*",
+		sharedstorage.NewPublicFileHandler(fileStorage, config.PublicFileURLPrefix),
+	)
 	api := humachi.New(router, huma.DefaultConfig("Brandtoon API", "1.0.0"))
 
 	authMiddleware := authhttp.HumaAuthMiddleware(authhttp.AuthMiddlewareDeps{
@@ -106,12 +115,16 @@ func main() {
 		HumaApi:     api,
 	})
 	avatarhttp.RegisterRoutes(api, router, avatarhttp.RouteDependencies{
+		AvatarRepo:  avatarRepo,
+		IDGenerator: shareddomain.GenerateUUIDv7,
+	}, plainAuthMiddleware, authMiddleware)
+	avataroptionhttp.RegisterRoutes(api, router, avataroptionhttp.RouteDependencies{
 		AvatarConfigRepo: avatarConfigRepo,
 		AvatarGenerator:  avatarGenerator,
 		AvatarRepo:       avatarRepo,
+		AvatarOptionRepo: avatarOptionRepo,
 		EventBus:         container.GetEventBus(),
 		FileStorage:      fileStorage,
-		IDGenerator:      shareddomain.GenerateUUIDv7,
 	}, plainAuthMiddleware, authMiddleware)
 	avatarconfighttp.RegisterRoutes(api, router, avatarconfighttp.RouteDependencies{
 		AvatarConfigRepo: avatarConfigRepo,

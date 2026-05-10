@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	avatarusecases "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases"
+	avataroptionusecases "brandtoonapi/bounded_contexts/creative_studio/avatar_option/useCases"
 	authhttp "brandtoonapi/bounded_contexts/identity/auth/infra/http"
 	sessiondomain "brandtoonapi/bounded_contexts/identity/session/domain"
 	sessionmocks "brandtoonapi/bounded_contexts/identity/session/domain/mocks"
@@ -45,7 +45,7 @@ func TestSSERouteBroadcastsOnlyToMatchingUser(t *testing.T) {
 	connector, err := sharedsse.NewConnector(
 		eventBus,
 		hub,
-		[]string{avatarusecases.AvatarGenerationCompletedEventName},
+		[]string{avataroptionusecases.AvatarGenerationCompletedEventName},
 	)
 	if err != nil {
 		t.Fatalf("expected nil error, got %v", err)
@@ -96,7 +96,7 @@ func TestSSERouteBroadcastsOnlyToMatchingUser(t *testing.T) {
 		readResultUserTwo <- readResult{event: event, err: err}
 	}()
 
-	eventBus.Publish(avatarusecases.AvatarGenerationCompletedEvent{
+	eventBus.Publish(avataroptionusecases.AvatarGenerationCompletedEvent{
 		AvatarIDValue:   "avatar-v7",
 		AvatarNameValue: "Studio Hero",
 		UserIDValue:     "user-v7",
@@ -140,7 +140,7 @@ func newSSEServer(t *testing.T) http.Handler {
 	connector, err := sharedsse.NewConnector(
 		eventBus,
 		hub,
-		[]string{avatarusecases.AvatarGenerationCompletedEventName},
+		[]string{avataroptionusecases.AvatarGenerationCompletedEventName},
 	)
 	if err != nil {
 		t.Fatalf("expected nil error, got %v", err)

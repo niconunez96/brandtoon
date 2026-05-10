@@ -2,7 +2,7 @@ import { act, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AvatarGenerationEventsProvider } from './AvatarGenerationEventsProvider'
 
-const invalidateAvatarQueryMock = vi.fn()
+const invalidateAvatarOptionsQueryMock = vi.fn()
 const addEventListenerMock = vi.fn()
 const removeEventListenerMock = vi.fn()
 const closeMock = vi.fn()
@@ -22,9 +22,9 @@ vi.mock('react-router-dom', async () => {
   }
 })
 
-vi.mock('../../queries/useAvatarQuery', () => ({
-  invalidateAvatarQuery: (...args: unknown[]) =>
-    invalidateAvatarQueryMock(...args),
+vi.mock('../../queries/useAvatarOptionsQuery', () => ({
+  invalidateAvatarOptionsQuery: (...args: unknown[]) =>
+    invalidateAvatarOptionsQueryMock(...args),
 }))
 
 vi.mock('../../shared/components/ui/toast', () => ({
@@ -33,7 +33,7 @@ vi.mock('../../shared/components/ui/toast', () => ({
 
 describe('AvatarGenerationEventsProvider', () => {
   afterEach(() => {
-    invalidateAvatarQueryMock.mockReset()
+    invalidateAvatarOptionsQueryMock.mockReset()
     addEventListenerMock.mockReset()
     removeEventListenerMock.mockReset()
     closeMock.mockReset()
@@ -41,7 +41,7 @@ describe('AvatarGenerationEventsProvider', () => {
     vi.unstubAllGlobals()
   })
 
-  it('invalidates the avatar query when generation completes for the active avatar', () => {
+  it('invalidates the avatar-options query when generation completes for the active avatar', () => {
     let completedHandler: ((event: MessageEvent<string>) => void) | undefined
 
     class EventSourceMock {
@@ -85,7 +85,7 @@ describe('AvatarGenerationEventsProvider', () => {
       } as MessageEvent<string>)
     })
 
-    expect(invalidateAvatarQueryMock).toHaveBeenCalledWith(
+    expect(invalidateAvatarOptionsQueryMock).toHaveBeenCalledWith(
       expect.anything(),
       'avatar-v7',
     )

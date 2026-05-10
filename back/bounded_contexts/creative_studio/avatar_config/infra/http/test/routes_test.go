@@ -51,7 +51,7 @@ func TestAvatarConfigGetReturnsNullPayloadWhenDraftIsMissing(t *testing.T) {
 		AvatarConfigRepo: &avatarconfigmocks.AvatarConfigRepositoryMock{},
 		AvatarRepo: &avatarmocks.AvatarRepositoryMock{
 			FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
-				avatar := avatardomain.NewAvatarWithOptions(avatarID, userID, "Studio Hero", nil)
+				avatar := avatardomain.NewAvatar(avatarID, userID, "Studio Hero")
 				return &avatar, nil
 			},
 		},
@@ -94,18 +94,7 @@ func TestAvatarConfigGetReturnsStoredDraftPayload(t *testing.T) {
 		},
 		AvatarRepo: &avatarmocks.AvatarRepositoryMock{
 			FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
-				avatar := avatardomain.NewAvatarWithOptions(
-					avatarID,
-					userID,
-					"Studio Hero",
-					[]avatardomain.AvatarOption{
-						{
-							ID:       "option-v7",
-							Href:     "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png",
-							Selected: false,
-						},
-					},
-				)
+				avatar := avatardomain.NewAvatar(avatarID, userID, "Studio Hero")
 				return &avatar, nil
 			},
 		},
@@ -206,18 +195,7 @@ func TestAvatarConfigPutCreatesOrUpdatesDraft(t *testing.T) {
 		},
 		AvatarRepo: &avatarmocks.AvatarRepositoryMock{
 			FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
-				avatar := avatardomain.NewAvatarWithOptions(
-					avatarID,
-					userID,
-					"Studio Hero",
-					[]avatardomain.AvatarOption{
-						{
-							ID:       "option-v7",
-							Href:     "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png",
-							Selected: false,
-						},
-					},
-				)
+				avatar := avatardomain.NewAvatar(avatarID, userID, "Studio Hero")
 				return &avatar, nil
 			},
 		},

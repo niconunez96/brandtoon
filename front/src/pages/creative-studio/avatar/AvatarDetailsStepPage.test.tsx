@@ -4,6 +4,7 @@ import { AvatarDetailsStepPage } from './AvatarDetailsStepPage'
 
 const useAvatarConfigQueryMock = vi.fn()
 const useAvatarQueryMock = vi.fn()
+const useAvatarOptionsQueryMock = vi.fn()
 const useUpdateAvatarConfigMutationMock = vi.fn()
 const useGenerateAvatarOptionsMutationMock = vi.fn()
 const useDeleteAvatarOptionsMutationMock = vi.fn()
@@ -113,6 +114,10 @@ vi.mock('../../../queries/useAvatarQuery', () => ({
   useAvatarQuery: () => useAvatarQueryMock(),
 }))
 
+vi.mock('../../../queries/useAvatarOptionsQuery', () => ({
+  useAvatarOptionsQuery: () => useAvatarOptionsQueryMock(),
+}))
+
 function renderAvatarDetailsPage() {
   return render(<AvatarDetailsStepPage />)
 }
@@ -130,21 +135,30 @@ function buildAvatar() {
   return {
     id: 'avatar-1',
     name: 'Studio mascot',
+  }
+}
+
+function buildAvatarOptions() {
+  return {
+    avatarId: 'avatar-1',
     avatarOptions: [
       {
-        id: 'option-1',
         href: 'https://cdn.brandtoon.local/avatars/avatar-1/options/1.png',
+        id: 'option-1',
         selected: false,
+        status: 'DONE',
       },
       {
-        id: 'option-2',
         href: 'https://cdn.brandtoon.local/avatars/avatar-1/options/2.png',
+        id: 'option-2',
         selected: true,
+        status: 'DONE',
       },
       {
-        id: 'option-3',
         href: 'https://cdn.brandtoon.local/avatars/avatar-1/options/3.png',
+        id: 'option-3',
         selected: false,
+        status: 'DONE',
       },
     ],
   }
@@ -159,6 +173,12 @@ function mockLoadedAvatarConfig() {
   })
   useAvatarQueryMock.mockReturnValue({
     data: { avatar: buildAvatar() },
+    isError: false,
+    isLoading: false,
+    refetch: vi.fn(),
+  })
+  useAvatarOptionsQueryMock.mockReturnValue({
+    data: { avatar: buildAvatarOptions() },
     isError: false,
     isLoading: false,
     refetch: vi.fn(),
@@ -223,17 +243,18 @@ describe('AvatarDetailsStepPage', () => {
     ])
   })
 
-  it('renders avatar options from the avatar query instead of the config query', () => {
+  it('renders avatar options from the dedicated avatar-options query', () => {
     mockLoadedAvatarConfig()
-    useAvatarQueryMock.mockReturnValue({
+    useAvatarOptionsQueryMock.mockReturnValue({
       data: {
         avatar: {
-          ...buildAvatar(),
           avatarOptions: [
             {
+              avatarId: 'avatar-1',
               id: 'option-from-avatar',
               href: 'https://cdn.brandtoon.local/avatars/avatar-1/options/avatar-only.png',
               selected: true,
+              status: 'DONE',
             },
           ],
         },

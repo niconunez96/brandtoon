@@ -1,12 +1,12 @@
 package mocks
 
 import (
-	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
+	avataroptiondomain "brandtoonapi/bounded_contexts/creative_studio/avatar_option/domain"
 	"context"
 )
 
 type AvatarGeneratorMock struct {
-	GenerateOptionsFunc func(ctx context.Context, prompt string, count int) ([]avatardomain.GeneratedAvatarImage, error)
+	GenerateOptionsFunc func(ctx context.Context, prompt string, count int) ([]avataroptiondomain.GeneratedAvatarImage, error)
 	GenerateCalls       int
 	LastPrompt          string
 	LastCount           int
@@ -16,7 +16,7 @@ func (m *AvatarGeneratorMock) GenerateOptions(
 	ctx context.Context,
 	prompt string,
 	count int,
-) ([]avatardomain.GeneratedAvatarImage, error) {
+) ([]avataroptiondomain.GeneratedAvatarImage, error) {
 	m.GenerateCalls++
 	m.LastPrompt = prompt
 	m.LastCount = count

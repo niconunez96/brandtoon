@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { Sparkles } from 'lucide-react'
 import { type PropsWithChildren, useEffect, useMemo, useState } from 'react'
 import { matchPath, useLocation } from 'react-router-dom'
-import { invalidateAvatarQuery } from '../../queries/useAvatarQuery'
+import { invalidateAvatarOptionsQuery } from '../../queries/useAvatarOptionsQuery'
 import type { AvatarGenerationCompletedEvent } from '../../services/avatar-config.api'
 import { Toast } from '../../shared/components/ui/toast'
 import { API_BASE_URL } from '../../shared/config/api'
@@ -38,7 +38,7 @@ export function AvatarGenerationEventsProvider({
       setToastVisibility('entering')
 
       if (activeAvatarId === payload.avatarId) {
-        void invalidateAvatarQuery(queryClient, payload.avatarId)
+        void invalidateAvatarOptionsQuery(queryClient, payload.avatarId)
       }
     }
 

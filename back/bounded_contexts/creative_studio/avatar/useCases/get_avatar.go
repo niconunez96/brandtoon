@@ -15,15 +15,15 @@ func GetAvatar(
 	ctx context.Context,
 	query GetAvatarQuery,
 	avatarRepo avatardomain.AvatarRepository,
-) (avatardto.AvatarDetailsDTO, error) {
+) (avatardto.AvatarDTO, error) {
 	avatar, err := avatarRepo.FindOwnedByID(ctx, query.AvatarID, query.UserID)
 	if err != nil {
-		return avatardto.AvatarDetailsDTO{}, err
+		return avatardto.AvatarDTO{}, err
 	}
 
 	if avatar == nil {
-		return avatardto.AvatarDetailsDTO{}, ErrAvatarNotFound
+		return avatardto.AvatarDTO{}, ErrAvatarNotFound
 	}
 
-	return avatardto.SerializeAvatarDetails(avatar.WithNormalizedOptions()), nil
+	return avatardto.Serialize(*avatar), nil
 }

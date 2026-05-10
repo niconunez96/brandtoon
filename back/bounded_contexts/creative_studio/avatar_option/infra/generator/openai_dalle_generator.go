@@ -1,7 +1,7 @@
-package avatargenerator
+package avataroptiongenerator
 
 import (
-	avatardomain "brandtoonapi/bounded_contexts/creative_studio/avatar/domain"
+	avataroptiondomain "brandtoonapi/bounded_contexts/creative_studio/avatar_option/domain"
 	"context"
 	"encoding/base64"
 	"errors"
@@ -55,23 +55,22 @@ func (g *OpenAIDALLEGenerator) GenerateOptions(
 	ctx context.Context,
 	prompt string,
 	count int,
-) ([]avatardomain.GeneratedAvatarImage, error) {
+) ([]avataroptiondomain.GeneratedAvatarImage, error) {
 	if count <= 0 {
-		return []avatardomain.GeneratedAvatarImage{}, nil
+		return []avataroptiondomain.GeneratedAvatarImage{}, nil
 	}
 
 	response, err := g.client.Generate(ctx, openai.ImageGenerateParams{
-		Prompt:         prompt,
-		Model:          openai.ImageModel(g.model),
-		N:              openai.Int(int64(count)),
-		// ResponseFormat: openai.ImageGenerateParamsResponseFormatB64JSON,
-		Size:           openai.ImageGenerateParamsSize1024x1024,
+		Prompt: prompt,
+		Model:  openai.ImageModel(g.model),
+		N:      openai.Int(int64(count)),
+		Size:   openai.ImageGenerateParamsSize1024x1024,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	images := make([]avatardomain.GeneratedAvatarImage, 0, len(response.Data))
+	images := make([]avataroptiondomain.GeneratedAvatarImage, 0, len(response.Data))
 	for _, item := range response.Data {
 		if item.B64JSON == "" {
 			return nil, errors.New("openai image response missing b64 payload")
@@ -82,7 +81,7 @@ func (g *OpenAIDALLEGenerator) GenerateOptions(
 			return nil, fmt.Errorf("decode openai image: %w", decodeErr)
 		}
 
-		images = append(images, avatardomain.GeneratedAvatarImage{
+		images = append(images, avataroptiondomain.GeneratedAvatarImage{
 			ContentType: "image/png",
 			Data:        decoded,
 		})

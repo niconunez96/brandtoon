@@ -1,4 +1,4 @@
-package avatardomain
+package avataroptiondomain
 
 import "context"
 
