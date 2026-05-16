@@ -138,7 +138,9 @@ describe('AvatarGenerationEventsProvider', () => {
     expect(
       screen.getByText('Avatar generation succeeded for Studio Hero'),
     ).toBeInTheDocument()
-    expect(screen.getByText('Your avatar options are ready.')).toBeInTheDocument()
+    expect(
+      screen.getByText('Your avatar options are ready.'),
+    ).toBeInTheDocument()
     expect(screen.queryByText(/failed/i)).not.toBeInTheDocument()
   })
 

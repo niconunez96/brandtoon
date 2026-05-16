@@ -12,7 +12,8 @@ type ToastVisibility = 'hidden' | 'entering' | 'visible' | 'exiting'
 function getCompletionToastContent(payload: AvatarGenerationCompletedEvent) {
   if (payload.outcome === 'FAILURE') {
     return {
-      description: 'We could not generate avatar options this time. Please try again.',
+      description:
+        'We could not generate avatar options this time. Please try again.',
       title: `Avatar generation failed for ${payload.avatarName}`,
     }
   }

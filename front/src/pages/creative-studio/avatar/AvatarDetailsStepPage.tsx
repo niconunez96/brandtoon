@@ -36,6 +36,8 @@ type AvatarConfigFormValues = z.infer<typeof avatarConfigSchema>
 
 const artisticStyleOptions: ArtisticStyle[] = ['2D', '3D']
 const personalityOptions: Personality[] = ['Friendly', 'Bold', 'Playful']
+const DRAFT_SAVE_FEEDBACK_FADE_DELAY_MS = 2200
+const DRAFT_SAVE_FEEDBACK_FADE_DURATION_MS = 300
 
 function getAvatarConfigErrorMessage(error: unknown) {
   if (error instanceof ApiError && error.status === 404) {
@@ -116,8 +118,6 @@ function SelectedAvatarPreview({
 }
 
 export function AvatarDetailsStepPage() {
-  const draftSaveFeedbackFadeDelayMs = 2200
-  const draftSaveFeedbackFadeDurationMs = 300
   const navigate = useNavigate()
   const { avatarId = '' } = useParams()
   const avatarConfigQuery = useAvatarConfigQuery(avatarId)
@@ -168,21 +168,17 @@ export function AvatarDetailsStepPage() {
 
     const fadeTimer = window.setTimeout(() => {
       setIsDraftSaveFeedbackVisible(false)
-    }, draftSaveFeedbackFadeDelayMs)
+    }, DRAFT_SAVE_FEEDBACK_FADE_DELAY_MS)
 
     const clearTimer = window.setTimeout(() => {
       setDraftSaveFeedback(null)
-    }, draftSaveFeedbackFadeDelayMs + draftSaveFeedbackFadeDurationMs)
+    }, DRAFT_SAVE_FEEDBACK_FADE_DELAY_MS + DRAFT_SAVE_FEEDBACK_FADE_DURATION_MS)
 
     return () => {
       window.clearTimeout(fadeTimer)
       window.clearTimeout(clearTimer)
     }
-  }, [
-    draftSaveFeedback,
-    draftSaveFeedbackFadeDelayMs,
-    draftSaveFeedbackFadeDurationMs,
-  ])
+  }, [draftSaveFeedback])
 
   const artisticStyle = form.watch('artisticStyle')
   const personality = form.watch('personality')
