@@ -1,7 +1,7 @@
-import { Sparkles, WandSparkles } from 'lucide-react'
+import { ArrowLeft, Sparkles, WandSparkles } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { z } from 'zod'
 import {
   useAvatarConfigQuery,
@@ -10,15 +10,18 @@ import {
   useSelectAvatarOptionMutation,
   useUpdateAvatarConfigMutation,
 } from '../../../queries/useAvatarConfigQuery'
+import { useAvatarOptionsQuery } from '../../../queries/useAvatarOptionsQuery'
 import { useAvatarQuery } from '../../../queries/useAvatarQuery'
 import { ApiError } from '../../../services/auth.api'
 import type {
   ArtisticStyle,
   Personality,
 } from '../../../services/avatar-config.api'
+import type { AvatarOption } from '../../../services/avatar-option.api'
 import { Button } from '../../../shared/components/ui/button'
 import { Card, SectionShell } from '../../../shared/components/ui/card'
 import { PromptField } from '../../../shared/components/ui/field'
+import { Alert } from '../../../shared/components/ui/toast'
 import { orderAvatarOptionsBySelection } from './avatar-option-order'
 
 const avatarConfigSchema = z.object({
@@ -33,6 +36,8 @@ type AvatarConfigFormValues = z.infer<typeof avatarConfigSchema>
 
 const artisticStyleOptions: ArtisticStyle[] = ['2D', '3D']
 const personalityOptions: Personality[] = ['Friendly', 'Bold', 'Playful']
+const DRAFT_SAVE_FEEDBACK_FADE_DELAY_MS = 2200
+const DRAFT_SAVE_FEEDBACK_FADE_DURATION_MS = 300
 
 function getAvatarConfigErrorMessage(error: unknown) {
   if (error instanceof ApiError && error.status === 404) {
@@ -83,10 +88,41 @@ function AvatarOptionPreview({
   )
 }
 
+function SelectedAvatarPreview({
+  href,
+  label,
+}: {
+  href: string
+  label: string
+}) {
+  const [hasImageError, setHasImageError] = useState(false)
+  const hasUsableImage = href.trim().length > 0 && !hasImageError
+
+  return (
+    <div className="relative flex aspect-square items-end overflow-hidden rounded-[2.25rem] bg-gradient-to-br from-[#FCE7E7] via-white to-[#dfe6e9] p-5 shadow-overshoot">
+      {hasUsableImage ? (
+        <img
+          alt={label}
+          className="absolute inset-0 size-full object-cover"
+          onError={() => {
+            setHasImageError(true)
+          }}
+          src={href}
+        />
+      ) : null}
+      <span className="relative rounded-full bg-coral px-4 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-sticker">
+        Active prototype
+      </span>
+    </div>
+  )
+}
+
 export function AvatarDetailsStepPage() {
+  const navigate = useNavigate()
   const { avatarId = '' } = useParams()
   const avatarConfigQuery = useAvatarConfigQuery(avatarId)
   const avatarQuery = useAvatarQuery(avatarId)
+  const avatarOptionsQuery = useAvatarOptionsQuery(avatarId)
   const updateAvatarConfigMutation = useUpdateAvatarConfigMutation(avatarId)
   const generateAvatarOptionsMutation =
     useGenerateAvatarOptionsMutation(avatarId)
@@ -95,6 +131,11 @@ export function AvatarDetailsStepPage() {
   const [avatarOptionIdsToDelete, setAvatarOptionIdsToDelete] = useState<
     string[]
   >([])
+  const [draftSaveFeedback, setDraftSaveFeedback] = useState<string | null>(
+    null,
+  )
+  const [isDraftSaveFeedbackVisible, setIsDraftSaveFeedbackVisible] =
+    useState(false)
   const form = useForm<AvatarConfigFormValues>({
     defaultValues: {
       artisticStyle: '2D',
@@ -117,12 +158,35 @@ export function AvatarDetailsStepPage() {
     })
   }, [avatarConfigQuery.data, form])
 
+  useEffect(() => {
+    if (!draftSaveFeedback) {
+      setIsDraftSaveFeedbackVisible(false)
+      return
+    }
+
+    setIsDraftSaveFeedbackVisible(true)
+
+    const fadeTimer = window.setTimeout(() => {
+      setIsDraftSaveFeedbackVisible(false)
+    }, DRAFT_SAVE_FEEDBACK_FADE_DELAY_MS)
+
+    const clearTimer = window.setTimeout(() => {
+      setDraftSaveFeedback(null)
+    }, DRAFT_SAVE_FEEDBACK_FADE_DELAY_MS + DRAFT_SAVE_FEEDBACK_FADE_DURATION_MS)
+
+    return () => {
+      window.clearTimeout(fadeTimer)
+      window.clearTimeout(clearTimer)
+    }
+  }, [draftSaveFeedback])
+
   const artisticStyle = form.watch('artisticStyle')
   const personality = form.watch('personality')
 
   const avatarOptions = orderAvatarOptionsBySelection(
-    avatarQuery.data?.avatar?.avatarOptions ?? [],
+    avatarOptionsQuery.data?.avatar?.avatarOptions ?? [],
   )
+  const selectedAvatarOption = avatarOptions.find((option) => option.selected)
   const avatarOptionIds = useMemo(
     () => new Set(avatarOptions.map((option) => option.id)),
     [avatarOptions],
@@ -178,6 +242,7 @@ export function AvatarDetailsStepPage() {
 
     try {
       await updateAvatarConfigMutation.mutateAsync(parsed.data)
+      setDraftSaveFeedback('Your avatar draft was saved.')
       return true
     } catch {
       return false
@@ -185,10 +250,12 @@ export function AvatarDetailsStepPage() {
   }
 
   const handleSaveSubmit = form.handleSubmit(async (values) => {
+    setDraftSaveFeedback(null)
     await persistDraft(values)
   })
 
   const handleGenerate = form.handleSubmit(async (values) => {
+    setDraftSaveFeedback(null)
     const saved = await persistDraft(values)
     if (!saved) {
       return
@@ -206,7 +273,11 @@ export function AvatarDetailsStepPage() {
     setAvatarOptionIdsToDelete([])
   }
 
-  if (avatarConfigQuery.isLoading || avatarQuery.isLoading) {
+  if (
+    avatarConfigQuery.isLoading ||
+    avatarQuery.isLoading ||
+    avatarOptionsQuery.isLoading
+  ) {
     return (
       <Card className="space-y-3 bg-white">
         <p className="foundation-section-eyebrow">Loading avatar draft</p>
@@ -217,7 +288,11 @@ export function AvatarDetailsStepPage() {
     )
   }
 
-  if (avatarConfigQuery.isError || avatarQuery.isError) {
+  if (
+    avatarConfigQuery.isError ||
+    avatarQuery.isError ||
+    avatarOptionsQuery.isError
+  ) {
     return (
       <Card className="space-y-4 bg-white">
         <div className="space-y-2">
@@ -245,6 +320,13 @@ export function AvatarDetailsStepPage() {
     <SectionShell
       actions={
         <>
+          <Button
+            icon={<ArrowLeft className="size-4" />}
+            onClick={() => navigate('/creative-studio')}
+            variant="ghost"
+          >
+            Back
+          </Button>
           <Button
             isLoading={generateAvatarOptionsMutation.isPending}
             onClick={() => void handleGenerate()}
@@ -277,11 +359,14 @@ export function AvatarDetailsStepPage() {
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(360px,1fr)]">
           <div className="space-y-5">
             <Card className="space-y-4 bg-white p-4 md:p-6">
-              <div className="relative flex aspect-square items-end overflow-hidden rounded-[2.25rem] bg-gradient-to-br from-[#FCE7E7] via-white to-[#dfe6e9] p-5 shadow-overshoot">
-                <span className="rounded-full bg-coral px-4 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-sticker">
-                  Active prototype
-                </span>
-              </div>
+              <SelectedAvatarPreview
+                href={
+                  selectedAvatarOption?.status === 'DONE'
+                    ? (selectedAvatarOption.href ?? '')
+                    : ''
+                }
+                label="Selected avatar preview"
+              />
 
               <div className="space-y-3">
                 <div>
@@ -324,6 +409,7 @@ export function AvatarDetailsStepPage() {
                       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                         {avatarOptions.map((option, index) => {
                           const isSelected = option.selected
+                          const isSelectable = option.status === 'DONE'
                           const isMarkedForDelete =
                             avatarOptionIdsToDelete.includes(option.id)
 
@@ -368,7 +454,9 @@ export function AvatarDetailsStepPage() {
                               <button
                                 aria-label={`Select avatar option ${option.id}`}
                                 className="block w-full text-left"
-                                disabled={isAvatarOptionActionPending}
+                                disabled={
+                                  isAvatarOptionActionPending || !isSelectable
+                                }
                                 onClick={() => {
                                   void selectAvatarOptionMutation.mutateAsync(
                                     option.id,
@@ -376,16 +464,13 @@ export function AvatarDetailsStepPage() {
                                 }}
                                 type="button"
                               >
-                                <AvatarOptionPreview
-                                  href={option.href}
-                                  label={`Avatar option ${index + 1}`}
-                                />
+                                {renderAvatarOptionPreview(option, index)}
                                 <div className="px-1 pb-1 pt-2">
                                   <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-ink/65">
                                     Option {index + 1}
                                   </p>
                                   <p className="text-[11px] font-bold text-ink/50">
-                                    Tap to select this option
+                                    {getAvatarOptionActionLabel(option)}
                                   </p>
                                 </div>
                               </button>
@@ -418,7 +503,10 @@ export function AvatarDetailsStepPage() {
                     maxLength={256}
                     name={field.name}
                     onBlur={field.onBlur}
-                    onChange={field.onChange}
+                    onChange={(event) => {
+                      setDraftSaveFeedback(null)
+                      field.onChange(event)
+                    }}
                     placeholder="Describe the personality, silhouette, and visual energy you want this avatar to carry."
                     title="Avatar description"
                     value={field.value}
@@ -446,6 +534,7 @@ export function AvatarDetailsStepPage() {
                         }`}
                         key={option}
                         onClick={() => {
+                          setDraftSaveFeedback(null)
                           form.clearErrors('artisticStyle')
                           form.setValue('artisticStyle', option, {
                             shouldDirty: true,
@@ -488,6 +577,7 @@ export function AvatarDetailsStepPage() {
                         }`}
                         key={option}
                         onClick={() => {
+                          setDraftSaveFeedback(null)
                           form.clearErrors('personality')
                           form.setValue('personality', option, {
                             shouldDirty: true,
@@ -512,6 +602,16 @@ export function AvatarDetailsStepPage() {
                 <p className="rounded-2xl bg-error-container px-4 py-3 text-sm font-bold text-error">
                   {form.formState.errors.prompt.message}
                 </p>
+              ) : null}
+
+              {draftSaveFeedback ? (
+                <Alert
+                  className={`transition-opacity duration-300 ${isDraftSaveFeedbackVisible ? 'opacity-100' : 'opacity-0'}`}
+                  title={draftSaveFeedback}
+                  tone="success"
+                >
+                  You can keep editing or generate new avatar options next.
+                </Alert>
               ) : null}
 
               {updateAvatarConfigMutation.isError ? (
@@ -541,7 +641,8 @@ export function AvatarDetailsStepPage() {
 
               <div className="flex flex-wrap gap-3">
                 <Button
-                  onClick={() =>
+                  onClick={() => {
+                    setDraftSaveFeedback(null)
                     form.reset({
                       artisticStyle:
                         avatarConfigQuery.data?.avatar_config?.artisticStyle ??
@@ -552,7 +653,7 @@ export function AvatarDetailsStepPage() {
                       prompt:
                         avatarConfigQuery.data?.avatar_config?.prompt ?? '',
                     })
-                  }
+                  }}
                   type="button"
                   variant="ghost"
                 >
@@ -565,4 +666,33 @@ export function AvatarDetailsStepPage() {
       </form>
     </SectionShell>
   )
+}
+
+function renderAvatarOptionPreview(option: AvatarOption, index: number) {
+  if (option.status === 'DONE') {
+    return (
+      <AvatarOptionPreview
+        href={option.href ?? ''}
+        label={`Avatar option ${index + 1}`}
+      />
+    )
+  }
+
+  return (
+    <div className="flex aspect-square items-center justify-center rounded-2xl bg-gradient-to-br from-[#FCE7E7] via-white to-[#dfe6e9] p-3 text-center text-xs font-bold text-ink/60">
+      {option.status === 'PENDING' ? 'Generating option…' : 'Generation failed'}
+    </div>
+  )
+}
+
+function getAvatarOptionActionLabel(option: AvatarOption) {
+  if (option.status === 'DONE') {
+    return 'Tap to select this option'
+  }
+
+  if (option.status === 'PENDING') {
+    return 'This option is still generating'
+  }
+
+  return 'This option failed to generate'
 }

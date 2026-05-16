@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	avatarusecases "brandtoonapi/bounded_contexts/creative_studio/avatar/useCases"
+	avataroptionusecases "brandtoonapi/bounded_contexts/creative_studio/avatar_option/useCases"
 	authhttp "brandtoonapi/bounded_contexts/identity/auth/infra/http"
 	sessiondomain "brandtoonapi/bounded_contexts/identity/session/domain"
 	sessionmocks "brandtoonapi/bounded_contexts/identity/session/domain/mocks"
@@ -45,7 +45,7 @@ func TestSSERouteBroadcastsOnlyToMatchingUser(t *testing.T) {
 	connector, err := sharedsse.NewConnector(
 		eventBus,
 		hub,
-		[]string{avatarusecases.AvatarGenerationCompletedEventName},
+		[]string{avataroptionusecases.AvatarGenerationCompletedEventName},
 	)
 	if err != nil {
 		t.Fatalf("expected nil error, got %v", err)
@@ -96,9 +96,10 @@ func TestSSERouteBroadcastsOnlyToMatchingUser(t *testing.T) {
 		readResultUserTwo <- readResult{event: event, err: err}
 	}()
 
-	eventBus.Publish(avatarusecases.AvatarGenerationCompletedEvent{
+	eventBus.Publish(avataroptionusecases.AvatarGenerationCompletedEvent{
 		AvatarIDValue:   "avatar-v7",
 		AvatarNameValue: "Studio Hero",
+		OutcomeValue:    "SUCCESS",
 		UserIDValue:     "user-v7",
 	})
 
@@ -112,6 +113,9 @@ func TestSSERouteBroadcastsOnlyToMatchingUser(t *testing.T) {
 		}
 		if !strings.Contains(result.event, "Studio Hero") {
 			t.Fatalf("expected avatar name payload, got %q", result.event)
+		}
+		if !strings.Contains(result.event, `"outcome":"SUCCESS"`) {
+			t.Fatalf("expected success outcome payload, got %q", result.event)
 		}
 		cancelUserOne()
 	case <-time.After(time.Second):
@@ -140,7 +144,7 @@ func newSSEServer(t *testing.T) http.Handler {
 	connector, err := sharedsse.NewConnector(
 		eventBus,
 		hub,
-		[]string{avatarusecases.AvatarGenerationCompletedEventName},
+		[]string{avataroptionusecases.AvatarGenerationCompletedEventName},
 	)
 	if err != nil {
 		t.Fatalf("expected nil error, got %v", err)

@@ -7,7 +7,7 @@ import (
 	avatarconfigdto "brandtoonapi/bounded_contexts/creative_studio/avatar_config/useCases/dto"
 )
 
-func TestSerializeAvatarConfigMapsConfigFieldsAndNormalizesAvatarOptions(t *testing.T) {
+func TestSerializeMapsConfigFieldsAndNormalizesAvatarOptions(t *testing.T) {
 	t.Parallel()
 
 	avatarConfig := avatarconfigdomain.NewAvatarConfig(
@@ -17,7 +17,7 @@ func TestSerializeAvatarConfigMapsConfigFieldsAndNormalizesAvatarOptions(t *test
 		avatarconfigdomain.PersonalityBold,
 	)
 
-	serialized := avatarconfigdto.SerializeAvatarConfig(avatarConfig)
+	serialized := avatarconfigdto.Serialize(avatarConfig)
 
 	if serialized.AvatarID != "avatar-v7" ||
 		serialized.ArtisticStyle != string(avatarconfigdomain.ArtisticStyle3D) {

@@ -92,23 +92,7 @@ func TestCreativeStudioAvatarReturnsOwnedAvatarDetails(t *testing.T) {
 	server := newAuthenticatedTestServer(t, avatarhttp.RouteDependencies{
 		AvatarRepo: &avatarmocks.AvatarRepositoryMock{
 			FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
-				avatar := avatardomain.NewAvatarWithOptions(
-					avatarID,
-					userID,
-					"Studio Hero",
-					[]avatardomain.AvatarOption{
-						{
-							ID:       "option-1",
-							Href:     "https://cdn.brandtoon.local/avatars/avatar-v7/options/1.png",
-							Selected: false,
-						},
-						{
-							ID:       "option-2",
-							Href:     "https://cdn.brandtoon.local/avatars/avatar-v7/options/2.png",
-							Selected: true,
-						},
-					},
-				)
+				avatar := avatardomain.NewAvatar(avatarID, userID, "Studio Hero")
 				return &avatar, nil
 			},
 		},
@@ -126,13 +110,8 @@ func TestCreativeStudioAvatarReturnsOwnedAvatarDetails(t *testing.T) {
 
 	var payload struct {
 		Avatar struct {
-			ID            string `json:"id"`
-			Name          string `json:"name"`
-			AvatarOptions []struct {
-				ID       string `json:"id"`
-				Href     string `json:"href"`
-				Selected bool   `json:"selected"`
-			} `json:"avatarOptions"`
+			ID   string `json:"id"`
+			Name string `json:"name"`
 		} `json:"avatar"`
 	}
 	decodeResponse(t, recorder, &payload)
@@ -143,14 +122,6 @@ func TestCreativeStudioAvatarReturnsOwnedAvatarDetails(t *testing.T) {
 
 	if payload.Avatar.Name != "Studio Hero" {
 		t.Fatalf("expected Studio Hero, got %s", payload.Avatar.Name)
-	}
-
-	if len(payload.Avatar.AvatarOptions) != 2 {
-		t.Fatalf("expected 2 avatar options, got %d", len(payload.Avatar.AvatarOptions))
-	}
-
-	if !payload.Avatar.AvatarOptions[1].Selected {
-		t.Fatalf("expected selected avatar option, got %+v", payload.Avatar.AvatarOptions[1])
 	}
 }
 

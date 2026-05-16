@@ -27,23 +27,4 @@ func RegisterRoutes(
 		Summary:       "Create an avatar",
 		DefaultStatus: stdhttp.StatusCreated,
 	}, buildCreateAvatarHandler(deps))
-	huma.Register(creativeStudioGroup, huma.Operation{
-		OperationID:   "select-avatar-option",
-		Method:        stdhttp.MethodPost,
-		Path:          "/avatar_configs/{avatarId}/options/select",
-		Summary:       "Select an avatar option",
-		DefaultStatus: stdhttp.StatusOK,
-	}, buildSelectAvatarOptionHandler(deps))
-	huma.Register(creativeStudioGroup, huma.Operation{
-		OperationID:   "delete-avatar-options",
-		Method:        stdhttp.MethodDelete,
-		Path:          "/avatar_configs/{avatarId}/options",
-		Summary:       "Delete multiple avatar options",
-		DefaultStatus: stdhttp.StatusOK,
-	}, buildDeleteAvatarOptionsHandler(deps))
-
-	router.With(authMiddleware).Post(
-		"/creative-studio/avatar_configs/{avatarId}/generate",
-		buildGenerateAvatarOptionsHandler(deps),
-	)
 }

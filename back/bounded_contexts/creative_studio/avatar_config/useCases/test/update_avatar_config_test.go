@@ -28,12 +28,7 @@ func TestUpdateAvatarConfigUpsertsDraftForOwnedAvatar(t *testing.T) {
 		},
 		&avatarmocks.AvatarRepositoryMock{
 			FindOwnedByIDFunc: func(ctx context.Context, avatarID string, userID string) (*avatardomain.Avatar, error) {
-				avatar := avatardomain.NewAvatarWithOptions(
-					avatarID,
-					userID,
-					"Studio Hero",
-					[]avatardomain.AvatarOption{{Href: "https://cdn.brandtoon.local/options/1.png", Selected: false}},
-				)
+				avatar := avatardomain.NewAvatar(avatarID, userID, "Studio Hero")
 				return &avatar, nil
 			},
 		},

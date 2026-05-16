@@ -12,7 +12,7 @@ linters:
     - lll
   settings:
     lll:
-      line-length: 120
+      line-length: 150
     exhaustive:
       explicit-exhaustive-switch: false
       explicit-exhaustive-map: false

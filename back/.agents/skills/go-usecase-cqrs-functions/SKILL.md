@@ -41,6 +41,7 @@ Use this skill when editing `back/bounded_contexts/**/useCases`.
 - DTO type declarations must live in `useCases/dto/` using the aggregate DTO package name (for example `avatardto`, `avatarconfigdto`).
 - DTO naming convention is mandatory: file `{name}_dto.go`, struct `{Name}DTO`.
 - DTO serialization helpers live alongside their DTO type declarations inside `useCases/dto/` and expose package-level functions that return the canonical DTO package types.
+- DTO serializer naming is mandatory: use `Serialize(...)` for a single item and `SerializeList(...)` for collections/wrapper list payloads. Do NOT use aggregate-specific helper names such as `SerializeAvatar`, `SerializeAvatarDetails`, or `SerializeAvatarConfig`.
 - Avoid alias files for DTOs unless there is a concrete transport reason; direct references are preferred for clarity.
 - Avoid transport schema validation in use cases (required/length/pattern checks for HTTP payload shape); prefer Huma validation tags in `infra/http` contracts.
 
@@ -72,6 +73,6 @@ Use this skill when editing `back/bounded_contexts/**/useCases`.
 - Use case functions are focused and single-purpose.
 - Signatures reveal contract and dependencies immediately.
 - Handlers can orchestrate without embedding business rules.
-- DTO transformations are explicit: DTO structs and their serializer functions live together in `useCases/dto/`, and sibling use-case files call that DTO package API directly.
+- DTO transformations are explicit: DTO structs and their serializer functions live together in `useCases/dto/`, and sibling use-case files call that DTO package API directly through `Serialize` / `SerializeList`.
 
 See `REFERENCE.md` for canonical templates.

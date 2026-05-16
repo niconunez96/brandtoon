@@ -28,8 +28,8 @@ describe('useAvatarConfigQuery mutations', () => {
     vi.resetModules()
   })
 
-  it('invalidates the avatar query after selecting an option', async () => {
-    const { avatarQueryKey } = await import('./useAvatarQuery')
+  it('invalidates the avatar-options query after selecting an option', async () => {
+    const { avatarOptionsQueryKey } = await import('./useAvatarOptionsQuery')
     const { useSelectAvatarOptionMutation } = await import(
       './useAvatarConfigQuery'
     )
@@ -41,12 +41,29 @@ describe('useAvatarConfigQuery mutations', () => {
     await mutation.onSuccess()
 
     expect(invalidateQueriesMock).toHaveBeenCalledWith({
-      queryKey: avatarQueryKey('avatar-v7'),
+      queryKey: avatarOptionsQueryKey('avatar-v7'),
     })
   })
 
-  it('invalidates the avatar query after deleting options', async () => {
-    const { avatarQueryKey } = await import('./useAvatarQuery')
+  it('invalidates the avatar-options query after generating options', async () => {
+    const { avatarOptionsQueryKey } = await import('./useAvatarOptionsQuery')
+    const { useGenerateAvatarOptionsMutation } = await import(
+      './useAvatarConfigQuery'
+    )
+
+    const mutation = useGenerateAvatarOptionsMutation('avatar-v7') as {
+      onSuccess: () => Promise<void>
+    }
+
+    await mutation.onSuccess()
+
+    expect(invalidateQueriesMock).toHaveBeenCalledWith({
+      queryKey: avatarOptionsQueryKey('avatar-v7'),
+    })
+  })
+
+  it('invalidates the avatar-options query after deleting options', async () => {
+    const { avatarOptionsQueryKey } = await import('./useAvatarOptionsQuery')
     const { useDeleteAvatarOptionsMutation } = await import(
       './useAvatarConfigQuery'
     )
@@ -58,7 +75,7 @@ describe('useAvatarConfigQuery mutations', () => {
     await mutation.onSuccess()
 
     expect(invalidateQueriesMock).toHaveBeenCalledWith({
-      queryKey: avatarQueryKey('avatar-v7'),
+      queryKey: avatarOptionsQueryKey('avatar-v7'),
     })
   })
 })

@@ -11,7 +11,7 @@ type AvatarConfigDTO struct {
 	Prompt        string `json:"prompt"`
 }
 
-func SerializeAvatarConfig(
+func Serialize(
 	avatarConfig avatarconfigdomain.AvatarConfig,
 ) AvatarConfigDTO {
 	return AvatarConfigDTO{

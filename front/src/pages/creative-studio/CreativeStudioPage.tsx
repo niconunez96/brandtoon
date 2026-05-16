@@ -1,4 +1,3 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Sparkles, UserRoundPlus, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -8,19 +7,14 @@ import {
   useAvatarsQuery,
   useCreateAvatarMutation,
 } from '../../queries/useAvatarsQuery'
-import {
-  currentUserQueryKey,
-  useCurrentUserQuery,
-} from '../../queries/useCurrentUserQuery'
 import { ApiError } from '../../services/auth.api'
-import { logoutSession } from '../../services/auth.api'
 import { Button } from '../../shared/components/ui/button'
 import { Card, SectionShell } from '../../shared/components/ui/card'
 import { EmptyState } from '../../shared/components/ui/empty-state'
 import { Input } from '../../shared/components/ui/field'
 import { Modal } from '../../shared/components/ui/modal'
 import { SidebarNav } from '../../shared/components/ui/sidebar-nav'
-import { Topbar } from '../../shared/components/ui/topbar'
+import { CreativeStudioSidebarFooter } from './CreativeStudioSidebarFooter'
 
 const createAvatarSchema = z.object({
   name: z
@@ -122,53 +116,18 @@ function AvatarComposer({
 
 export function CreativeStudioPage() {
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
   const [isComposerOpen, setIsComposerOpen] = useState(false)
-  const currentUserQuery = useCurrentUserQuery()
   const avatarsQuery = useAvatarsQuery()
-  const logoutMutation = useMutation({
-    mutationFn: logoutSession,
-    onSuccess: async () => {
-      await queryClient.removeQueries({ queryKey: currentUserQueryKey })
-      navigate('/', { replace: true })
-    },
-  })
 
   return (
     <div className="foundation-page min-h-screen lg:flex">
       <SidebarNav
-        footer={
-          <div className="space-y-2">
-            <p className="text-xs font-black uppercase tracking-section text-white/72">
-              Creative studio
-            </p>
-            <p className="text-xl font-black tracking-tight text-white">
-              Turn every new avatar into a reusable brand character.
-            </p>
-          </div>
-        }
+        bottomContent={<CreativeStudioSidebarFooter />}
         items={[{ active: true, href: '/creative-studio', label: 'Avatars' }]}
         title="Brandtoon"
       />
 
       <div className="flex min-h-screen flex-1 flex-col">
-        <Topbar
-          actions={
-            <nav aria-label="Creative studio navigation" className="flex gap-3">
-              <Button
-                isLoading={logoutMutation.isPending}
-                onClick={() => logoutMutation.mutate()}
-                variant="ghost"
-              >
-                Log out
-              </Button>
-            </nav>
-          }
-          description="Create and manage the avatars that power your next videos."
-          eyebrow="Creative studio"
-          title={currentUserQuery.data?.user.name ?? 'Your studio'}
-        />
-
         <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-10">
           <SectionShell
             description="This is your home for character creation. Start with one avatar, then keep expanding your roster."

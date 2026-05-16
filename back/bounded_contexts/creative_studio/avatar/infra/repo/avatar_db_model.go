@@ -6,13 +6,12 @@ import (
 )
 
 type avatarDBModel struct {
-	AvatarOptionsJSON []byte     `db:"avatar_options_json"`
-	CreatedAt         time.Time  `db:"created_at"`
-	DeletedAt         *time.Time `db:"deleted_at"`
-	ID                string     `db:"id"`
-	Name              string     `db:"name"`
-	UpdatedAt         time.Time  `db:"updated_at"`
-	UserID            string     `db:"user_id"`
+	CreatedAt time.Time  `db:"created_at"`
+	DeletedAt *time.Time `db:"deleted_at"`
+	ID        string     `db:"id"`
+	Name      string     `db:"name"`
+	UpdatedAt time.Time  `db:"updated_at"`
+	UserID    string     `db:"user_id"`
 }
 
 func (m *avatarDBModel) GetID() string {
@@ -47,12 +46,7 @@ func (m *avatarDBModel) TableName() string {
 }
 
 func (m *avatarDBModel) ToDomain() avatardomain.Avatar {
-	avatarOptions, err := decodeAvatarOptionsJSON(m.AvatarOptionsJSON)
-	if err != nil {
-		avatarOptions = []avatardomain.AvatarOption{}
-	}
-
-	return avatardomain.NewAvatarWithOptions(m.ID, m.UserID, m.Name, avatarOptions)
+	return avatardomain.NewAvatar(m.ID, m.UserID, m.Name)
 }
 
 func (m *avatarDBModel) UpdateValues() map[string]any {

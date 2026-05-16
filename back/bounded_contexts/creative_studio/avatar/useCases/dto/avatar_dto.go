@@ -7,17 +7,17 @@ type AvatarDTO struct {
 	Name string `json:"name"`
 }
 
-func SerializeAvatar(avatar avatardomain.Avatar) AvatarDTO {
+func Serialize(avatar avatardomain.Avatar) AvatarDTO {
 	return AvatarDTO{
 		ID:   avatar.ID,
 		Name: avatar.Name,
 	}
 }
 
-func SerializeAvatarList(avatars []avatardomain.Avatar) []AvatarDTO {
+func SerializeList(avatars []avatardomain.Avatar) []AvatarDTO {
 	avatarDTOs := make([]AvatarDTO, 0, len(avatars))
 	for _, avatar := range avatars {
-		avatarDTOs = append(avatarDTOs, SerializeAvatar(avatar))
+		avatarDTOs = append(avatarDTOs, Serialize(avatar))
 	}
 
 	return avatarDTOs

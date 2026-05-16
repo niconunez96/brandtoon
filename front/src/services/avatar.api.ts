@@ -6,15 +6,7 @@ export type Avatar = {
   name: string
 }
 
-export type AvatarOption = {
-  id: string
-  href: string
-  selected: boolean
-}
-
-export type AvatarDetails = Avatar & {
-  avatarOptions: AvatarOption[]
-}
+export type AvatarDetails = Avatar
 
 export type ListAvatarsResponse = {
   avatars: Avatar[]

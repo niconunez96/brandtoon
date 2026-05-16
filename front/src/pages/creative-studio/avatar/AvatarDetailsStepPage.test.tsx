@@ -1,15 +1,18 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { AvatarDetailsStepPage } from './AvatarDetailsStepPage'
 
+const navigateMock = vi.fn()
 const useAvatarConfigQueryMock = vi.fn()
 const useAvatarQueryMock = vi.fn()
+const useAvatarOptionsQueryMock = vi.fn()
 const useUpdateAvatarConfigMutationMock = vi.fn()
 const useGenerateAvatarOptionsMutationMock = vi.fn()
 const useDeleteAvatarOptionsMutationMock = vi.fn()
 const useSelectAvatarOptionMutationMock = vi.fn()
 
 vi.mock('lucide-react', () => ({
+  ArrowLeft: () => null,
   Sparkles: () => null,
   WandSparkles: () => null,
 }))
@@ -56,6 +59,7 @@ vi.mock('react-hook-form', () => ({
 }))
 
 vi.mock('react-router-dom', () => ({
+  useNavigate: () => navigateMock,
   useParams: () => ({ avatarId: 'avatar-1' }),
 }))
 
@@ -95,8 +99,26 @@ vi.mock('../../../shared/components/ui/card', () => ({
 }))
 
 vi.mock('../../../shared/components/ui/field', () => ({
-  PromptField: ({ title }: { title: string }) => (
-    <textarea aria-label={title} />
+  PromptField: ({
+    onChange,
+    title,
+  }: {
+    onChange?: (event: { target: { value: string } }) => void
+    title: string
+  }) => (
+    <textarea
+      aria-label={title}
+      onChange={() => onChange?.({ target: { value: 'Updated mascot' } })}
+    />
+  ),
+}))
+
+vi.mock('../../../shared/components/ui/toast', () => ({
+  Alert: ({ children, title }: { children: unknown; title: string }) => (
+    <div>
+      <p>{title}</p>
+      <p>{children}</p>
+    </div>
   ),
 }))
 
@@ -111,6 +133,10 @@ vi.mock('../../../queries/useAvatarConfigQuery', () => ({
 
 vi.mock('../../../queries/useAvatarQuery', () => ({
   useAvatarQuery: () => useAvatarQueryMock(),
+}))
+
+vi.mock('../../../queries/useAvatarOptionsQuery', () => ({
+  useAvatarOptionsQuery: () => useAvatarOptionsQueryMock(),
 }))
 
 function renderAvatarDetailsPage() {
@@ -130,21 +156,30 @@ function buildAvatar() {
   return {
     id: 'avatar-1',
     name: 'Studio mascot',
+  }
+}
+
+function buildAvatarOptions() {
+  return {
+    avatarId: 'avatar-1',
     avatarOptions: [
       {
-        id: 'option-1',
         href: 'https://cdn.brandtoon.local/avatars/avatar-1/options/1.png',
+        id: 'option-1',
         selected: false,
+        status: 'DONE',
       },
       {
-        id: 'option-2',
         href: 'https://cdn.brandtoon.local/avatars/avatar-1/options/2.png',
+        id: 'option-2',
         selected: true,
+        status: 'DONE',
       },
       {
-        id: 'option-3',
         href: 'https://cdn.brandtoon.local/avatars/avatar-1/options/3.png',
+        id: 'option-3',
         selected: false,
+        status: 'DONE',
       },
     ],
   }
@@ -159,6 +194,12 @@ function mockLoadedAvatarConfig() {
   })
   useAvatarQueryMock.mockReturnValue({
     data: { avatar: buildAvatar() },
+    isError: false,
+    isLoading: false,
+    refetch: vi.fn(),
+  })
+  useAvatarOptionsQueryMock.mockReturnValue({
+    data: { avatar: buildAvatarOptions() },
     isError: false,
     isLoading: false,
     refetch: vi.fn(),
@@ -223,17 +264,18 @@ describe('AvatarDetailsStepPage', () => {
     ])
   })
 
-  it('renders avatar options from the avatar query instead of the config query', () => {
+  it('renders avatar options from the dedicated avatar-options query', () => {
     mockLoadedAvatarConfig()
-    useAvatarQueryMock.mockReturnValue({
+    useAvatarOptionsQueryMock.mockReturnValue({
       data: {
         avatar: {
-          ...buildAvatar(),
           avatarOptions: [
             {
+              avatarId: 'avatar-1',
               id: 'option-from-avatar',
               href: 'https://cdn.brandtoon.local/avatars/avatar-1/options/avatar-only.png',
               selected: true,
+              status: 'DONE',
             },
           ],
         },
@@ -263,6 +305,59 @@ describe('AvatarDetailsStepPage', () => {
         name: /select avatar option option-2/i,
       }),
     ).not.toBeInTheDocument()
+  })
+
+  it('renders the selected avatar image in the large preview box', () => {
+    mockLoadedAvatarConfig()
+    useSelectAvatarOptionMutationMock.mockReturnValue({
+      isPending: false,
+      mutateAsync: vi.fn(),
+    })
+    useDeleteAvatarOptionsMutationMock.mockReturnValue({
+      isPending: false,
+      mutateAsync: vi.fn(),
+    })
+
+    renderAvatarDetailsPage()
+
+    expect(
+      screen.getByRole('img', { name: /selected avatar preview/i }),
+    ).toHaveAttribute(
+      'src',
+      'https://cdn.brandtoon.local/avatars/avatar-1/options/2.png',
+    )
+  })
+
+  it('keeps the preview fallback when no option is selected yet', () => {
+    mockLoadedAvatarConfig()
+    useAvatarOptionsQueryMock.mockReturnValue({
+      data: {
+        avatar: {
+          avatarOptions: buildAvatarOptions().avatarOptions.map((option) => ({
+            ...option,
+            selected: false,
+          })),
+        },
+      },
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn(),
+    })
+    useSelectAvatarOptionMutationMock.mockReturnValue({
+      isPending: false,
+      mutateAsync: vi.fn(),
+    })
+    useDeleteAvatarOptionsMutationMock.mockReturnValue({
+      isPending: false,
+      mutateAsync: vi.fn(),
+    })
+
+    renderAvatarDetailsPage()
+
+    expect(
+      screen.queryByRole('img', { name: /selected avatar preview/i }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByText(/active prototype/i)).toBeInTheDocument()
   })
 
   it('deletes the marked options and clears the local delete counter', async () => {
@@ -299,6 +394,56 @@ describe('AvatarDetailsStepPage', () => {
     expect(
       await screen.findByRole('button', { name: /delete selected \(0\)/i }),
     )
+  })
+
+  it('shows draft save success feedback, fades it out, and clears it after editing again', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const updateAvatarConfigMutation = {
+        isPending: false,
+        mutateAsync: vi.fn().mockResolvedValue(undefined),
+      }
+
+      mockLoadedAvatarConfig()
+      useUpdateAvatarConfigMutationMock.mockReturnValue(
+        updateAvatarConfigMutation,
+      )
+      useSelectAvatarOptionMutationMock.mockReturnValue({
+        isPending: false,
+        mutateAsync: vi.fn(),
+      })
+      useDeleteAvatarOptionsMutationMock.mockReturnValue({
+        isPending: false,
+        mutateAsync: vi.fn(),
+      })
+
+      renderAvatarDetailsPage()
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: /save as draft/i }))
+      })
+
+      expect(
+        screen.getByText(/your avatar draft was saved\./i),
+      ).toBeInTheDocument()
+
+      act(() => {
+        vi.advanceTimersByTime(2600)
+      })
+
+      expect(
+        screen.queryByText(/your avatar draft was saved\./i),
+      ).not.toBeInTheDocument()
+
+      fireEvent.click(screen.getByRole('button', { name: '3D' }))
+
+      expect(
+        screen.queryByText(/your avatar draft was saved\./i),
+      ).not.toBeInTheDocument()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('disables delete actions while selection is pending', () => {
