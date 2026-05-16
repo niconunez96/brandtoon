@@ -123,16 +123,6 @@ export function CreativeStudioPage() {
     <div className="foundation-page min-h-screen lg:flex">
       <SidebarNav
         bottomContent={<CreativeStudioSidebarFooter />}
-        footer={
-          <div className="space-y-2">
-            <p className="text-xs font-black uppercase tracking-section text-white/72">
-              Creative studio
-            </p>
-            <p className="text-xl font-black tracking-tight text-white">
-              Turn every new avatar into a reusable brand character.
-            </p>
-          </div>
-        }
         items={[{ active: true, href: '/creative-studio', label: 'Avatars' }]}
         title="Brandtoon"
       />
