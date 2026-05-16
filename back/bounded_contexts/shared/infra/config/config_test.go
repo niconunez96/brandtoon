@@ -29,4 +29,3 @@ func TestLoadConfigLoadsAvatarGenerationSettings(t *testing.T) {
 		t.Fatalf("unexpected public file prefix %q", config.PublicFileURLPrefix)
 	}
 }
-

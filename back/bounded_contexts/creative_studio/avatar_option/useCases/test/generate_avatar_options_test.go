@@ -240,7 +240,9 @@ func TestGenerateAvatarOptionsUses3DAntiPatternPrompt(t *testing.T) {
 						t.Fatalf("expected prompt to omit personality, got %q", prompt)
 					}
 					promptChecked <- struct{}{}
-					return []avataroptiondomain.GeneratedAvatarImage{{ContentType: "image/png", Data: []byte("image-one")}}, nil
+					return []avataroptiondomain.GeneratedAvatarImage{
+						{ContentType: "image/png", Data: []byte("image-one")},
+					}, nil
 				},
 			},
 			AvatarRepo: &avatarmocks.AvatarRepositoryMock{
@@ -256,7 +258,9 @@ func TestGenerateAvatarOptionsUses3DAntiPatternPrompt(t *testing.T) {
 			},
 			FileStorage: &sharedmocks.FileStorageMock{
 				StoreFunc: func(ctx context.Context, input shareddomain.StoreFileInput) (shareddomain.StoredFile, error) {
-					return shareddomain.StoredFile{PublicURL: "http://127.0.0.1:8888/files/" + input.Directory + "/" + input.Name + ".png"}, nil
+					return shareddomain.StoredFile{
+						PublicURL: "http://127.0.0.1:8888/files/" + input.Directory + "/" + input.Name + ".png",
+					}, nil
 				},
 			},
 		},
