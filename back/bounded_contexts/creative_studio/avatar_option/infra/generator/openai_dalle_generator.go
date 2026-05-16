@@ -12,8 +12,6 @@ import (
 	"github.com/openai/openai-go/v3/option"
 )
 
-const defaultOpenAIImageModel = "dall-e-3"
-
 type imageGeneratorClient interface {
 	Generate(ctx context.Context, params openai.ImageGenerateParams) (*openai.ImagesResponse, error)
 }
@@ -31,23 +29,16 @@ func (c openAIImagesClient) Generate(
 
 type OpenAIDALLEGenerator struct {
 	client imageGeneratorClient
-	model  string
 }
 
-func NewOpenAIDALLEGenerator(apiKey string, model string) (*OpenAIDALLEGenerator, error) {
+func NewOpenAIDALLEGenerator(apiKey string) (*OpenAIDALLEGenerator, error) {
 	if strings.TrimSpace(apiKey) == "" {
 		return nil, errors.New("openai api key is required")
-	}
-
-	trimmedModel := strings.TrimSpace(model)
-	if trimmedModel == "" {
-		trimmedModel = defaultOpenAIImageModel
 	}
 
 	client := openai.NewClient(option.WithAPIKey(apiKey))
 	return &OpenAIDALLEGenerator{
 		client: openAIImagesClient{client: &client},
-		model:  trimmedModel,
 	}, nil
 }
 
@@ -61,10 +52,11 @@ func (g *OpenAIDALLEGenerator) GenerateOptions(
 	}
 
 	response, err := g.client.Generate(ctx, openai.ImageGenerateParams{
-		Prompt: prompt,
-		Model:  openai.ImageModel(g.model),
-		N:      openai.Int(int64(count)),
-		Size:   openai.ImageGenerateParamsSize1024x1024,
+		Prompt:  prompt,
+		Model:   openai.ImageModelDallE3,
+		N:       openai.Int(int64(1)),
+		Size:    openai.ImageGenerateParamsSize1024x1024,
+		Quality: openai.ImageGenerateParamsQualityStandard,
 	})
 	if err != nil {
 		return nil, err

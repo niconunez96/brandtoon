@@ -52,8 +52,15 @@ export async function invalidateAvatarConfigQuery(
 }
 
 export function useGenerateAvatarOptionsMutation(avatarId: string) {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: () => generateAvatarOptions(avatarId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: avatarOptionsQueryKey(avatarId),
+      })
+    },
   })
 }
 

@@ -45,6 +45,23 @@ describe('useAvatarConfigQuery mutations', () => {
     })
   })
 
+  it('invalidates the avatar-options query after generating options', async () => {
+    const { avatarOptionsQueryKey } = await import('./useAvatarOptionsQuery')
+    const { useGenerateAvatarOptionsMutation } = await import(
+      './useAvatarConfigQuery'
+    )
+
+    const mutation = useGenerateAvatarOptionsMutation('avatar-v7') as {
+      onSuccess: () => Promise<void>
+    }
+
+    await mutation.onSuccess()
+
+    expect(invalidateQueriesMock).toHaveBeenCalledWith({
+      queryKey: avatarOptionsQueryKey('avatar-v7'),
+    })
+  })
+
   it('invalidates the avatar-options query after deleting options', async () => {
     const { avatarOptionsQueryKey } = await import('./useAvatarOptionsQuery')
     const { useDeleteAvatarOptionsMutation } = await import(

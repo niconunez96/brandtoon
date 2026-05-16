@@ -9,12 +9,27 @@ import { API_BASE_URL } from '../../shared/config/api'
 
 type ToastVisibility = 'hidden' | 'entering' | 'visible' | 'exiting'
 
+function getCompletionToastContent(payload: AvatarGenerationCompletedEvent) {
+  if (payload.outcome === 'FAILURE') {
+    return {
+      description: 'We could not generate avatar options this time. Please try again.',
+      title: `Avatar generation failed for ${payload.avatarName}`,
+    }
+  }
+
+  return {
+    description: 'Your avatar options are ready.',
+    title: `Avatar generation succeeded for ${payload.avatarName}`,
+  }
+}
+
 export function AvatarGenerationEventsProvider({
   children,
 }: PropsWithChildren) {
   const location = useLocation()
   const queryClient = useQueryClient()
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [toastDescription, setToastDescription] = useState<string | null>(null)
   const [toastVisibility, setToastVisibility] =
     useState<ToastVisibility>('hidden')
 
@@ -34,7 +49,9 @@ export function AvatarGenerationEventsProvider({
 
     const handleCompleted = (event: MessageEvent<string>) => {
       const payload = JSON.parse(event.data) as AvatarGenerationCompletedEvent
-      setToastMessage(`The avatar ${payload.avatarName} was generated`)
+      const { description, title } = getCompletionToastContent(payload)
+      setToastMessage(title)
+      setToastDescription(description)
       setToastVisibility('entering')
 
       if (activeAvatarId === payload.avatarId) {
@@ -77,6 +94,7 @@ export function AvatarGenerationEventsProvider({
     const exitTimer = window.setTimeout(() => {
       setToastVisibility('hidden')
       setToastMessage(null)
+      setToastDescription(null)
     }, 250)
 
     return () => window.clearTimeout(exitTimer)
@@ -85,7 +103,7 @@ export function AvatarGenerationEventsProvider({
   return (
     <>
       {children}
-      {toastMessage && toastVisibility !== 'hidden' ? (
+      {toastMessage && toastDescription && toastVisibility !== 'hidden' ? (
         <div className="pointer-events-none fixed right-4 top-4 z-50 sm:right-6 sm:top-6">
           <div
             className={`pointer-events-auto transition-all duration-250 ease-out ${
@@ -99,7 +117,7 @@ export function AvatarGenerationEventsProvider({
               onDismiss={() => setToastVisibility('exiting')}
               title={toastMessage}
             >
-              Your avatar options are ready.
+              {toastDescription}
             </Toast>
           </div>
         </div>

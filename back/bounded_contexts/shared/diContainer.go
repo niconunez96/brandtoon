@@ -208,7 +208,6 @@ func (c *DIContainer) GetAvatarGenerator() (avataroptiondomain.AvatarGenerator, 
 
 		generator, err := avataroptiongenerator.NewOpenAIDALLEGenerator(
 			config.OpenAIAPIKey,
-			config.OpenAIImageModel,
 		)
 		if err != nil {
 			return nil, err

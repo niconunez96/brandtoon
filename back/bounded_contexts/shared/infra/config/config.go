@@ -19,7 +19,6 @@ type Config struct {
 	GoogleRedirectURL        string
 	LocalFileStorageRootPath string
 	OpenAIAPIKey             string
-	OpenAIImageModel         string
 	PublicFileURLPrefix      string
 	ServerAddress            string
 	SessionTTL               time.Duration
@@ -79,18 +78,6 @@ var ENVS = map[string]EnvConfig{
 		Required:     true,
 		UpdateConfig: func(config *Config, value string) { config.OpenAIAPIKey = strings.TrimSpace(value) },
 	},
-	"OPENAI_IMAGE_MODEL": {
-		Required: false,
-		UpdateConfig: func(config *Config, value string) {
-			trimmed := strings.TrimSpace(value)
-			if trimmed == "" {
-				config.OpenAIImageModel = "dall-e-3"
-				return
-			}
-
-			config.OpenAIImageModel = trimmed
-		},
-	},
 	"PUBLIC_FILE_URL_PREFIX": {
 		Required: false,
 		UpdateConfig: func(config *Config, value string) {
@@ -124,7 +111,6 @@ var ENVS = map[string]EnvConfig{
 func LoadConfig() (Config, error) {
 	config := &Config{
 		LocalFileStorageRootPath: "./storage",
-		OpenAIImageModel:         "dall-e-3",
 		PublicFileURLPrefix:      "/files",
 		SessionTTL:               30 * 24 * time.Hour,
 	}

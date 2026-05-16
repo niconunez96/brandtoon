@@ -14,12 +14,14 @@ type SidebarNavItem = {
 }
 
 type SidebarNavProps = HTMLAttributes<HTMLElement> & {
+  bottomContent?: ReactNode
   footer?: ReactNode
   items: SidebarNavItem[]
   title: string
 }
 
 export function SidebarNav({
+  bottomContent,
   className,
   footer,
   items,
@@ -40,7 +42,7 @@ export function SidebarNav({
         <p className="foundation-section-eyebrow">Brandtoon shell</p>
         <h1 className="text-2xl font-black tracking-tight">{title}</h1>
       </div>
-      <nav aria-label="Primary sidebar" className="mt-10 space-y-2">
+      <nav aria-label="Primary sidebar" className="mt-10 flex-1 space-y-2">
         {items.map((item) => {
           const content = (
             <>
@@ -89,10 +91,15 @@ export function SidebarNav({
           )
         })}
       </nav>
-      {footer ? (
-        <Card className="mt-auto rounded-hero bg-gradient-to-br from-coral via-coral-strong to-pink-sample text-white shadow-sticker">
-          {footer}
-        </Card>
+      {footer || bottomContent ? (
+        <div className="mt-auto space-y-4">
+          {footer ? (
+            <Card className="rounded-hero bg-gradient-to-br from-coral via-coral-strong to-pink-sample text-white shadow-sticker">
+              {footer}
+            </Card>
+          ) : null}
+          {bottomContent}
+        </div>
       ) : null}
     </aside>
   )

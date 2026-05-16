@@ -1,4 +1,4 @@
-import { act, render } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AvatarGenerationEventsProvider } from './AvatarGenerationEventsProvider'
 
@@ -28,7 +28,12 @@ vi.mock('../../queries/useAvatarOptionsQuery', () => ({
 }))
 
 vi.mock('../../shared/components/ui/toast', () => ({
-  Toast: ({ children }: { children: unknown }) => <div>{children}</div>,
+  Toast: ({ children, title }: { children: unknown; title: string }) => (
+    <div>
+      <p>{title}</p>
+      <p>{children}</p>
+    </div>
+  ),
 }))
 
 describe('AvatarGenerationEventsProvider', () => {
@@ -80,6 +85,7 @@ describe('AvatarGenerationEventsProvider', () => {
         data: JSON.stringify({
           avatarId: 'avatar-v7',
           avatarName: 'Studio Hero',
+          outcome: 'SUCCESS',
           userId: 'user-v7',
         }),
       } as MessageEvent<string>)
@@ -89,5 +95,99 @@ describe('AvatarGenerationEventsProvider', () => {
       expect.anything(),
       'avatar-v7',
     )
+  })
+
+  it('shows success messaging only for successful completion events', () => {
+    let completedHandler: ((event: MessageEvent<string>) => void) | undefined
+
+    class EventSourceMock {
+      addEventListener(
+        type: string,
+        handler: (event: MessageEvent<string>) => void,
+      ) {
+        if (type === 'avatar-generation.completed') {
+          completedHandler = handler
+        }
+      }
+
+      removeEventListener() {}
+
+      close() {}
+    }
+
+    vi.stubGlobal('EventSource', EventSourceMock)
+    useLocationMock.mockReturnValue({ pathname: '/creative-studio' })
+
+    render(
+      <AvatarGenerationEventsProvider>
+        <div>child</div>
+      </AvatarGenerationEventsProvider>,
+    )
+
+    act(() => {
+      completedHandler?.({
+        data: JSON.stringify({
+          avatarId: 'avatar-v7',
+          avatarName: 'Studio Hero',
+          outcome: 'SUCCESS',
+          userId: 'user-v7',
+        }),
+      } as MessageEvent<string>)
+    })
+
+    expect(
+      screen.getByText('Avatar generation succeeded for Studio Hero'),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Your avatar options are ready.')).toBeInTheDocument()
+    expect(screen.queryByText(/failed/i)).not.toBeInTheDocument()
+  })
+
+  it('shows failure messaging for failed completion events', () => {
+    let completedHandler: ((event: MessageEvent<string>) => void) | undefined
+
+    class EventSourceMock {
+      addEventListener(
+        type: string,
+        handler: (event: MessageEvent<string>) => void,
+      ) {
+        if (type === 'avatar-generation.completed') {
+          completedHandler = handler
+        }
+      }
+
+      removeEventListener() {}
+
+      close() {}
+    }
+
+    vi.stubGlobal('EventSource', EventSourceMock)
+    useLocationMock.mockReturnValue({ pathname: '/creative-studio' })
+
+    render(
+      <AvatarGenerationEventsProvider>
+        <div>child</div>
+      </AvatarGenerationEventsProvider>,
+    )
+
+    act(() => {
+      completedHandler?.({
+        data: JSON.stringify({
+          avatarId: 'avatar-v7',
+          avatarName: 'Studio Hero',
+          outcome: 'FAILURE',
+          userId: 'user-v7',
+        }),
+      } as MessageEvent<string>)
+    })
+
+    expect(
+      screen.getByText('Avatar generation failed for Studio Hero'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'We could not generate avatar options this time. Please try again.',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.queryByText(/succeeded/i)).not.toBeInTheDocument()
   })
 })

@@ -99,6 +99,7 @@ func TestSSERouteBroadcastsOnlyToMatchingUser(t *testing.T) {
 	eventBus.Publish(avataroptionusecases.AvatarGenerationCompletedEvent{
 		AvatarIDValue:   "avatar-v7",
 		AvatarNameValue: "Studio Hero",
+		OutcomeValue:    "SUCCESS",
 		UserIDValue:     "user-v7",
 	})
 
@@ -112,6 +113,9 @@ func TestSSERouteBroadcastsOnlyToMatchingUser(t *testing.T) {
 		}
 		if !strings.Contains(result.event, "Studio Hero") {
 			t.Fatalf("expected avatar name payload, got %q", result.event)
+		}
+		if !strings.Contains(result.event, `"outcome":"SUCCESS"`) {
+			t.Fatalf("expected success outcome payload, got %q", result.event)
 		}
 		cancelUserOne()
 	case <-time.After(time.Second):

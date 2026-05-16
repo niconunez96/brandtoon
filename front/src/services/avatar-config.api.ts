@@ -14,6 +14,7 @@ export type AvatarConfig = {
 export type AvatarGenerationCompletedEvent = {
   avatarId: string
   avatarName: string
+  outcome: 'SUCCESS' | 'FAILURE'
   userId: string
 }
 

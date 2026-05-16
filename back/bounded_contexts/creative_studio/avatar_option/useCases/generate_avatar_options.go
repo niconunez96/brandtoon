@@ -15,7 +15,7 @@ import (
 
 const AvatarGenerationCompletedEventName = "avatar-generation.completed"
 const generateAvatarOptionsJobTimeout = 2 * time.Minute
-const generatedAvatarOptionCount = 2
+const generatedAvatarOptionCount = 1
 
 type GenerateAvatarOptionsCommand struct {
 	AvatarID string
@@ -25,6 +25,7 @@ type GenerateAvatarOptionsCommand struct {
 type AvatarGenerationCompletedEvent struct {
 	AvatarIDValue   string `json:"avatarId"`
 	AvatarNameValue string `json:"avatarName"`
+	OutcomeValue    string `json:"outcome"`
 	UserIDValue     string `json:"userId"`
 }
 
@@ -117,9 +118,11 @@ func processAvatarOptionsGeneration(
 	if err != nil {
 		telemetry.LogError("Error while generating avatar options", err)
 		markAllFailed(jobCtx, pendingOptions, deps.AvatarOptionRepo)
-		publishAvatarGenerationCompleted(cmd, avatar, deps.EventBus)
+		publishAvatarGenerationCompleted(cmd, avatar, avatarGenerationOutcomeFailure, deps.EventBus)
 		return
 	}
+
+	successfullyGeneratedOptions := 0
 
 	for index, option := range pendingOptions {
 		if index >= len(generatedImages) {
@@ -141,11 +144,25 @@ func processAvatarOptionsGeneration(
 
 		if err := deps.AvatarOptionRepo.MarkDone(jobCtx, option.ID, storedFile.PublicURL); err != nil {
 			telemetry.LogError("Error while marking avatar option done", err)
+			_ = deps.AvatarOptionRepo.MarkFailed(jobCtx, option.ID)
+			continue
 		}
+
+		successfullyGeneratedOptions++
 	}
 
-	publishAvatarGenerationCompleted(cmd, avatar, deps.EventBus)
+	outcome := avatarGenerationOutcomeFailure
+	if successfullyGeneratedOptions > 0 {
+		outcome = avatarGenerationOutcomeSuccess
+	}
+
+	publishAvatarGenerationCompleted(cmd, avatar, outcome, deps.EventBus)
 }
+
+const (
+	avatarGenerationOutcomeSuccess = "SUCCESS"
+	avatarGenerationOutcomeFailure = "FAILURE"
+)
 
 func markAllFailed(
 	ctx context.Context,
@@ -160,6 +177,7 @@ func markAllFailed(
 func publishAvatarGenerationCompleted(
 	cmd GenerateAvatarOptionsCommand,
 	avatar avatardomain.Avatar,
+	outcome string,
 	eventBus shareddomain.EventBus,
 ) {
 	if eventBus == nil {
@@ -170,6 +188,7 @@ func publishAvatarGenerationCompleted(
 		AvatarGenerationCompletedEvent{
 			AvatarIDValue:   cmd.AvatarID,
 			AvatarNameValue: avatar.Name,
+			OutcomeValue:    outcome,
 			UserIDValue:     cmd.UserID,
 		},
 	)
@@ -179,14 +198,20 @@ func buildAvatarGenerationPrompt(
 	avatar avatardomain.Avatar,
 	avatarConfig avatarconfigdomain.AvatarConfig,
 ) string {
+	styleSpecificAntiPattern := "Avoid flat 2D, vector, or inked outline rendering."
+	if avatarConfig.ArtisticStyle == avatarconfigdomain.ArtisticStyle2D {
+		styleSpecificAntiPattern = "Avoid any 3D, CGI, clay, or realistic lighting treatment."
+	}
+
 	return strings.TrimSpace(fmt.Sprintf(
 		"Create a polished brand avatar portrait for the character named %s. "+
-			"Base concept: %s. Artistic style: %s. Personality: %s. "+
-			"Produce a single centered character variation with a clean background and "+
-			"strong silhouette, suitable for product avatar selection.",
+			"Base concept: %s. Artistic style: %s. "+
+			"Follow the artistic style STRICTLY with no style drift. "+
+			"Produce exactly one isolated single centered character with a strong silhouette, suitable for product avatar selection. "+
+			"No background. No environment. No floor. No props. No text. %s",
 		avatar.Name,
 		avatarConfig.Prompt,
 		avatarConfig.ArtisticStyle,
-		avatarConfig.Personality,
+		styleSpecificAntiPattern,
 	))
 }

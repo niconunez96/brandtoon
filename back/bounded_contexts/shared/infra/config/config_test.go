@@ -25,11 +25,8 @@ func TestLoadConfigLoadsAvatarGenerationSettings(t *testing.T) {
 		t.Fatalf("unexpected storage root %q", config.LocalFileStorageRootPath)
 	}
 
-	if config.OpenAIImageModel != "dall-e-3" {
-		t.Fatalf("unexpected openai model %q", config.OpenAIImageModel)
-	}
-
 	if config.PublicFileURLPrefix != "/files" {
 		t.Fatalf("unexpected public file prefix %q", config.PublicFileURLPrefix)
 	}
 }
+

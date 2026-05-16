@@ -8,7 +8,8 @@ import (
 )
 
 type imageGeneratorClientStub struct {
-	called bool
+	called     bool
+	lastParams openai.ImageGenerateParams
 }
 
 func (s *imageGeneratorClientStub) Generate(
@@ -16,6 +17,7 @@ func (s *imageGeneratorClientStub) Generate(
 	params openai.ImageGenerateParams,
 ) (*openai.ImagesResponse, error) {
 	s.called = true
+	s.lastParams = params
 	return &openai.ImagesResponse{}, nil
 }
 
@@ -23,7 +25,7 @@ func TestGenerateOptionsReturnsEmptySliceWithoutCallingClientWhenCountIsZero(t *
 	t.Parallel()
 
 	client := &imageGeneratorClientStub{}
-	generator := &OpenAIDALLEGenerator{client: client, model: "dall-e-3"}
+	generator := &OpenAIDALLEGenerator{client: client}
 
 	images, err := generator.GenerateOptions(context.Background(), "hero prompt", 0)
 	if err != nil {
