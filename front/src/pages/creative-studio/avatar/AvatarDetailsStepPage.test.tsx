@@ -399,45 +399,51 @@ describe('AvatarDetailsStepPage', () => {
   it('shows draft save success feedback, fades it out, and clears it after editing again', async () => {
     vi.useFakeTimers()
 
-    const updateAvatarConfigMutation = {
-      isPending: false,
-      mutateAsync: vi.fn().mockResolvedValue(undefined),
+    try {
+      const updateAvatarConfigMutation = {
+        isPending: false,
+        mutateAsync: vi.fn().mockResolvedValue(undefined),
+      }
+
+      mockLoadedAvatarConfig()
+      useUpdateAvatarConfigMutationMock.mockReturnValue(
+        updateAvatarConfigMutation,
+      )
+      useSelectAvatarOptionMutationMock.mockReturnValue({
+        isPending: false,
+        mutateAsync: vi.fn(),
+      })
+      useDeleteAvatarOptionsMutationMock.mockReturnValue({
+        isPending: false,
+        mutateAsync: vi.fn(),
+      })
+
+      renderAvatarDetailsPage()
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: /save as draft/i }))
+      })
+
+      expect(
+        screen.getByText(/your avatar draft was saved\./i),
+      ).toBeInTheDocument()
+
+      act(() => {
+        vi.advanceTimersByTime(2600)
+      })
+
+      expect(
+        screen.queryByText(/your avatar draft was saved\./i),
+      ).not.toBeInTheDocument()
+
+      fireEvent.click(screen.getByRole('button', { name: '3D' }))
+
+      expect(
+        screen.queryByText(/your avatar draft was saved\./i),
+      ).not.toBeInTheDocument()
+    } finally {
+      vi.useRealTimers()
     }
-
-    mockLoadedAvatarConfig()
-    useUpdateAvatarConfigMutationMock.mockReturnValue(updateAvatarConfigMutation)
-    useSelectAvatarOptionMutationMock.mockReturnValue({
-      isPending: false,
-      mutateAsync: vi.fn(),
-    })
-    useDeleteAvatarOptionsMutationMock.mockReturnValue({
-      isPending: false,
-      mutateAsync: vi.fn(),
-    })
-
-    renderAvatarDetailsPage()
-
-    fireEvent.click(screen.getByRole('button', { name: /save as draft/i }))
-
-    expect(
-      await screen.findByText(/your avatar draft was saved\./i),
-    ).toBeInTheDocument()
-
-    act(() => {
-      vi.advanceTimersByTime(2600)
-    })
-
-    expect(
-      screen.queryByText(/your avatar draft was saved\./i),
-    ).not.toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('button', { name: '3D' }))
-
-    expect(
-      screen.queryByText(/your avatar draft was saved\./i),
-    ).not.toBeInTheDocument()
-
-    vi.useRealTimers()
   })
 
   it('disables delete actions while selection is pending', () => {
